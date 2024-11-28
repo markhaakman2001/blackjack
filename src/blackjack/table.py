@@ -176,7 +176,11 @@ class Table:
 
 table1 = Table(hands=2)
 #table1.deal_first_cards()
+def main():
+    table1 = Table(hands=3)
+    table1.PlayRound()
 
-table1.PlayRound()
+if __name__ == "__main__":
+    main()
         
         

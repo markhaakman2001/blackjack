@@ -9,6 +9,10 @@ readme = "README.md"
 python = "^3.12"
 numpy = "^2.1.3"
 
+[tool.poetry.scripts]
+blackjack = "blackjack.table:main"
+
+
 
 [build-system]
 requires = ["poetry-core"]
