@@ -56,11 +56,12 @@ class Shoe:
 
 class Hand:
     
-    def __init__(self):
+    def __init__(self, bet=0):
         self.cards = []
         self.total = 0
         self.hands = []
         self.results = []
+        self.bet = bet
         self.split = False
     
     def addcard(self, card):
@@ -94,34 +95,43 @@ class Hand:
     
     
 
-    def playsplithand(self, shoe):
+    # def playsplithand(self, shoe, bank):
 
-        for i, hand in enumerate(self.hands):
-            print(f"SplitHand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
-            choice = input("Hit, stand or Split?")
-            if choice == "h":
-                play = True
+    #     for i, hand in enumerate(self.hands):
+    #         print(f"SplitHand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+    #         if hand.cards[0] == hand.cards[1]:
+    #             choice = input("Hit, Stand, Split or Double?")
+    #         else:
+    #             choice = input("Hit, Stand, or Double")            
+            
+    #         if choice in ["h", "d"]:
+    #             play = True
 
-                while play == True:
+    #             while play == True:
 
-                    play = hand.PlayHand(shoe.getcard())
+    #                 if choice == "d":
+    #                     play = hand.PlayHand(shoe.getcard(), no_double=False)
+    #                 else:
+    #                     play = hand.PlayHand(shoe.getcard())
+            
 
-            elif choice == "split":
-                self.splithand(shoe)
-                self.playsplithand(shoe)
+    #         elif choice == "split":
+    #             self.splithand(shoe, bank)
+    #             self.playsplithand(shoe, bank)
         
             
             
 
 
-    def splithand(self, shoe):
+    def splithand(self, shoe, bank):
         self.split = True
         self.hands = [Hand(), Hand()]
 
         for i, hand in enumerate(self.hands):
+            bank.betamount(hand, self.bet)
+            
             hand.addcard(self.cards[0])
             hand.addcard(shoe.getcard())
-            
             
     
     
@@ -170,10 +180,6 @@ class Hand:
             play = input(f"Hit or Stand?")
             if play == "h":
                 return True
-            elif play == "Split":
-                self.splithand()
-                
-                return False
         else:
             return False
 
@@ -207,9 +213,9 @@ class Bank:
             hands (int): How many hands the player is playing with
         """             
         self.funds = 0
-        self.hand = []
+        self.bets = []
         for x in range(hands):
-            self.hand.append(0)
+            self.bets.append(0)
         self.bank = 10**6
     
     def deposit(self, amount = 10**4):
@@ -220,26 +226,35 @@ class Bank:
         """        
         self.funds += amount
     
-    def betamount(self, amount = 100):
+    def betamount(self, hand, amount = 100):
         """Place a bet for a certain amount
 
         Args:
             amount (int, optional): How much money to bet. Defaults to 100.
         """        
-        self.hand = 0
-        self.hand += amount
+        hand.bet += amount
         self.funds -= amount
-        print(f"Your bet is ${self.hand}")
+        print(f"Your bet is {hand.bet}")
+
+    def amount_won(self, result, hand):
+        total_bet = hand.bet
+        calculator = { 
+            "BlackJack, win": lambda x: x * 2.5,
+            "Lose": lambda x: x * 0,
+            "Push": lambda x: x * 1,
+            "Win": lambda x: x * 2
+        }
+        win = calculator.get(result)(total_bet)
+        self.funds += win
+        return win
     
-    def doubled(self):
-        self.hand += self.hand
-        self.funds -= (self.hand / 2)
+    def doubled(self, i):
+        self.bets[i] += self.bets[i]
+        self.funds -= (self.bets[i] / 2)
         print(f"You doubled, your bet is now ${self.hand}")
 
-    def split(self):
-        hand = self.hand
-        self.hand = [hand, hand]
-        self.funds -= self.hand[0]
+    def split(self, i):
+        
         print(f"Split, your bet is now ${self.hand}")
 
     def winlosepush(self, condition = False):

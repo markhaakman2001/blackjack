@@ -23,7 +23,6 @@ class Player:
             hand.addcard(cards[i])
 
 
-
     def print_hands(self):
         
         for hand in self.hands:

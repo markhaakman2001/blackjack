@@ -8,8 +8,11 @@ class Table:
         self.shoe = Shoe(8)
         self.player = Player(hands)
         self.dealer = Dealer()
+        self.bank = Bank(hands)
         self.hands = self.player.hands
         self.results = []
+        self.bets = []
+        self.bank.deposit()
         
     def deal_first_cards(self):
 
@@ -63,6 +66,7 @@ class Table:
 
     def playhand(self, hand, i):
             
+            
             print(f"Hand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}, dealer upcard is {self.dealer.dealerupcard()}")
             if hand.blackjack():
 
@@ -83,48 +87,59 @@ class Table:
             else:
                 choice = input("Hit or Stand?")
 
-            if choice == "h":
+            if choice in ["h", "d"]:
 
                 play = True
 
                 while play == True:
 
-                    play = hand.PlayHand(self.shoe.getcard())
+                    if choice == "d":
+                        self.bank.betamount(hand, hand.bet)
+                        play = hand.PlayHand(self.shoe.getcard(), no_double=False)
+                    else:
 
-                
+                        play = hand.PlayHand(self.shoe.getcard())
+
+                self.results.append(hand)
+                self.bets.append(hand.bet)
+                       
 
             elif choice == "split":
-                    
-                self.split(hand)
                 
-            elif choice == "d":
-                play = True
-
-                while play:
-                    
-                    play = hand.PlayHand(self.shoe.getcard(), no_double=False)
-
-            else:
+                self.split(hand)
+            
+            elif choice == "s":
                 self.results.append(hand)
-                print(self.results)
+                
+                
 
 
     def split(self, hand):
-        hand.splithand(self.shoe)
+        hand.splithand(self.shoe, bank=self.bank)
         print(f"You split your hand")
         print(hand.hands[0].cards, hand.hands[1].cards)
         for i, h in enumerate(hand.hands):
             self.playhand(h, i)
-        
     
 
+    def place_bets(self):
+
+        for i, hand in enumerate(self.hands):
+            bet = float(input(f"Hand {i+1}, Place your bet. \n"))
+            hand.bet += float()
+            self.bank.betamount(hand, amount=bet)
+        
+
     def PlayRound(self):
+
+        self.place_bets()
+
         self.results = []
         
         self.deal_first_cards()
         self.print_first_results()
-        upcard = self.dealer.dealerupcard()
         
+        print(self.shoe.cards)
 
         for i, hand in enumerate(self.hands):
 
@@ -140,21 +155,21 @@ class Table:
             dealerplay = self.dealer.hand.dealerturn()
         
         final_results = []
-
-        print(self.results)
-        for i, hand in enumerate(self.results):
-
-            
-            result = self.winlose(hand)
-            print(f"Hand {i+1}, {result=}")
-            final_results.append(self.winlose(hand))
-
-
-
-            
-            
-                    
         
+        print(self.results)
+
+        for i, hand in enumerate(self.results):
+            
+            results = self.winlose(hand)
+            winnings = self.bank.amount_won(result=results, hand=hand)
+            print(f"Hand {i+1}, {results=}, you win ${winnings}")
+            final_results.append(self.winlose(hand))
+        
+        self.bets = [hand.bet for hand in self.results]
+        print(f"Your funds are now ${self.bank.funds}")
+
+        self.player.reset()
+        self.dealer.reset()
       
         
         
