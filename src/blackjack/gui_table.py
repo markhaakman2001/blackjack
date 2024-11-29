@@ -1,10 +1,16 @@
 from src.blackjack.shoehand import Shoe, Hand, Bank
 from src.blackjack.playerdealer import Player, Dealer
+from PySide6 import QtWidgets
+from PySide6.QtCore import Slot
+import sys
+import time
 
 
 class Table:
 
     def __init__(self, hands=1):
+
+        super().__init__()
         self.shoe = Shoe(8)
         self.player = Player(hands)
         self.dealer = Dealer()
@@ -13,8 +19,7 @@ class Table:
         self.results = []
         self.bets = []
         self.bank.deposit()
-        
-        
+    
     def deal_first_cards(self):
 
         for x in range(2):
@@ -24,8 +29,9 @@ class Table:
 
 
     def print_first_results(self):
-        self.player.print_hands()
-        print(f"Dealer upcard is {self.dealer.dealerupcard()}")
+        prints = self.player.print_hands()
+        prints.append(f"Dealer upcard is {self.dealer.dealerupcard()}")
+        return prints
     
 
     def check_for_win(self, dealertotal, hand):
@@ -69,12 +75,12 @@ class Table:
     def playhand(self, hand, i):
             
             
-            print(f"Hand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}, dealer upcard is {self.dealer.dealerupcard()}")
+            hand_info = f"Hand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}, dealer upcard is {self.dealer.dealerupcard()}"
             if hand.blackjack():
 
                 print("Blackjack")
                 self.results.append(hand)
-                return
+                return hand_info + "BlackJack!"
                 
             
                 
@@ -112,8 +118,7 @@ class Table:
             
             elif choice == "s":
                 self.results.append(hand)
-                
-                
+    
 
 
     def split(self, hand):
@@ -127,11 +132,11 @@ class Table:
     def place_bets(self):
 
         for i, hand in enumerate(self.hands):
-            bet = float(input(f"Hand {i+1}, Place your bet. \n"))
+            bet = self.ui.bets[i]
             hand.bet += float(bet)
             self.bank.betamount(hand, amount=bet)
         
-
+    @Slot()
     def PlayRound(self):
 
         self.place_bets()
@@ -172,17 +177,13 @@ class Table:
 
         self.player.reset()
         self.dealer.reset()
-      
-        
-        
 
-table1 = Table(hands=2)
-#table1.deal_first_cards()
+
 def main():
-    table1 = Table(hands=3)
-    table1.PlayRound()
+    app = QtWidgets.QApplication(sys.argv)
+    table = Table()
+    table.ui.show()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
-        
-        

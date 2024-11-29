@@ -1,6 +1,6 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot
-from src.blackjack.table import Table
+from src.blackjack.gui_table import Table
 import sys
 import time
 
@@ -11,21 +11,44 @@ class BJinterface(QtWidgets.QMainWindow):
 
         super().__init__()
         
+
         central_widget =  QtWidgets.QWidget()
         self.setCentralWidget(central_widget)
 
         self.vbox = QtWidgets.QVBoxLayout(central_widget)
-        self.text_edit = QtWidgets.QTextEdit()
-        self.vbox.addWidget(self.text_edit)
+        self.deal_label= QtWidgets.QLabel(text="Dealer:")
+        self.vbox.addWidget(self.deal_label)
 
+        self.deal_info = QtWidgets.QTextEdit(self)
+        self.deal_info.setReadOnly(True)
+        self.vbox.addWidget(self.deal_info)
+
+        self.hand_lbl = QtWidgets.QLabel(text="Your hand:")
+        self.vbox.addWidget(self.hand_lbl)
+
+        self.hand_info = QtWidgets.QTextEdit(self)
+        self.hand_info.setReadOnly(True)
+        self.vbox.addWidget(self.hand_info)
+
+        self.display_txt = QtWidgets.QTextEdit(self)
+        self.display_txt.setReadOnly(True)
+        self.vbox.addWidget(self.display_txt)
+        
         self.hbox_top = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(self.hbox_top)
+
 
         hbox = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(hbox)
 
         hbox2 = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(hbox2)
+
+        hbox3 = QtWidgets.QHBoxLayout()
+        self.vbox.addLayout(hbox3)
+
+        self.confirm_btn = QtWidgets.QPushButton(text="Confirm Bet")
+        hbox3.addWidget(self.confirm_btn)
 
         self.hit_button = QtWidgets.QPushButton(text="hit")
         hbox.addWidget(self.hit_button)
@@ -45,6 +68,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.play_button = QtWidgets.QPushButton(text="Play")
         hbox2.addWidget(self.play_button)
 
+        
 
         self.n_hands.setValue(2)
         self.n_hands.setMinimum(1)
@@ -57,44 +81,28 @@ class BJinterface(QtWidgets.QMainWindow):
 
         self.play_button.clicked.connect(self.start_round)
 
-    @Slot()
-    def stand_text(self):
-        self.text_edit.clear()
-        self.text_edit.append("You stand")
-    
-    @Slot()
-    def hit_text(self):
-        self.text_edit.clear()
-        self.text_edit.append("You hit")
-    
-    @Slot()
-    def split_text(self):
-        self.text_edit.clear()
-        self.text_edit.append("You split")
+        self.table = None
 
-    @Slot()
-    def double_text(self):
-        self.text_edit.clear()
-        self.text_edit.append("You doubled")
+    def update_txt(self, text):
+        self.display_txt.clear()
+        self.display_txt.append(text)
+
+    def update_player_hand(self):
+
+        if self.table:
+            
+
+    def hit(self):
+
+        if self.table:
+            card = self.table.shoe.getcard()
+            self.table.player.hands[0].addcard(card)
+            self.update_txt(f"You hit and received: {card}.")
+            self.update_player_hand()
     
     @Slot()
     def start_round(self):
-        self.text_edit.clear()
-        self.text_edit.append("Round Started")
-        time.sleep(2)
-        self.text_edit.clear()
-        self.text_edit.append("Dealer:")
-        self.hands = []
-        for x in range(self.n_hands.value()):
-            hand_ui = QtWidgets.QTextEdit()
-            hand_ui.windowTitle()
-            hand_ui.append(f"Hand {x}")
-            
-            self.hands.append(hand_ui)
-            self.hbox_top.addWidget(hand_ui)
-
-        table = Table(hands=self.n_hands.value())
-        #table.PlayRound()
+        
         
 
 
