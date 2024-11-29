@@ -44,7 +44,7 @@ class Dealer:
     def dealerplay(self, card):
         
         self.hand.addcard(card)
-        print(f"Dealer pulls {card}, total is {self.hand.handtotal(self.hand.softhand())}")
+        return f"Dealer pulls {card}, , cards are {self.hand.cards}, total is {self.hand.handtotal(self.hand.softhand())}"
     
     def reset(self):
         self.__init__()

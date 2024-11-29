@@ -19,6 +19,7 @@ class Table:
         self.results = []
         self.bets = []
         self.bank.deposit()
+        
     
     def deal_first_cards(self):
 
@@ -29,9 +30,15 @@ class Table:
 
 
     def print_first_results(self):
-        prints = self.player.print_hands()
-        prints.append(f"Dealer upcard is {self.dealer.dealerupcard()}")
-        return prints
+        first_results = []
+
+        for i, hand in enumerate(self.hands):
+            first_results.append(f"Hand {i + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+        
+        dealerupcard = f"Dealer upcard is {self.dealer.dealerupcard()}"
+
+        return first_results, dealerupcard
+
     
 
     def check_for_win(self, dealertotal, hand):
@@ -70,55 +77,19 @@ class Table:
         result = self.check_for_win(dealer_total, hand)
         return result
 
+    def hitcard(self, hand):
+        card = self.shoe.getcard()
+        hand.addcard(card)
+        text = f"Cards are {hand.cards}, total: {hand.handtotal(hand.softhand())}"
+        return card, text
 
 
-    def playhand(self, hand, i):
-            
-            
-            hand_info = f"Hand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}, dealer upcard is {self.dealer.dealerupcard()}"
-            if hand.blackjack():
+    def NextOrNot(self, hand):
 
-                print("Blackjack")
-                self.results.append(hand)
-                return hand_info + "BlackJack!"
-                
-            
-                
-            elif len(hand.cards) == 2:
-
-                if hand.cards[0] == hand.cards[1]:
-                    choice = input("Hit, Stand, Split or Double?\n")
-                    
-                else:
-                    choice = input("Hit, Stand or Double? \n")
-                
-            else:
-                choice = input("Hit or Stand?")
-
-            if choice in ["h", "d"]:
-
-                play = True
-
-                while play == True:
-
-                    if choice == "d":
-                        self.bank.betamount(hand, hand.bet)
-                        play = hand.PlayHand(self.shoe.getcard(), no_double=False)
-                    else:
-
-                        play = hand.PlayHand(self.shoe.getcard())
-
-                self.results.append(hand)
-                self.bets.append(hand.bet)
-                       
-
-            elif choice == "split":
-                
-                self.split(hand)
-            
-            elif choice == "s":
-                self.results.append(hand)
-    
+        if hand.active:
+            return False
+        else:
+            return True
 
 
     def split(self, hand):
@@ -132,19 +103,22 @@ class Table:
     def place_bets(self):
 
         for i, hand in enumerate(self.hands):
-            bet = self.ui.bets[i]
+            bet = float(input(f"Hand {i+1}, place your bet \n"))
             hand.bet += float(bet)
             self.bank.betamount(hand, amount=bet)
-        
-    @Slot()
+
+    def addresults(self, hand):
+        self.results.append(hand)    
+    
     def PlayRound(self):
 
-        self.place_bets()
+        for hand in self.hands:
+            self.bank.betamount(hand, 100)
 
         self.results = []
         
         self.deal_first_cards()
-        self.print_first_results()
+        
         
         print(self.shoe.cards)
 

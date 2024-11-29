@@ -63,7 +63,11 @@ class Hand:
         self.results = []
         self.bet = bet
         self.split = False
+        self.active = True
     
+    def deactivate(self):
+        self.active = False
+
     def addcard(self, card):
         """Add a card to the hand
 
@@ -92,37 +96,8 @@ class Hand:
                 self.total -= 10
         
         return self.total
-    
-    
-
-    # def playsplithand(self, shoe, bank):
-
-    #     for i, hand in enumerate(self.hands):
-    #         print(f"SplitHand {i+1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
-    #         if hand.cards[0] == hand.cards[1]:
-    #             choice = input("Hit, Stand, Split or Double?")
-    #         else:
-    #             choice = input("Hit, Stand, or Double")            
-            
-    #         if choice in ["h", "d"]:
-    #             play = True
-
-    #             while play == True:
-
-    #                 if choice == "d":
-    #                     play = hand.PlayHand(shoe.getcard(), no_double=False)
-    #                 else:
-    #                     play = hand.PlayHand(shoe.getcard())
-            
-
-    #         elif choice == "split":
-    #             self.splithand(shoe, bank)
-    #             self.playsplithand(shoe, bank)
         
-            
-            
-
-
+    
     def splithand(self, shoe, bank):
         self.split = True
         self.hands = [Hand(), Hand()]
@@ -145,6 +120,7 @@ class Hand:
             if card == 11:
                 return True
         return False
+    
     
     def dealerturn(self):
         """Dealers turn to take cards. stands on 17 or higher. hits on soft 17.

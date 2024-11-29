@@ -11,6 +11,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
         super().__init__()
         
+        self.num = 0
 
         central_widget =  QtWidgets.QWidget()
         self.setCentralWidget(central_widget)
@@ -23,7 +24,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.deal_info.setReadOnly(True)
         self.vbox.addWidget(self.deal_info)
 
-        self.hand_lbl = QtWidgets.QLabel(text="Your hand:")
+        self.hand_lbl = QtWidgets.QLabel(text="Your hands:")
         self.vbox.addWidget(self.hand_lbl)
 
         self.hand_info = QtWidgets.QTextEdit(self)
@@ -36,7 +37,7 @@ class BJinterface(QtWidgets.QMainWindow):
         
         self.hbox_top = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(self.hbox_top)
-
+        
 
         hbox = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(hbox)
@@ -73,11 +74,9 @@ class BJinterface(QtWidgets.QMainWindow):
         self.n_hands.setValue(2)
         self.n_hands.setMinimum(1)
         self.n_hands.setMaximum(8)
-
-        self.double_button.clicked.connect(self.double_text)
-        self.hit_button.clicked.connect(self.hit_text)
-        self.stand_button.clicked.connect(self.stand_text)
-        self.split_button.clicked.connect(self.split_text)
+        
+        self.hit_button.clicked.connect(self.hit)
+        self.stand_button.clicked.connect(self.stand)
 
         self.play_button.clicked.connect(self.start_round)
 
@@ -87,21 +86,113 @@ class BJinterface(QtWidgets.QMainWindow):
         self.display_txt.clear()
         self.display_txt.append(text)
 
-    def update_player_hand(self):
+    def update_dealer(self, text):
+        self.deal_info.clear()
+        self.deal_info.append(text)
+    
+    def update_player(self, text):
+        self.hand_info.clear()
+        self.hand_info.append(text)
+
+    def first_cards(self):
 
         if self.table:
+            self.table.deal_first_cards()
+            first_results, dealerupcard = self.table.print_first_results()
             
+            self.update_player(text = "\n".join([first_results[x] for x in range(len(first_results))]))
+            
+            self.update_dealer(dealerupcard)
+
+    def final_results(self):
+        if self.table:
+            results = [self.table.winlose(hand) for hand in self.table.hands]
+            self.update_txt(f"\n".join([results[x] for x in range(len(results))]))
+        
+
+
+
+    def nexthand(self, lasthand=False):
+
+        if self.table:
+
+            if self.lasthand():
+                
+                dealerplay = self.table.dealer.hand.dealerturn()
+
+                while dealerplay:
+
+                    dealer_card = self.table.shoe.getcard()
+                    txt = self.table.dealer.dealerplay(dealer_card)
+                    self.update_dealer(txt)
+                    dealerplay = self.table.dealer.hand.dealerturn()
+
+
+                self.final_results()
+            
+            else:
+                self.table.addresults(self.table.hands[self.num - 1])
+                hand = self.table.hands[self.num]
+                self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+                self.update_txt(f"Hand {self.num + 1}, pick an action")
+
+    def lasthand(self):
+
+        if self.table:
+
+            if self.num == len(self.table.hands):
+                return True
+            else:
+                return False
+
+    def checkforbust(self):
+        hand = self.table.hands[self.num]
+
+        if hand.handtotal(hand.softhand()) > 21:
+            self.update_txt("You busted")
+            time.sleep(0.5)
+            hand.deactivate()
+            self.num += 1
+            
+            self.nexthand(self.lasthand())
 
     def hit(self):
 
         if self.table:
-            card = self.table.shoe.getcard()
-            self.table.player.hands[0].addcard(card)
-            self.update_txt(f"You hit and received: {card}.")
-            self.update_player_hand()
+            card, text = self.table.hitcard(self.table.hands[self.num])
+            self.update_txt(f"You hit, your new card is {card}.")
+            self.update_player(text)
+            time.sleep(0.5)
+            self.checkforbust()
+
+    def stand(self):
+
+        if self.table:
+            self.update_txt("You chose stand")
+            self.table.hands[self.num].deactivate()
+            self.num += 1
+            time.sleep(0.5)
+            self.nexthand()
     
-    @Slot()
+    
     def start_round(self):
+        self.num = 0
+        self.table = Table(hands=2)
+        self.update_txt("Round started, good luck!")
+        time.sleep(1.5)
+        self.first_cards()
+        
+        self.update_txt("Hand 1, pick an action")
+        
+        
+        
+            
+        
+
+
+                
+                
+                
         
         
 
