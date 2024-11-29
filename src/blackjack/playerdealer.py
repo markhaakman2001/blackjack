@@ -1,4 +1,4 @@
-from shoehand import Shoe, Hand, Bank
+from src.blackjack.shoehand import Shoe, Hand, Bank
 
 class Player:
 

@@ -2,7 +2,7 @@ import numpy as np
 import random
 from math import *
 import matplotlib.pyplot as plt
-from playerdealer import Player, Dealer
+from src.blackjack.playerdealer import Player, Dealer
 
 
 class Shoe:

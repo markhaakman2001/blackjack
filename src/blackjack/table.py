@@ -1,5 +1,5 @@
-from shoehand import Shoe, Hand, Bank
-from playerdealer import Player, Dealer
+from src.blackjack.shoehand import Shoe, Hand, Bank
+from src.blackjack.playerdealer import Player, Dealer
 
 
 class Table:
@@ -13,6 +13,7 @@ class Table:
         self.results = []
         self.bets = []
         self.bank.deposit()
+        
         
     def deal_first_cards(self):
 
@@ -39,6 +40,7 @@ class Table:
             return "Lose"
         
         elif hand.handtotal(hand.softhand()) <= 21:
+            
             if dealertotal > 21:
                 return "Win"
 

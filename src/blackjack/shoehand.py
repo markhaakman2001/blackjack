@@ -184,11 +184,7 @@ class Hand:
             return False
 
         
-        
-        
-
-            
-
+    
     def blackjack(self):
         """Check for blackjack
 
