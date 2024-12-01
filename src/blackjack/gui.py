@@ -77,10 +77,14 @@ class BJinterface(QtWidgets.QMainWindow):
         
         self.hit_button.clicked.connect(self.hit)
         self.stand_button.clicked.connect(self.stand)
+        self.double_button.clicked.connect(self.doubledown)
+        self.split_button.clicked.connect(self.splityourhand)
 
         self.play_button.clicked.connect(self.start_round)
 
         self.table = None
+        self.splitornot = False
+        self.split_num = 0
 
     @Slot()
     def update_txt(self, text):
@@ -115,37 +119,69 @@ class BJinterface(QtWidgets.QMainWindow):
             self.update_txt(f"\n".join([results[x] for x in range(len(results))]))
         
 
-    def nexthand(self):
+    def nexthand(self, split=False):
+
 
         if self.table:
-
-            if self.lasthand():
-                
-                dealerplay = self.table.dealer.hand.dealerturn()
-                dealer_updates = []
-
-                while dealerplay:
-
-                    dealer_card = self.table.shoe.getcard()
-                    deal_txt = self.table.dealer.dealerplay(dealer_card)
-                    dealer_updates.append(deal_txt)
-                    self.update_dealer(text="\n".join([dealer_updates[i] for i in range(len(dealer_updates))]))
-                    time.sleep(1)
-                    dealerplay = self.table.dealer.hand.dealerturn()
-
-
-                self.final_results()
             
+            split = self.splitornot
+
+            if split:
+                
+                texts = []
+
+                for i, hand in enumerate(self.table.hands[self.num]):
+                    texts.append(f"Splithand {i+1}: {hand.cards}: {hand.handtotal(hand.softhand())}")
+
+
+                self.textboxes[self.num].clear()
+                self.textboxes[self.num].append("\n".join([text for text in texts]))
+
+                if  self.split_num == len(self.table.hands[self.num] - 1):
+                    
+                    self.split_num = 0
+                    self.splitornot = False
+                    self.nexthand()
+                
+
+
             else:
 
-                if self.table.hands[self.num].blackjack():
-                    self.blackjack()
+                self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
+                
+                
+                if self.lasthand():
+                    
+                    dealer = self.table.dealer
+                    dealer_updates = []
+                    
+                    dealer_updates.append(f"Dealer shows {dealer.hand.cards}, total is {dealer.hand.handtotal(dealer.hand.softhand())}")
+                    self.update_dealer(dealer_updates[0])
+                    dealerplay = dealer.hand.dealerturn()
 
+                    while dealerplay:
+                        
+                        dealer_updates.append(self.table.dealer_play())
+                        self.update_dealer(text="\n".join([dealer_updates[i] for i in range(len(dealer_updates))]))
+                        time.sleep(1)
+                        dealerplay = self.table.dealer.hand.dealerturn()
+
+
+                    self.final_results()
+                
                 else:
-                    self.table.addresults(self.table.hands[self.num - 1])
-                    hand = self.table.hands[self.num]
-                    self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
-                    self.update_txt(f"Hand {self.num + 1}, pick an action")
+
+                    if self.table.hands[self.num].blackjack():
+                        self.blackjack()
+
+                    else:
+                        
+                        self.table.addresults(self.table.hands[self.num - 1])
+                        hand = self.table.hands[self.num]
+                        self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+                        self.update_txt(f"Hand {self.num + 1}, pick an action")
+
+
 
     def lasthand(self):
 
@@ -156,33 +192,51 @@ class BJinterface(QtWidgets.QMainWindow):
             else:
                 return False
     
-    def checkforbust(self):
-        hand = self.table.hands[self.num]
+    
+    def checkforbust(self, split=False):
+        if self.table:
+            
+            split = self.splitornot
 
-        if hand.handtotal(hand.softhand()) >= 21:
-            if hand.handtotal(hand.softhand()) ==  21:
-                self.update_txt("You have 21.")
-                time.sleep(1)
-                hand.deactivate()
-                self.num += 1
-                self.nexthand()
-            else:
-                self.update_txt("You busted")
-                time.sleep(1)
-                hand.deactivate()
-                self.num += 1
+            if split:
+
+                hand = self.table.hands[self.num][self.split_num]
+
+                if hand.handtotal >= 21:
+                    self.nexthand(n=self.split_num)
                 
-                self.nexthand()
+            else:
+
+                hand = self.table.hands[self.num]
+
+                if hand.handtotal(hand.softhand()) >= 21:
+                    
+                    text = self.table.checkforbust(hand)
+                    self.update_txt(text)
+                    self.num += 1
+
+
+                    self.nexthand()
         
 
-    def hit(self):
+    def hit(self, split=False, n=0):
 
         if self.table:
-            card, text = self.table.hitcard(self.table.hands[self.num])
-            self.update_txt(f"You hit, your new card is {card}.")
-            self.update_player(text)
-            time.sleep(0.5)
-            self.checkforbust()
+            
+            split = self.splitornot
+
+            if split:
+
+                card, text = self.table.hitcard(self.table.hands[self.num][n])
+                self.update_txt(f"You hit, your new card is {card}.")
+                self.update_player(text)
+                      
+            else:
+
+                card, text = self.table.hitcard(self.table.hands[self.num])
+                self.update_txt(f"You hit, your new card is {card}.")
+                self.update_player(text)
+                self.checkforbust()
 
     def stand(self):
 
@@ -190,22 +244,59 @@ class BJinterface(QtWidgets.QMainWindow):
             self.update_txt("You chose stand")
             self.table.hands[self.num].deactivate()
             self.num += 1
-            time.sleep(1)
+            
             self.nexthand()
     
+    def doubledown(self):
+
+        if self.table:
+            hand = self.table.hands[self.num]
+            card, text = self.table.hitcard(hand)
+            self.update_txt(f"You doubled, your new card is {card}.")
+            self.update_player(text)
+            self.num += 1
+
+            self.nexthand()
+
+    def splityourhand(self):
+
+        if self.table:
+
+            self.splitornot = True
+            current_textbox = self.textboxes[self.num]
+            current_hand = self.table.hands[self.num]
+            texts, hands = self.table.split(current_hand)
+            current_textbox.clear()
+            current_textbox.append(f"\n".join([text for text  in texts]))
+            self.table.hands.pop(self.num)
+            self.table.hands.insert(self.num, hands)
+            
+
+
+
     def blackjack(self):
 
         if self.table:
+            self.textboxes[self.num].append(f"{self.table.hands[self.num].cards}, Blackjack \n")
             self.update_txt(f"Hand {self.num + 1}, BlackJack!")
             self.table.hands[self.num].deactivate()
             self.num += 1
-            time.sleep(1)
+            
             self.nexthand()
     
     
     def start_round(self):
         self.num = 0
-        self.table = Table(hands=2)
+        self.table = Table(hands=self.n_hands.value())
+        self.textboxes = []
+
+        for x in range(self.n_hands.value()):
+            txtbox = QtWidgets.QTextEdit()
+            txtbox.setReadOnly(True)
+            txtbox.append(f"Hand {x+1}: \n")
+            self.textboxes.append(txtbox)
+            self.hbox_top.addWidget(txtbox)
+            
         self.update_txt("Round started, good luck!")
         time.sleep(1.5)
         self.first_cards()

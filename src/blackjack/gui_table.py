@@ -1,5 +1,5 @@
-from src.blackjack.shoehand import Shoe, Hand, Bank
-from src.blackjack.playerdealer import Player, Dealer
+from src.blackjack.gui_shoehand import Shoe, Hand, Bank
+from src.blackjack.gui_playerdealer import Player, Dealer
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot
 import sys
@@ -39,6 +39,19 @@ class Table:
 
         return first_results, dealerupcard
 
+    def checkforbust(self, hand):
+
+        if hand.handtotal(hand.softhand()) >= 21:
+            
+            if hand.handtotal(hand.softhand()) ==  21:             
+                
+                hand.deactivate()
+                return "You have 21."
+                
+            else:
+                
+                hand.deactivate()
+                return "You busted"
     
 
     def check_for_win(self, dealertotal, hand):
@@ -93,11 +106,17 @@ class Table:
 
 
     def split(self, hand):
-        hand.splithand(self.shoe, bank=self.bank)
-        print(f"You split your hand")
-        print(hand.hands[0].cards, hand.hands[1].cards)
-        for i, h in enumerate(hand.hands):
-            self.playhand(h, i)
+        """split hand
+
+        Args:
+            hand (which hand): _description_
+
+        Returns:
+            (list, list): Split hand texts, and a list with the new hands [texts, hands]
+        """        
+        texts, hands = hand.splithand(self.shoe)
+        
+        return texts, hands
     
 
     def place_bets(self):
@@ -158,11 +177,11 @@ class Table:
         return txt
 
 
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    table = Table()
-    table.ui.show()
-    sys.exit(app.exec())
+# def main():
+#     app = QtWidgets.QApplication(sys.argv)
+#     table = Table()
+#     table.ui.show()
+#     sys.exit(app.exec())
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

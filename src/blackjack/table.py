@@ -113,9 +113,7 @@ class Table:
             elif choice == "s":
                 self.results.append(hand)
                 
-                
-
-
+    
     def split(self, hand):
         hand.splithand(self.shoe, bank=self.bank)
         print(f"You split your hand")
