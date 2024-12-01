@@ -152,6 +152,11 @@ class Table:
         self.player.reset()
         self.dealer.reset()
 
+    def dealer_play(self):
+        card = self.shoe.getcard()
+        txt = self.dealer.dealerplay(card)
+        return txt
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

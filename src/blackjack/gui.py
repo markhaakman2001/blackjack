@@ -82,18 +82,22 @@ class BJinterface(QtWidgets.QMainWindow):
 
         self.table = None
 
+    @Slot()
     def update_txt(self, text):
         self.display_txt.clear()
         self.display_txt.append(text)
 
+    @Slot()
     def update_dealer(self, text):
         self.deal_info.clear()
         self.deal_info.append(text)
     
+    @Slot()
     def update_player(self, text):
         self.hand_info.clear()
         self.hand_info.append(text)
 
+    @Slot()
     def first_cards(self):
 
         if self.table:
@@ -104,37 +108,44 @@ class BJinterface(QtWidgets.QMainWindow):
             
             self.update_dealer(dealerupcard)
 
+    @Slot()
     def final_results(self):
         if self.table:
             results = [self.table.winlose(hand) for hand in self.table.hands]
             self.update_txt(f"\n".join([results[x] for x in range(len(results))]))
         
 
-
-
-    def nexthand(self, lasthand=False):
+    def nexthand(self):
 
         if self.table:
 
             if self.lasthand():
                 
                 dealerplay = self.table.dealer.hand.dealerturn()
+                dealer_updates = []
 
                 while dealerplay:
 
                     dealer_card = self.table.shoe.getcard()
-                    txt = self.table.dealer.dealerplay(dealer_card)
-                    self.update_dealer(txt)
+                    deal_txt = self.table.dealer.dealerplay(dealer_card)
+                    dealer_updates.append(deal_txt)
+                    self.update_dealer(text="\n".join([dealer_updates[i] for i in range(len(dealer_updates))]))
+                    time.sleep(1)
                     dealerplay = self.table.dealer.hand.dealerturn()
 
 
                 self.final_results()
             
             else:
-                self.table.addresults(self.table.hands[self.num - 1])
-                hand = self.table.hands[self.num]
-                self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
-                self.update_txt(f"Hand {self.num + 1}, pick an action")
+
+                if self.table.hands[self.num].blackjack():
+                    self.blackjack()
+
+                else:
+                    self.table.addresults(self.table.hands[self.num - 1])
+                    hand = self.table.hands[self.num]
+                    self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+                    self.update_txt(f"Hand {self.num + 1}, pick an action")
 
     def lasthand(self):
 
@@ -144,17 +155,25 @@ class BJinterface(QtWidgets.QMainWindow):
                 return True
             else:
                 return False
-
+    
     def checkforbust(self):
         hand = self.table.hands[self.num]
 
-        if hand.handtotal(hand.softhand()) > 21:
-            self.update_txt("You busted")
-            time.sleep(0.5)
-            hand.deactivate()
-            self.num += 1
-            
-            self.nexthand(self.lasthand())
+        if hand.handtotal(hand.softhand()) >= 21:
+            if hand.handtotal(hand.softhand()) ==  21:
+                self.update_txt("You have 21.")
+                time.sleep(1)
+                hand.deactivate()
+                self.num += 1
+                self.nexthand()
+            else:
+                self.update_txt("You busted")
+                time.sleep(1)
+                hand.deactivate()
+                self.num += 1
+                
+                self.nexthand()
+        
 
     def hit(self):
 
@@ -171,7 +190,16 @@ class BJinterface(QtWidgets.QMainWindow):
             self.update_txt("You chose stand")
             self.table.hands[self.num].deactivate()
             self.num += 1
-            time.sleep(0.5)
+            time.sleep(1)
+            self.nexthand()
+    
+    def blackjack(self):
+
+        if self.table:
+            self.update_txt(f"Hand {self.num + 1}, BlackJack!")
+            self.table.hands[self.num].deactivate()
+            self.num += 1
+            time.sleep(1)
             self.nexthand()
     
     
@@ -181,8 +209,10 @@ class BJinterface(QtWidgets.QMainWindow):
         self.update_txt("Round started, good luck!")
         time.sleep(1.5)
         self.first_cards()
-        
-        self.update_txt("Hand 1, pick an action")
+        if self.table.hands[0].blackjack():
+            self.blackjack()
+        else:
+            self.update_txt("Hand 1, pick an action")
         
         
         
