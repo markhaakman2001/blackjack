@@ -87,22 +87,22 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_flag = False
         self.split_num = 0
 
-    @Slot()
+    
     def update_txt(self, text):
         self.display_txt.clear()
         self.display_txt.append(text)
 
-    @Slot()
+    
     def update_dealer(self, text):
         self.deal_info.clear()
         self.deal_info.append(text)
     
-    @Slot()
+    
     def update_player(self, text):
         self.hand_info.clear()
         self.hand_info.append(text)
 
-    @Slot()
+    
     def first_cards(self):
 
         if self.table:
@@ -118,14 +118,15 @@ class BJinterface(QtWidgets.QMainWindow):
         if self.table:
             if self.split_flag:
                 results = []
-                for hand in self.table.hands:
+                for i, hand in enumerate(self.table.hands):
 
                     if isinstance(hand, list):
                         results.append(f"\n".join([self.table.winlose(handx) for handx in hand]))
+                        self.textboxes[i].append(f"\n".join([self.table.winlose(handx) for handx in hand]))
                     else:
                         results.append(self.table.winlose(hand))
-
-            
+                        self.textboxes[i].append(self.table.winlose(hand))
+           
             else:
                 results = [self.table.winlose(hand) for hand in self.table.hands]
 
@@ -137,8 +138,6 @@ class BJinterface(QtWidgets.QMainWindow):
 
         if self.table:
             
-            print(self.num)
-            print(self.table.hands)
             split = self.splitornot
 
             if split:
@@ -152,24 +151,45 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.textboxes[self.num].clear()
                 self.textboxes[self.num].append("\n".join([text for text in texts]))
 
+
                 if  self.split_num == (len(self.table.hands[self.num])):
                     
                     self.num += 1
                     self.split_num = 0
                     self.splitornot = False
-                    hand = self.table.hands[self.num]
-                    self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
-                    self.update_txt(f"Hand {self.num + 1}, pick an action")
+                    
+                    if self.lasthand():
+                        self.nexthand()
+                    else:
+                        hand = self.table.hands[self.num]
+                        self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+                        self.update_txt(f"Hand {self.num + 1}, pick an action")
+                        self.nexthand()
 
                 
                 else:
-                    self.update_txt(f"Splithand {self.split_num + 1}, pick an action")
+
+                    if self.table.hands[self.num][self.split_num].blackjack():
+                        self.blackjack()
+                    else:
+                        self.update_txt(f"Splithand {self.split_num + 1}, pick an action")
                 
 
 
             else:
+                
+                if isinstance(self.table.hands[self.num - 1], list):
+                    texts = []
 
-                self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
+                    for i, hand in enumerate(self.table.hands[self.num - 1]):
+                        texts.append(f"Splithand {i+1}: {hand.cards}: {hand.handtotal(hand.softhand())}")
+
+                
+                    self.textboxes[self.num - 1].clear()
+                    self.textboxes[self.num - 1].append("\n".join([text for text in texts]))
+
+                else:
+                    self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
                 
                 
                 if self.lasthand():
@@ -308,24 +328,45 @@ class BJinterface(QtWidgets.QMainWindow):
     def splityourhand(self):
 
         if self.table:
-
-            self.split_flag = True
-            self.splitornot = True
-            current_textbox = self.textboxes[self.num]
-            current_hand = self.table.hands[self.num]
-            texts, hands = self.table.split(current_hand)
-            current_textbox.clear()
-            current_textbox.append(f"\n".join([text for text  in texts]))
-            self.table.hands.pop(self.num)
-            self.table.hands.insert(self.num, hands)
-
-            if self.table.hands[self.num][0].blackjack():                
-                self.blackjack()
-            else:
-                self.update_txt("Splithand 1, pick an action")
             
+            current_textbox = self.textboxes[self.num]
+
+            if self.splitornot:
+                current_hand = self.table.hands[self.num][self.split_num]
+                texts, hands = self.table.split(current_hand)
+                current_textbox.append(f"\n".join([text for text in texts]))
+                self.table.hands[self.num].pop(self.split_num)
+                self.table.hands[self.num].insert(self.split_num, hands[1])
+                self.table.hands[self.num].insert(self.split_num, hands[0])
+                if self.table.hands[self.num][self.split_num].blackjack():                
+                    self.blackjack()
+                else:
+                    self.update_txt("Splithand 1, pick an action")
 
 
+            else:
+
+                self.split_flag = True
+                self.splitornot = True
+                
+                current_hand = self.table.hands[self.num]
+                texts, hands = self.table.split(current_hand)
+                current_textbox.clear()
+                current_textbox.append(f"\n".join([text for text  in texts]))
+                self.table.hands.pop(self.num)
+
+                if self.lasthand():
+
+                    self.table.hands.append(hands)
+                else:
+
+                    self.table.hands.insert(self.num, hands)
+
+                if self.table.hands[self.num][0].blackjack():                
+                    self.blackjack()
+                else:
+                    self.update_txt("Splithand 1, pick an action")
+            
 
     def blackjack(self, split=False):
 
