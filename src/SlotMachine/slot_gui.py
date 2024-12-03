@@ -26,12 +26,10 @@ class SlotGui(QtWidgets.QMainWindow):
 
         self.vbox = QtWidgets.QVBoxLayout(central_widget)
 
-        for x in range(5):
-            window = Window()
-            window.setdisplaytext(str(self.playingfield.full_field_disp[x]))
-            self.animations.append(window)
-            # self.vbox.addWidget(window)
-        
+        self.textbox = Window()
+        self.textbox.setdisplaytext(f"\n".join([str(self.playingfield.full_field_disp[x]) for x in range(5)]))
+        self.vbox.addWidget(self.textbox)
+        self.textbox.setVisible(False)
         # self.frame = QtWidgets.QFrame()
         # self.vbox.addWidget(self.frame)
 
@@ -49,10 +47,8 @@ class SlotGui(QtWidgets.QMainWindow):
         self.start_btn.clicked.connect(self.startanimation)
 
     def startanimation(self):
-        for x in self.animations:
-            
-            self.vbox.addWidget(x)
-            x.start()
+        self.textbox.setVisible(True)
+        self.textbox.start()
     
 
 class Window(QWidget):
