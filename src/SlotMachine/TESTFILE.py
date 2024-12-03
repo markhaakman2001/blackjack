@@ -19,21 +19,46 @@ class TestWindow(QtWidgets.QMainWindow):
         self.central_widget = QtWidgets.QWidget()
         self.resize(900, 700)
         self.setCentralWidget(self.central_widget)
+
         self.start_btn = QtWidgets.QPushButton("Start")
         self.start_btn.setParent(self.central_widget)
+        self.start_btn.pos = QPoint(250, 625)
+        self.start_btn.move(self.start_btn.pos)
+        self.start_btn.resize(QSize(400, 50))
         self.start_btn.clicked.connect(self.textinwindow)
     
 
     def textinwindow(self):
         text = ["T", "E", "S", "T"]
+        self.labels = []
+        self.anims = []
         for i, letter in enumerate(text):
-            xpos = i * 300
+            ypos = i*75
             label = QtWidgets.QLabel(letter)
             label.setParent(self.central_widget)
-            
+
+            label.pos = QPoint(100, ypos)
+            label.move(label.pos)
             label.show()
-            label.pos = QPoint(xpos, 50)
-            label.resize(100, 100)
+            self.labels.append(label)
+            anim = QPropertyAnimation(label, b"pos")
+            anim.setStartValue(QPoint(100, 0))
+            anim.setEndValue(QPoint(100, ypos))
+            anim.setDuration(500)
+            self.anims.append(anim)
+        
+        self.startanimation()
+    
+    def startanimation(self):
+        for anim in self.anims:
+            anim.start()
+            
+            
+            
+    
+
+            
+            
             
             
             
