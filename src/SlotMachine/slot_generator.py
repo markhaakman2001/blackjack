@@ -64,15 +64,17 @@ class PlayingField:
                 print(i, slot)
         
     def printaline(self, row_index):
-        thislineone = []
-        thislinetwo = self.full_field[row_index]
+        zigzagline = []
+        straightline = self.full_field[row_index]
 
         for x in range(1, 7):
             if x % 2 == 0:
-                thislineone.append(int(self.full_field[row_index+1, x-1]))
+                zigzagline.append(int(self.full_field[row_index+1, x-1]))
             else:
-                thislineone.append(int(self.full_field[row_index][x-1]))
-        print(thislineone)
+                zigzagline.append(int(self.full_field[row_index][x-1]))
+
+        print(zigzagline)
+        print(straightline)
 
 def main():
 
