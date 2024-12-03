@@ -17,6 +17,7 @@ class Reels:
             6 : "Koen",
             7 : "Raasa",
             8 : "Mark",
+            9 : "Niels",
         }
 
         self.inverse_possible_values = {v: k for k, v in self.possible_values.items()}
@@ -32,7 +33,7 @@ class Reels:
 
         # choose a random digit for every slot in the reel
         for x in range(5):
-            x = random.randint(1, 8)
+            x = random.randint(1, 9)
             new_reel.append(x)
 
         # array values
@@ -65,7 +66,7 @@ class PlayingField:
     def printaline(self, row_index):
         thislineone = []
         thislinetwo = self.full_field[row_index]
-        
+
         for x in range(1, 7):
             if x % 2 == 0:
                 thislineone.append(int(self.full_field[row_index+1, x-1]))
