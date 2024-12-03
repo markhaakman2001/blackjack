@@ -1,5 +1,6 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot
+import PySide6.QtCore as Core
 from src.blackjack.gui_table import Table
 import sys
 import time
@@ -86,6 +87,8 @@ class BJinterface(QtWidgets.QMainWindow):
         self.splitornot = False
         self.split_flag = False
         self.split_num = 0
+
+        self.timer = Core.QTimer()
 
     
     def update_txt(self, text):

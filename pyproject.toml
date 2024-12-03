@@ -15,6 +15,7 @@ pyqtgraph = "^0.13.7"
 blackjack = "src.blackjack.table:main"
 gui = "src.blackjack.gui:main"
 play = "src.blackjack.gui_table:main"
+slot = "src.SlotMachine.slot_generator:main"
 
 
 
