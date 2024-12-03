@@ -25,13 +25,26 @@ class TestWindow(QtWidgets.QMainWindow):
         self.start_btn.pos = QPoint(250, 625)
         self.start_btn.move(self.start_btn.pos)
         self.start_btn.resize(QSize(400, 50))
-        self.start_btn.clicked.connect(self.textinwindow)
-    
+        self.start_btn.clicked.connect(self.displayreel)
 
-    def textinwindow(self):
-        text = ["T", "E", "S", "T"]
+        self.playingfield = PlayingField()
+        
+    
+    def displayreel(self):
+        self.playingfield.generate_field()
+        for i, reel in enumerate(self.playingfield.reels):
+            text = reel.reel_disp
+            x = 100 + i * 50
+            self.textinwindow(text, x)
+            self.startanimation()
+
+
+    
+    def textinwindow(self, text, xpos):
+        
         self.labels = []
         self.anims = []
+
         for i, letter in enumerate(text):
             ypos = i*75
             label = QtWidgets.QLabel(letter)
@@ -42,12 +55,12 @@ class TestWindow(QtWidgets.QMainWindow):
             label.show()
             self.labels.append(label)
             anim = QPropertyAnimation(label, b"pos")
-            anim.setStartValue(QPoint(100, 0))
-            anim.setEndValue(QPoint(100, ypos))
+            anim.setStartValue(QPoint(xpos, 0))
+            anim.setEndValue(QPoint(xpos, ypos))
             anim.setDuration(500)
             self.anims.append(anim)
         
-        self.startanimation()
+        #self.startanimation()
     
     def startanimation(self):
         for anim in self.anims:

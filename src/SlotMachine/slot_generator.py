@@ -39,7 +39,7 @@ class Reels:
         # array values
         self.reel_values = np.array(new_reel)
         
-        self.reel_disp = np.array([self.possible_values.get(x) for x in self.reel_values])
+        self.reel_disp = np.array([str(self.possible_values.get(x)) for x in self.reel_values])
         
 
 
@@ -47,7 +47,10 @@ class PlayingField:
 
     def __init__(self):
 
-        self.reels = [Reels()] * 6
+        self.reels = []
+        for x in range(6):
+            r = Reels()
+            self.reels.append(r)
         self.full_field = np.zeros((5, 6))
         self.full_field_disp = np.empty((5, 6), dtype='<U5')
     
@@ -58,10 +61,10 @@ class PlayingField:
             self.full_field[:, i] = reel.reel_values
             self.full_field_disp[:, i] = reel.reel_disp
 
-            print(self.full_field)
-            print(self.full_field_disp)
-            for i, slot in enumerate(self.full_field):
-                print(i, slot)
+            #print(self.full_field)
+            #print(self.full_field_disp)
+            # for i, slot in enumerate(self.full_field):
+            #     print(i, slot)
         
     def printaline(self, row_index):
         zigzagline = []
@@ -73,8 +76,8 @@ class PlayingField:
             else:
                 zigzagline.append(int(self.full_field[row_index][x-1]))
 
-        print(zigzagline)
-        print(straightline)
+        #print(zigzagline)
+        #print(straightline)
 
 def main():
 
