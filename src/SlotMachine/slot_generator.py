@@ -64,6 +64,7 @@ class PlayingField:
         
     def printaline(self, row_index):
         thislineone = []
+        thislinetwo = self.full_field[row_index]
         
         for x in range(1, 7):
             if x % 2 == 0:
@@ -73,6 +74,7 @@ class PlayingField:
         print(thislineone)
 
 def main():
+
     x = Reels()
     y = PlayingField()
     y.generate_field()
