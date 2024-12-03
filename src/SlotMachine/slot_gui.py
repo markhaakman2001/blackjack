@@ -41,6 +41,7 @@ class SlotGui(QtWidgets.QMainWindow):
         self.hbox1 = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(self.hbox1)
 
+        
         self.start_btn = QtWidgets.QPushButton(text="Spin")
         self.hbox1.addWidget(self.start_btn)
 
