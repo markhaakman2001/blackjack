@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-
+from PySide6.QtCore import QPropertyAnimation, QParallelAnimationGroup, QSequentialAnimationGroup, QRect, QSize
 """PySide6 port of the widgets/layouts/basiclayout example from Qt v5.x"""
 
 import sys
@@ -32,15 +32,25 @@ class Slots(QDialog):
     def create_grid_group_box(self):
         self._grid_group_box = QGroupBox("Grid layout")
         layout = QGridLayout()
+        animationgroup = QParallelAnimationGroup()
 
         for i in range(Slots.num_grid_rows):
             for j in range(6):
                 placeHolder1 = QLabel("SIMPLESLOTHOLDER")
                 placeHolder1.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 placeHolder1.setFrameStyle(QFrame.Panel)
+                
+
                 layout.addWidget(placeHolder1, i, j)
 
+                anim1 = QPropertyAnimation(placeHolder1, b"geometry")
+                anim1.setStartValue(QSize(0, 0))
+                anim1.setEndValue(QSize(50, 50))
+                anim1.setDuration(1500)
+                animationgroup.addAnimation(anim1)
+
         self._grid_group_box.setLayout(layout)
+        animationgroup.start()
 
 
 if __name__ == '__main__':
