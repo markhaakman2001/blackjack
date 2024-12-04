@@ -62,7 +62,7 @@ class TestWindow(QtWidgets.QMainWindow):
         for i, reel in enumerate(self.playingfield.reels):
             text = reel.reel_disp
             print(text)
-            x = 200 + i * 50
+            x = 200 + i * 80
             self.textinwindow(text, x)
     
     
@@ -73,7 +73,7 @@ class TestWindow(QtWidgets.QMainWindow):
         
 
         for i, letter in enumerate(text):
-            ypos = i*75
+            ypos = i*96
             label = CustomLabels()
             print(str(letter))
             label.setnewimage(str(letter))
@@ -85,7 +85,7 @@ class TestWindow(QtWidgets.QMainWindow):
             anim = QPropertyAnimation(label, b"pos")
             anim.setStartValue(QPoint(xpos, 0))
             anim.setEndValue(QPoint(xpos, ypos))
-            anim.setDuration(100 + 2 * xpos)
+            anim.setDuration(100 + xpos)
             self.anims.append(anim)
             self.animationgroup.addAnimation(anim)
             self.animationgroup.start()
@@ -105,8 +105,8 @@ class CustomLabels(QtWidgets.QLabel):
 
         self.pathname = "src/SlotMachine/images/"
         self.pixmap1 = QPixmap()
-        self.width = 50
-        self.height = 60
+        self.width = 80
+        self.height = 96
         self.setFixedWidth(self.width)
         self.setFixedHeight(self.height)
     
