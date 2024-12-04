@@ -28,11 +28,14 @@ class Slots(QDialog):
         self.setLayout(main_layout)
         self.setWindowTitle("SLOTS")
         self.showMaximized()
+        self.button = QPushButton("start")
+        main_layout.addWidget(self.button)
+        self.button.clicked.connect(self.start)
 
     def create_grid_group_box(self):
         self._grid_group_box = QGroupBox("Grid layout")
         layout = QGridLayout()
-        animationgroup = QParallelAnimationGroup()
+        self.animationgroup = QParallelAnimationGroup()
 
         for i in range(Slots.num_grid_rows):
             for j in range(6):
@@ -45,12 +48,15 @@ class Slots(QDialog):
 
                 anim1 = QPropertyAnimation(placeHolder1, b"geometry")
                 anim1.setStartValue(QSize(0, 0))
-                anim1.setEndValue(QSize(50, 50))
+                anim1.setEndValue(QSize(100, 100))
                 anim1.setDuration(1500)
-                animationgroup.addAnimation(anim1)
+                self.animationgroup.addAnimation(anim1)
 
         self._grid_group_box.setLayout(layout)
-        animationgroup.start()
+        
+    
+    def start(self):
+        self.animationgroup.start()
 
 
 if __name__ == '__main__':

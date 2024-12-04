@@ -3,6 +3,7 @@ from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QE
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup
 from src.SlotMachine.slot_generator import Reels, PlayingField
+from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
 import time
 from math import *
 import random
@@ -25,11 +26,26 @@ class TestWindow(QtWidgets.QMainWindow):
         self.start_btn.pos = QPoint(250, 625)
         self.start_btn.move(self.start_btn.pos)
         self.start_btn.resize(QSize(400, 50))
-        self.start_btn.clicked.connect(self.displayreel)
+        self.start_btn.clicked.connect(self.showpicturetest)
 
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
+        self.imagereader = QImageReader()
+        self.pixmap = QPixmap()
+        self.pixmap.load("src.SlotMachine.images.acecard.jpg")
         
+        self.picture = self.pixmap.toImage()
+        self.image = QImage()
+        self.imagereader.setFileName("src.SlotMachine.images.acecard.jpg")
+
+        
+    def showpicturetest(self):
+        # img = self.image.load("src.SlotMachine.images.acecard.jpg")
+        
+        piclabel = QtWidgets.QLabel()
+        piclabel.setPicture(self.picture)
+        piclabel.setParent(self.central_widget)
+        piclabel.show()
     
     def displayreel(self):
         
@@ -61,7 +77,7 @@ class TestWindow(QtWidgets.QMainWindow):
             anim = QPropertyAnimation(label, b"pos")
             anim.setStartValue(QPoint(xpos, 0))
             anim.setEndValue(QPoint(xpos, ypos))
-            anim.setDuration(500 + 2 * xpos)
+            anim.setDuration(100 + 2 * xpos)
             self.anims.append(anim)
             self.animationgroup.addAnimation(anim)
             self.animationgroup.start()
