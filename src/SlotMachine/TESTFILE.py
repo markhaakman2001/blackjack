@@ -55,7 +55,7 @@ class TestWindow(QtWidgets.QMainWindow):
 
             label.pos = QPoint(xpos, ypos)
             label.move(label.pos)
-            label.setStyleSheet('background-color:#304; font-size:20px; font-weight:bold; color:#fff;')
+            label.setStyleSheet('background-color:#204; font-size:20px; font-weight:bold; color:#fff;')
             label.show()
             self.labels.append(label)
             anim = QPropertyAnimation(label, b"pos")
