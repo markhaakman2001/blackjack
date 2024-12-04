@@ -70,22 +70,52 @@ class PlayingField:
         zigzagline = []
         straightline = self.full_field[row_index]
 
+
         for x in range(1, 7):
             if x % 2 == 0:
-                zigzagline.append(int(self.full_field[row_index+1, x-1]))
+                if row_index == 4:
+                    zigzagline.append(int(self.full_field[row_index - 1, x - 1]))
+                else:
+                    zigzagline.append(int(self.full_field[row_index + 1, x - 1]))
             else:
                 zigzagline.append(int(self.full_field[row_index][x-1]))
+        
+        return zigzagline, straightline
+    
 
-        #print(zigzagline)
-        #print(straightline)
+    def checkwinnings(self):
+        zigzags = []
+        straights = []
+        for i in range(5):
+            zigzag, straight = self.printaline(i)
+            zigzagwins = self.winningline(zigzag)
+            straightwins = self.winningline(straight)
+            zigzags.append(zigzagwins)
+            straights.append(straightwins)
+        
+        print(zigzags, straights)
+
+    
+    def winningline(self, line):
+        inarow = 0
+        for i in range(5):
+            if line[i] == line[i+1]:
+                inarow += 1
+            else:
+                break
+        if inarow >= 3:
+            return inarow
+        else:
+            return 0
+
 
 def main():
-
     x = Reels()
     y = PlayingField()
     y.generate_field()
     x.generate_reel()
-    y.printaline(0)
+    y.checkwinnings()
+    
 
 
 if __name__ == "__main__":
