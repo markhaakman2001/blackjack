@@ -14,10 +14,10 @@ class Reels:
             3 : "Q",
             4 : "K",
             5 : "A",
-            6 : "Koen",
-            7 : "Raasa",
-            8 : "Mark",
-            9 : "Niels",
+            6 : "2",
+            7 : "3",
+            8 : "4",
+            9 : "5",
         }
 
         self.inverse_possible_values = {v: k for k, v in self.possible_values.items()}
@@ -86,14 +86,32 @@ class PlayingField:
     def checkwinnings(self):
         zigzags = []
         straights = []
+
+        zigzag_arr = np.zeros((5, 6), dtype=bool)
+        straight_arr = np.zeros((5, 6), dtype=bool)
+
         for i in range(5):
+            
+            
             zigzag, straight = self.printaline(i)
+
+            
+
             zigzagwins = self.winningline(zigzag)
             straightwins = self.winningline(straight)
+            if zigzagwins:
+                zigzag_arr[i, :zigzagwins] = True
+            if straightwins:
+                straight_arr[i, :straightwins] = True
             zigzags.append(zigzagwins)
             straights.append(straightwins)
         
-        print(zigzags, straights)
+
+        return straight_arr, zigzag_arr
+        print(straight_arr)
+        print(zigzag_arr)
+        
+        
 
     
     def winningline(self, line):
@@ -103,10 +121,10 @@ class PlayingField:
                 inarow += 1
             else:
                 break
-        if inarow >= 2:
-            return inarow
+        if inarow >= 1:
+            return inarow + 1
         else:
-            return 0
+            return False
 
 
 def main():
