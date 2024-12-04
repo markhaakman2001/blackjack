@@ -39,20 +39,6 @@ class TestWindow(QtWidgets.QMainWindow):
         # self.picture = self.pixmap.toImage()
         self.image = QImage()
         self.imagereader.setFileName("src.SlotMachine.images.acecard.jpg")
-
-        
-    def showpicturetest(self):
-        # img = self.image.load("src.SlotMachine.images.acecard.jpg")
-        
-        piclabel = QtWidgets.QLabel()
-        piclabel.pos = QPoint(100, 100)
-        piclabel.move(piclabel.pos)
-
-        
-        piclabel.setParent(self.central_widget)
-        piclabel.setPixmap(self.pixmap)
-        piclabel.setScaledContents(True)
-        piclabel.show()
         
         
     

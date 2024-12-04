@@ -103,7 +103,7 @@ class PlayingField:
                 inarow += 1
             else:
                 break
-        if inarow >= 3:
+        if inarow >= 2:
             return inarow
         else:
             return 0
