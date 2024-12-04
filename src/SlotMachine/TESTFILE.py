@@ -31,10 +31,12 @@ class TestWindow(QtWidgets.QMainWindow):
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
         self.imagereader = QImageReader()
+
         self.pixmap = QPixmap()
-        self.pixmap.load("src.SlotMachine.images.acecard.jpg")
+        self.pixmap.load("acecard.jpg")
         
-        self.picture = self.pixmap.toImage()
+        
+        # self.picture = self.pixmap.toImage()
         self.image = QImage()
         self.imagereader.setFileName("src.SlotMachine.images.acecard.jpg")
 
@@ -43,9 +45,16 @@ class TestWindow(QtWidgets.QMainWindow):
         # img = self.image.load("src.SlotMachine.images.acecard.jpg")
         
         piclabel = QtWidgets.QLabel()
-        piclabel.setPicture(self.picture)
+        piclabel.pos = QPoint(100, 100)
+        piclabel.move(piclabel.pos)
+
+        
         piclabel.setParent(self.central_widget)
+        piclabel.setPixmap(self.pixmap)
+        piclabel.setScaledContents(True)
         piclabel.show()
+        
+        
     
     def displayreel(self):
         
@@ -54,9 +63,7 @@ class TestWindow(QtWidgets.QMainWindow):
             text = reel.reel_disp
             x = 200 + i * 50
             self.textinwindow(text, x)
-            
-
-
+    
     
     def textinwindow(self, text, xpos):
         
@@ -86,6 +93,39 @@ class TestWindow(QtWidgets.QMainWindow):
 
     def startanimationgroup(self):
         self.animationgroup.start()
+
+
+
+class CustomLabels(QtWidgets.QLabel):
+
+    def __init__(self):
+
+        super().__init__()
+
+        self.pathname = "src/SlotMachine/images/"
+        self.pixmap1 = QPixmap()
+        self.width = 50
+        self.height = 60
+        self.setFixedWidth(self.width)
+        self.setFixedHeight(self.height)
+    
+
+    def setnewimage(self, filename):
+
+        choices = {
+            "ace":"acecard.jpg",
+            "k": "kheart.jpg",
+            "q": "Qheart.jpg",
+            "j": "jhearts.jpg",
+            "10":"10heart.jpg",
+        }
+
+        self.pixmap1.load(f"{self.pathname}" + choices.get(filename))
+        self.pixmap = self.pixmap1
+        self.setPixmap(self.pixmap1)
+        self.setScaledContents(True)
+
+
 
 
 app = QtWidgets.QApplication(sys.argv)
