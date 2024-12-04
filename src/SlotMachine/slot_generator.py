@@ -9,14 +9,14 @@ class Reels:
 
         # What the slot machine has to display, instead of integers
         self.possible_values = { 
-            1 : "  10 ",
-            2 : "  J  ",
-            3 : "  Q  ",
-            4 : "  K  ",
-            5 : "  A  ",
-            6 : " Koen",
+            1 : "10",
+            2 : "J",
+            3 : "Q",
+            4 : "K",
+            5 : "A",
+            6 : "Koen",
             7 : "Raasa",
-            8 : " Mark",
+            8 : "Mark",
             9 : "Niels",
         }
 

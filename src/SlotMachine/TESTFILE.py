@@ -26,7 +26,7 @@ class TestWindow(QtWidgets.QMainWindow):
         self.start_btn.pos = QPoint(250, 625)
         self.start_btn.move(self.start_btn.pos)
         self.start_btn.resize(QSize(400, 50))
-        self.start_btn.clicked.connect(self.showpicturetest)
+        self.start_btn.clicked.connect(self.displayreel)
 
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
@@ -61,6 +61,7 @@ class TestWindow(QtWidgets.QMainWindow):
         self.playingfield.generate_field()
         for i, reel in enumerate(self.playingfield.reels):
             text = reel.reel_disp
+            print(text)
             x = 200 + i * 50
             self.textinwindow(text, x)
     
@@ -73,12 +74,12 @@ class TestWindow(QtWidgets.QMainWindow):
 
         for i, letter in enumerate(text):
             ypos = i*75
-            label = QtWidgets.QLabel(letter)
+            label = CustomLabels()
+            print(str(letter))
+            label.setnewimage(str(letter))
             label.setParent(self.central_widget)
 
-            label.pos = QPoint(xpos, ypos)
-            label.move(label.pos)
-            label.setStyleSheet('background-color:#204; font-size:20px; font-weight:bold; color:#fff;')
+            
             label.show()
             self.labels.append(label)
             anim = QPropertyAnimation(label, b"pos")
@@ -113,14 +114,18 @@ class CustomLabels(QtWidgets.QLabel):
     def setnewimage(self, filename):
 
         choices = {
-            "ace":"acecard.jpg",
-            "k": "kheart.jpg",
-            "q": "Qheart.jpg",
-            "j": "jhearts.jpg",
-            "10":"10heart.jpg",
+            "A":"acecard.jpg",
+            "K": "kheart.jpg",
+            "Q": "Qheart.jpg",
+            "J": "jhearts.jpg",
+            "10": "10heart.jpg",
+            "Niels": "5heart.jpg",
+            "Mark": "4heart.jpg",
+            "Raasa": "3heart.jpg",
+            "Koen": "2heart.jpg",
         }
 
-        self.pixmap1.load(f"{self.pathname}" + choices.get(filename))
+        self.pixmap1.load(f"{self.pathname}" + f"{choices.get(filename)}")
         self.pixmap = self.pixmap1
         self.setPixmap(self.pixmap1)
         self.setScaledContents(True)
