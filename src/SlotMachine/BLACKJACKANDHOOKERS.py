@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog,
 
 
 class Slots(QDialog):
-    num_grid_rows = 3
+    num_grid_rows = 5
 
     def __init__(self):
         super().__init__()
@@ -34,7 +34,7 @@ class Slots(QDialog):
         layout = QGridLayout()
 
         for i in range(Slots.num_grid_rows):
-            for j in range(3):
+            for j in range(6):
                 placeHolder1 = QLabel("SIMPLESLOTHOLDER")
                 placeHolder1.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 placeHolder1.setFrameStyle(QFrame.Panel)
