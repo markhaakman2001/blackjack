@@ -41,11 +41,13 @@ class TestWindow(QtWidgets.QMainWindow):
     
     def displayreel(self):
         
+        self.label_array = None
         # array holds the custom labels in the right order
         arr = []
 
         # Generate a new random array of values
         self.playingfield.generate_field()
+        print(self.playingfield.full_field_disp)
         for i, reel in enumerate(self.playingfield.reels):
             text = reel.reel_disp
             x = 200 + i * 80
@@ -59,6 +61,7 @@ class TestWindow(QtWidgets.QMainWindow):
                 self.label_array = np.column_stack((self.label_array, arr))
         
         self.displaywinners()
+        
 
     def displaywinners(self):
 
@@ -66,25 +69,27 @@ class TestWindow(QtWidgets.QMainWindow):
 
         winning_arr = self.label_array[straight_arr]
         animgroup = QParallelAnimationGroup()
-        # animgroup.setParent(self.central_widget)
+        animgroup.setParent(self.central_widget)
         if len(winning_arr) > 0:
             anims = []
             self.anim_group = QSequentialAnimationGroup()
             for i, label in enumerate(winning_arr):
+                print(label.currentpos)
                 print(label.currentpicture)
+                pos = label.pos
                 win_anim = QPropertyAnimation(label, b"geometry")
-                win_anim.setStartValue(QRect(0, 0, 80, 96))
-                win_anim.setEndValue(QRect(100, 100, 0, 0))
-                win_anim.setDuration(2000)
+                win_anim.setStartValue(QRect(label.shiftedpos, QSize(0, 0)))
+                win_anim.setEndValue(QRect(label.currentpos, QSize(80, 96)))
+                win_anim.setDuration(800)
                 self.anim_group.addAnimation(win_anim)
                 anims.append(win_anim)
+                print(label.currentpicture)
             
             print(self.playingfield.full_field_disp)
             self.anim_group.start()
+            
                 
 
-    
-    
     def textinwindow(self, text, xpos, index):
         
         
@@ -109,6 +114,8 @@ class TestWindow(QtWidgets.QMainWindow):
             anim = QPropertyAnimation(label, b"pos")
             anim.setStartValue(QPoint(xpos, 0))
             anim.setEndValue(QPoint(xpos, ypos))
+            label.setpos(QPoint(xpos, ypos))
+            label.setshiftpos(QPoint(xpos + 40, ypos + 48))
             anim.setDuration(100 + xpos)
 
             self.anims.append(anim)
@@ -137,12 +144,26 @@ class CustomLabels(QtWidgets.QLabel):
         self.pixmap1 = QPixmap()
         self.width = 80
         self.height = 96
-        self.setFixedWidth(self.width)
-        self.setFixedHeight(self.height)
+        self.setMaximumWidth(self.width)
+        self.setMaximumHeight(self.height)
     
     @Property(str)
     def currentpicture(self):
         return self.currently
+    
+    @Property(QPoint)
+    def currentpos(self):
+        return self.currentposition
+    
+    @Property(QPoint)
+    def shiftedpos(self):
+        return self.shiftedposition
+
+    def setpos(self, pos:QPoint):
+        self.currentposition = pos
+
+    def setshiftpos(self, shiftpos:QPoint):
+        self.shiftedposition = shiftpos
     
 
     def setnewimage(self, filename):
