@@ -34,10 +34,15 @@ class TestWindow(QtWidgets.QMainWindow):
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
 
-        # Need label array to animate winning lines 
+        # Need label array to animate winning lines
         self.label_array = None
         
+
+            
+            
+
         
+
     
     def displayreel(self):
         
@@ -59,8 +64,7 @@ class TestWindow(QtWidgets.QMainWindow):
                 self.label_array = np.column_stack((self.label_array, arr))
         
         self.displaywinners()
-        
-        self.displaywinners()
+
 
     def displaywinners(self):
 
@@ -85,8 +89,15 @@ class TestWindow(QtWidgets.QMainWindow):
             print(self.playingfield.full_field_disp)
             self.anim_group.start()
             
+            print(self.playingfield.full_field_disp)
+            self.anim_group.start()
                 
 
+    
+
+
+
+    
     def textinwindow(self, text, xpos, index):
         
         

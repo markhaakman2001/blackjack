@@ -6,6 +6,7 @@ import sys
 import time
 
 
+
 class Table:
 
     def __init__(self, hands=1):
