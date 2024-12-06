@@ -36,88 +36,90 @@ class TestWindow(QtWidgets.QMainWindow):
 
         # Need label array to animate winning lines
         self.label_array = None
+        labels = []
+
+        # Label array for reusing labels instead of making new ones
+        for x in range(6):
+            
+            if x == 0:
+                self.label_array = self.createlabelarray()
+            else:
+                arr = self.createlabelarray()
+                self.label_array = np.column_stack((self.label_array, arr))
         
 
             
-            
 
-        
+    def createlabelarray(self):
+        labels = []
+        for x in range(5):
+            lbl = CustomLabels()
+            lbl.setParent(self.central_widget)
+            labels.append(lbl)
+        arr = np.array(labels)
+        return arr
+
 
     
     def displayreel(self):
         
-        # array holds the custom labels in the right order
-        arr = []
-
         # Generate a new random array of values
         self.playingfield.generate_field()
         for i, reel in enumerate(self.playingfield.reels):
             text = reel.reel_disp
             x = 200 + i * 80
-
-            # First time activate label array
-            if i == 0:
-                self.label_array = self.textinwindow(text, x, i)
-
-            else:
-                arr = self.textinwindow(text, x, i)
-                self.label_array = np.column_stack((self.label_array, arr))
+            self.textinwindownew(text, x, i)
         
-        self.displaywinners()
+        self.displaywinnersnew()
+        # self.displaywinners()
 
 
-    def displaywinners(self):
 
+    def displaywinnersnew(self):
         straight_arr, zigzag_arr = self.playingfield.checkwinnings()
+        arrlist = [straight_arr, zigzag_arr]
+        
 
-        winning_arr = self.label_array[straight_arr]
-        animgroup = QParallelAnimationGroup()
-        # animgroup.setParent(self.central_widget)
-        if len(winning_arr) > 0:
-            anims = []
-            self.anim_group = QSequentialAnimationGroup()
-            for i, label in enumerate(winning_arr):
-                print(label.currentpicture)
-                win_anim = QPropertyAnimation(label, b"geometry")
-                win_anim.setStartValue(QRect(label.shiftedpos, QSize(0, 0)))
-                win_anim.setEndValue(QRect(label.currentpos, QSize(80, 96)))
-                win_anim.setDuration(800)
-                self.anim_group.addAnimation(win_anim)
-                anims.append(win_anim)
-                print(label.currentpicture)
-            
-            print(self.playingfield.full_field_disp)
-            self.anim_group.start()
-            
-            print(self.playingfield.full_field_disp)
-            self.anim_group.start()
+        for linearray in arrlist:
+            print(linearray)
+            if np.any(linearray):
+                
+                winarray = self.label_array[np.asarray(linearray).nonzero()]
+                thisarray = (linearray).nonzero()
+                
+                anims = []
+                self.anim_group = QSequentialAnimationGroup()
+
+                print(np.argwhere(linearray))
+                for x in np.argwhere(linearray):
+                    label = self.label_array[x[0]][x[1]]
+                    #print(i)
+                    if not label.isanimated:
+                        win_anim = QPropertyAnimation(label, b"geometry")
+                        win_anim.setStartValue(QRect(label.shiftedpos, QSize(0, 0)))
+                        win_anim.setEndValue(QRect(label.currentpos, QSize(80, 96)))
+                        win_anim.setDuration(800)
+                        self.anim_group.addAnimation(win_anim)
+                        anims.append(win_anim)
+                    
+                self.anim_group.start()
+
+
                 
 
     
-
-
-
-    
-    def textinwindow(self, text, xpos, index):
-        
-        
-        labels = []
+    def textinwindownew(self, text, xpos, index):
         self.anims = []
         
-
         for i, letter in enumerate(text):
             ypos = i*96
 
             # Custom label with image
-            label = CustomLabels()
+            label: CustomLabels = self.label_array[i, index]
             label.setnewimage(str(letter))
-            label.setParent(self.central_widget)
-
-            
             label.show()
+            label.isnotanimated()
             
-            labels.append(label)
-
             # Create animation
             anim = QPropertyAnimation(label, b"pos")
             anim.setStartValue(QPoint(xpos, 0))
@@ -129,13 +131,7 @@ class TestWindow(QtWidgets.QMainWindow):
             self.anims.append(anim)
             self.animationgroup.addAnimation(anim)
             self.animationgroup.start()
-        
-        lbl_arr = np.array(labels)
-        return lbl_arr
-        
-        
 
-    
 
     def startanimationgroup(self):
         self.animationgroup.start()
@@ -148,12 +144,23 @@ class CustomLabels(QtWidgets.QLabel):
 
         super().__init__()
 
+        self.animated = False
         self.pathname = "src/SlotMachine/images/"
         self.pixmap1 = QPixmap()
         self.width = 80
         self.height = 96
         self.setMaximumWidth(self.width)
         self.setMaximumHeight(self.height)
+
+    @Property(bool)
+    def isanimated(self):
+        return self.animated
+    
+    def setanimated(self):
+        self.animated = True
+
+    def isnotanimated(self):
+        self.animated = False
     
     @Property(str)
     def currentpicture(self):
@@ -167,6 +174,7 @@ class CustomLabels(QtWidgets.QLabel):
     def shiftedpos(self):
         return self.shiftedposition
 
+    
     def setpos(self, pos:QPoint):
         self.currentposition = pos
 
@@ -176,7 +184,7 @@ class CustomLabels(QtWidgets.QLabel):
 
     def setnewimage(self, filename):
         
-        
+        self.pixmap1 = QPixmap()
         choices = {
             "A":"acecard.jpg",
             "K": "kheart.jpg",

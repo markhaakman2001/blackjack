@@ -97,12 +97,26 @@ class PlayingField:
             
             zigzag, straight = self.printaline(i)
 
-            
-
             zigzagwins = self.winningline(zigzag)
             straightwins = self.winningline(straight)
             if zigzagwins:
-                zigzag_arr[i, :zigzagwins] = True
+                for x in range(zigzagwins):
+                    print(f"{x=}, x+1 = {x+1}, x % 2 ={x % 2}, x+1 % 2 = {x+1 % 2}")
+                    if (x + 1) % 2 == 0:
+                        if i == 4:
+                            
+                            zigzag_arr[i-1, x] = True
+                            print("1")
+                        else:
+                            print("nr2")
+                            zigzag_arr[i+1, x] = True
+                            
+                            
+                    else:
+                        print("nr3")
+                        zigzag_arr[i, x] = True
+                        
+
             if straightwins:
                 straight_arr[i, :straightwins] = True
             zigzags.append(zigzagwins)
@@ -110,11 +124,7 @@ class PlayingField:
         
 
         return straight_arr, zigzag_arr
-        print(straight_arr)
-        print(zigzag_arr)
-        
-        
-
+    
     
     def winningline(self, line):
         inarow = 0
