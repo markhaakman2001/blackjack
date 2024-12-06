@@ -30,12 +30,14 @@ class SlotGui(QtWidgets.QMainWindow):
         self.textbox.setdisplaytext(f"\n".join([str(self.playingfield.full_field_disp[x]) for x in range(5)]))
         self.vbox.addWidget(self.textbox)
         self.textbox.setVisible(False)
-        
+        # self.frame = QtWidgets.QFrame()
+        # self.vbox.addWidget(self.frame)
 
         self.hbox2 = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(self.hbox2)
         
-
+        
+        
         self.hbox1 = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(self.hbox1)
 
@@ -61,9 +63,7 @@ class Window(QWidget):
         # self.child.resize(100, 100)
         self.anim = QPropertyAnimation(self.child, b"pos")
         
-
-    
-      
+        
     def start(self):
         self.anim.setStartValue(QPoint(600, 0))
         self.anim.setEndValue(QPoint(600, 600))
