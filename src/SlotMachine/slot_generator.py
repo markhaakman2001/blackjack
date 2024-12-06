@@ -40,7 +40,6 @@ class Reels:
         self.reel_values = np.array(new_reel)
         
         self.reel_disp = np.array([str(self.possible_values.get(x)) for x in self.reel_values])
-
         
 
 
@@ -109,6 +108,9 @@ class PlayingField:
         
 
         return straight_arr, zigzag_arr
+        print(straight_arr)
+        print(zigzag_arr)
+        
         
 
     
