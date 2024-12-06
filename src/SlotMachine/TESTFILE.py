@@ -114,7 +114,7 @@ class TestWindow(QtWidgets.QMainWindow):
 
             self.anims.append(anim)
             self.animationgroup.addAnimation(anim)
-            anim.start()
+            #anim.start()
 
         self.animationgroup.start()
         
