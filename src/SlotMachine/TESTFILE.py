@@ -60,7 +60,8 @@ class TestWindow(QtWidgets.QMainWindow):
                 arr = self.textinwindow(text, x, i)
                 self.label_array = np.column_stack((self.label_array, arr))
         
-        self.displaywinners()
+        
+        # self.displaywinners()
         
 
     def displaywinners(self):
@@ -68,24 +69,25 @@ class TestWindow(QtWidgets.QMainWindow):
         straight_arr, zigzag_arr = self.playingfield.checkwinnings()
 
         winning_arr = self.label_array[straight_arr]
+        zigzag_arr = self.label_array[zigzag_arr]
         animgroup = QParallelAnimationGroup()
         animgroup.setParent(self.central_widget)
         if len(winning_arr) > 0:
             anims = []
             self.anim_group = QSequentialAnimationGroup()
+            
             for i, label in enumerate(winning_arr):
                 print(label.currentpos)
                 print(label.currentpicture)
                 pos = label.pos
                 win_anim = QPropertyAnimation(label, b"geometry")
-                win_anim.setStartValue(QRect(label.shiftedpos, QSize(0, 0)))
+                win_anim.setStartValue(QRect(label.currentpos, QSize(80, 96)))
                 win_anim.setEndValue(QRect(label.currentpos, QSize(80, 96)))
                 win_anim.setDuration(800)
                 self.anim_group.addAnimation(win_anim)
                 anims.append(win_anim)
-                print(label.currentpicture)
-            
-            print(self.playingfield.full_field_disp)
+                
+
             self.anim_group.start()
             
                 
@@ -104,7 +106,6 @@ class TestWindow(QtWidgets.QMainWindow):
             label = CustomLabels()
             label.setnewimage(str(letter))
             label.setParent(self.central_widget)
-
             
             label.show()
             
@@ -115,19 +116,18 @@ class TestWindow(QtWidgets.QMainWindow):
             anim.setStartValue(QPoint(xpos, 0))
             anim.setEndValue(QPoint(xpos, ypos))
             label.setpos(QPoint(xpos, ypos))
-            label.setshiftpos(QPoint(xpos + 40, ypos + 48))
+            #label.setshiftpos(QPoint(xpos + 40, ypos + 48))
             anim.setDuration(100 + xpos)
 
             self.anims.append(anim)
             self.animationgroup.addAnimation(anim)
-            self.animationgroup.start()
+            anim.start()
+
+        self.animationgroup.start()
         
         lbl_arr = np.array(labels)
         return lbl_arr
         
-        
-
-    
 
     def startanimationgroup(self):
         self.animationgroup.start()
@@ -144,8 +144,8 @@ class CustomLabels(QtWidgets.QLabel):
         self.pixmap1 = QPixmap()
         self.width = 80
         self.height = 96
-        self.setMaximumWidth(self.width)
-        self.setMaximumHeight(self.height)
+        self.setFixedWidth(self.width)
+        self.setFixedHeight(self.height)
     
     @Property(str)
     def currentpicture(self):
@@ -155,15 +155,16 @@ class CustomLabels(QtWidgets.QLabel):
     def currentpos(self):
         return self.currentposition
     
-    @Property(QPoint)
-    def shiftedpos(self):
-        return self.shiftedposition
+    
+    # @Property(QPoint)
+    # def shiftedpos(self):
+    #     return self.shiftedposition
 
     def setpos(self, pos:QPoint):
         self.currentposition = pos
 
-    def setshiftpos(self, shiftpos:QPoint):
-        self.shiftedposition = shiftpos
+    # def setshiftpos(self, shiftpos:QPoint):
+    #     self.shiftedposition = shiftpos
     
 
     def setnewimage(self, filename):
