@@ -62,7 +62,8 @@ class TestWindow(QtWidgets.QMainWindow):
 
     
     def displayreel(self):
-        
+        self.animationgroup = QParallelAnimationGroup()
+
         # Generate a new random array of values
         self.playingfield.generate_field()
         for i, reel in enumerate(self.playingfield.reels):
@@ -81,16 +82,16 @@ class TestWindow(QtWidgets.QMainWindow):
         
 
         for linearray in arrlist:
-            print(linearray)
+            
             if np.any(linearray):
                 
                 winarray = self.label_array[np.asarray(linearray).nonzero()]
                 thisarray = (linearray).nonzero()
                 
                 anims = []
-                self.anim_group = QSequentialAnimationGroup()
+                self.anim_group = QParallelAnimationGroup()
 
-                print(np.argwhere(linearray))
+                
                 for x in np.argwhere(linearray):
                     label = self.label_array[x[0]][x[1]]
                     #print(i)
@@ -98,19 +99,22 @@ class TestWindow(QtWidgets.QMainWindow):
                         win_anim = QPropertyAnimation(label, b"geometry")
                         win_anim.setStartValue(QRect(label.shiftedpos, QSize(0, 0)))
                         win_anim.setEndValue(QRect(label.currentpos, QSize(80, 96)))
+                        # win_anim.setKeyValueAt(0, QRect(label.shiftedpos, QSize(0, 0)))
+                        # win_anim.setKeyValueAt(0.25,QRect(label.currentpos, QSize(80, 96)))
+                        # win_anim.setKeyValueAt(0.60, QRect(label.shiftedpos, QSize(0, 0)))
+                        # win_anim.setKeyValueAt(1, QRect(label.currentpos, QSize(80, 96)))
                         win_anim.setDuration(800)
                         self.anim_group.addAnimation(win_anim)
                         anims.append(win_anim)
+                        
                     
                 self.anim_group.start()
 
 
-                
-
     
     def textinwindownew(self, text, xpos, index):
         self.anims = []
-        
+        # self.animationgroup = QParallelAnimationGroup()
         for i, letter in enumerate(text):
             ypos = i*96
 
@@ -131,7 +135,7 @@ class TestWindow(QtWidgets.QMainWindow):
             self.anims.append(anim)
             self.animationgroup.addAnimation(anim)
             self.animationgroup.start()
-
+            print(anim.group)
 
     def startanimationgroup(self):
         self.animationgroup.start()

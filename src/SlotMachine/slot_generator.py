@@ -63,10 +63,6 @@ class PlayingField:
             self.full_field[:, i] = reel.reel_values
             self.full_field_disp[:, i] = reel.reel_disp
 
-            #print(self.full_field)
-            #print(self.full_field_disp)
-            # for i, slot in enumerate(self.full_field):
-            #     print(i, slot)
         
     def printaline(self, row_index):
         zigzagline = []
@@ -94,29 +90,23 @@ class PlayingField:
 
         for i in range(5):
             
-            
             zigzag, straight = self.printaline(i)
 
             zigzagwins = self.winningline(zigzag)
             straightwins = self.winningline(straight)
             if zigzagwins:
                 for x in range(zigzagwins):
-                    print(f"{x=}, x+1 = {x+1}, x % 2 ={x % 2}, x+1 % 2 = {x+1 % 2}")
+                    
                     if (x + 1) % 2 == 0:
                         if i == 4:
-                            
                             zigzag_arr[i-1, x] = True
-                            print("1")
+                            
                         else:
-                            print("nr2")
                             zigzag_arr[i+1, x] = True
-                            
-                            
                     else:
-                        print("nr3")
-                        zigzag_arr[i, x] = True
                         
-
+                        zigzag_arr[i, x] = True
+            
             if straightwins:
                 straight_arr[i, :straightwins] = True
             zigzags.append(zigzagwins)
