@@ -33,8 +33,10 @@ class TestWindow(QtWidgets.QMainWindow):
         # initialise the slot generator
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
+        self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
         # self.anim_group = QParallelAnimationGroup()
         self.fallanimationgroup = QParallelAnimationGroup()
+        self.sequantialanimgroup = QSequentialAnimationGroup()
 
         # Need label array to animate winning lines
         self.label_array = None
@@ -75,7 +77,8 @@ class TestWindow(QtWidgets.QMainWindow):
     def displayreel(self):
         
         self.animationgroup = QParallelAnimationGroup()
-        self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
+        
+        #self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
         self.printvisibility()
         # Generate a new random array of values
         self.playingfield.generate_field()
@@ -104,25 +107,33 @@ class TestWindow(QtWidgets.QMainWindow):
     def enablestart(self):
         self.start_btn.setEnabled(True)
 
+    def clearanimgroups(self):
+        self.sequantialanimgroup.clear()
+        for group in self.anim_group:
+            group.clear()
 
     def displaywinnersnew(self):
+        self.clearanimgroups()
         straight_arr, zigzag_arr = self.playingfield.checkwinnings()
         arrlist = [straight_arr, zigzag_arr]
         
-        
         for i, linearray in enumerate(arrlist):
+            
             
             if np.any(linearray):
                 anims = []
                 
                 for x in np.argwhere(linearray):
-                    label: CustomLabels = self.label_array[x[0]][x[1]]
+                    self.label: CustomLabels = self.label_array[x[0]][x[1]]
                     #print(i)
                     
-                    self.anim_group[i].addAnimation(label.animation2)
-                    
+                    self.anim_group[i].addAnimation(self.label.animation2)
                         
-                self.anim_group[i].start()
+                #self.anim_group[i].start()
+                self.sequantialanimgroup.addAnimation(self.anim_group[i])
+                
+            self.sequantialanimgroup.start()
+
 
 
 
@@ -141,12 +152,12 @@ class TestWindow(QtWidgets.QMainWindow):
     def createwinanimation(self):
         for x in range(5):
             for y in range(6):
-                label: CustomLabels = self.label_array[x, y]
-                label.animation2.setKeyValueAt(0, QRect(label.shiftedpos, QSize(0, 0)))
-                label.animation2.setKeyValueAt(0.25,QRect(label.currentpos, QSize(80, 96)))
-                label.animation2.setKeyValueAt(0.60, QRect(label.shiftedpos, QSize(0, 0)))
-                label.animation2.setKeyValueAt(1, QRect(label.currentpos, QSize(80, 96)))
-                label.animation2.setDuration(800)
+                self.label: CustomLabels = self.label_array[x, y]
+                self.label.animation2.setKeyValueAt(0, QRect(self.label.shiftedpos, QSize(0, 0)))
+                self.label.animation2.setKeyValueAt(0.25,QRect(self.label.currentpos, QSize(80, 96)))
+                self.label.animation2.setKeyValueAt(0.60, QRect(self.label.shiftedpos, QSize(0, 0)))
+                self.label.animation2.setKeyValueAt(1, QRect(self.label.currentpos, QSize(80, 96)))
+                self.label.animation2.setDuration(800)
                 
                 
         
