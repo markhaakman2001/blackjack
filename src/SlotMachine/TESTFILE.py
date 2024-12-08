@@ -33,7 +33,13 @@ class TestWindow(QtWidgets.QMainWindow):
         # initialise the slot generator
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
-        self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
+        # self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
+        
+
+        self.winanimgroups1 = [QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup()]
+        self.winanimgroups2 = [QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup()]
+
+
         # self.anim_group = QParallelAnimationGroup()
         self.fallanimationgroup = QParallelAnimationGroup()
         self.sequantialanimgroup = QSequentialAnimationGroup()
@@ -78,7 +84,7 @@ class TestWindow(QtWidgets.QMainWindow):
         
         self.animationgroup = QParallelAnimationGroup()
         
-        #self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
+        # self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
         self.printvisibility()
         # Generate a new random array of values
         self.playingfield.generate_field()
@@ -107,16 +113,14 @@ class TestWindow(QtWidgets.QMainWindow):
     def enablestart(self):
         self.start_btn.setEnabled(True)
 
-    def clearanimgroups(self):
-        self.sequantialanimgroup.clear()
-        for group in self.anim_group:
-            group.clear()
+
 
     def displaywinnersnew(self):
-        self.clearanimgroups()
         straight_arr, zigzag_arr = self.playingfield.checkwinnings()
         arrlist = [straight_arr, zigzag_arr]
+        self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
         
+        self.sequantialanimgroup = QSequentialAnimationGroup(self)
         for i, linearray in enumerate(arrlist):
             
             
@@ -148,6 +152,7 @@ class TestWindow(QtWidgets.QMainWindow):
                 label.animation.setDuration(100 + xpos)
                 self.fallanimationgroup.addAnimation(label.animation)
     
+
 
     def createwinanimation(self):
         for x in range(5):
@@ -211,8 +216,8 @@ class CustomLabels(QtWidgets.QLabel):
         self.animated = False
         self.pathname = "src/SlotMachine/images/"
         self.pixmap1 = QPixmap()
-        self.animation = QPropertyAnimation(self, b"pos")
-        self.animation2 = QPropertyAnimation(self, b"geometry")
+        self.animation = QPropertyAnimation(self, b"pos", self)
+        self.animation2 = QPropertyAnimation(self, b"geometry", self)
         self.width = 80
         self.height = 96
         self.setMaximumWidth(self.width)
