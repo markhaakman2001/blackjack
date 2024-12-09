@@ -197,17 +197,6 @@ class TestWindow(QtWidgets.QMainWindow):
             self.label.setVisible(True)
             self.label.show()
             self.label.isnotanimated()
-        
-            
-            # Create animation
-            # self.anim = QPropertyAnimation(self.label, b"pos")
-            # self.anim.setStartValue(QPoint(xpos, 0))
-            # self.anim.setEndValue(QPoint(xpos, ypos))
-            
-            # self.anim.setDuration(100 + xpos)
-            
-            # self.anims.append(self.anim)
-            # self.animationgroup.addAnimation(self.anim)
             self.fallanimationgroup.start()
             
             
