@@ -13,6 +13,8 @@ import sys
 
 class TestWindow(QtWidgets.QMainWindow):
 
+    signal1 = Signal()
+
     def __init__(self):
 
         super().__init__()
@@ -22,7 +24,7 @@ class TestWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         # create start button
-        self.start_btn = QtWidgets.QPushButton("Start")
+        self.start_btn = QtWidgets.QPushButton("Spin")
         self.start_btn.setParent(self.central_widget)
         self.start_btn.pos = QPoint(250, 625)
         self.start_btn.move(self.start_btn.pos)
@@ -33,16 +35,12 @@ class TestWindow(QtWidgets.QMainWindow):
         # initialise the slot generator
         self.playingfield = PlayingField()
         self.animationgroup = QParallelAnimationGroup()
-        # self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
-        
-
-        self.winanimgroups1 = [QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup()]
-        self.winanimgroups2 = [QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup(),QParallelAnimationGroup()]
 
 
-        # self.anim_group = QParallelAnimationGroup()
         self.fallanimationgroup = QParallelAnimationGroup()
         self.sequantialanimgroup = QSequentialAnimationGroup()
+        self.sequentialanimgroup1 = QSequentialAnimationGroup(self)
+        self.sequentialanimgroup2 = QSequentialAnimationGroup(self)
 
         # Need label array to animate winning lines
         self.label_array = None
@@ -56,7 +54,10 @@ class TestWindow(QtWidgets.QMainWindow):
             else:
                 arr = self.createlabelarray(xpos)
                 self.label_array = np.column_stack((self.label_array, arr))
-                
+
+
+        self.signal1.connect(self.enablestart)
+        
         
         self.createfallanimation()
         self.createwinanimation()
@@ -84,20 +85,18 @@ class TestWindow(QtWidgets.QMainWindow):
         
         self.animationgroup = QParallelAnimationGroup()
         
-        # self.anim_group = [QParallelAnimationGroup(), QParallelAnimationGroup()]
+        
         self.printvisibility()
         # Generate a new random array of values
         self.playingfield.generate_field()
-        #self.start_btn.setEnabled(False)
+        self.start_btn.setEnabled(False)
         for i, reel in enumerate(self.playingfield.reels):
             text = reel.reel_disp
             x = 200 + i * 80
             self.textinwindownew(text, x, i)
         
-        self.displaywinnersnew()
-        #self.animationgroup.finished.connect(self.displaywinnersnew)
-        self.first = False
-        
+        #self.displaywinnersnew()
+        self.fallanimationgroup.finished.connect(self.displaywinnersnew)
         # self.displaywinners()
     
 
@@ -109,34 +108,46 @@ class TestWindow(QtWidgets.QMainWindow):
                 this_arr[x, y] = thislabel.windowOpacity()
         print(this_arr)
 
-    @Slot()
+    
+    def emitsignal(self):
+        self.signal1.emit()
+
+    
     def enablestart(self):
         self.start_btn.setEnabled(True)
-
 
 
     def displaywinnersnew(self):
         straight_arr, zigzag_arr = self.playingfield.checkwinnings()
         arrlist = [straight_arr, zigzag_arr]
         self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
+        animated = False
         
         self.sequantialanimgroup = QSequentialAnimationGroup(self)
+        self.sequantialanimgroup.finished.connect(self.enablestart)
         for i, linearray in enumerate(arrlist):
             
             
             if np.any(linearray):
-                anims = []
                 
                 for x in np.argwhere(linearray):
+                    
                     self.label: CustomLabels = self.label_array[x[0]][x[1]]
                     #print(i)
                     
                     self.anim_group[i].addAnimation(self.label.animation2)
-                        
+                    
                 #self.anim_group[i].start()
                 self.sequantialanimgroup.addAnimation(self.anim_group[i])
-                
+                # self.sequantialanimgroup.finished.connect(self.enablestart)             
+            
+            
+            
             self.sequantialanimgroup.start()
+            
+        
+            
+            
 
 
 
