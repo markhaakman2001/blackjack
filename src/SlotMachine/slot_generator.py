@@ -1,6 +1,7 @@
 import numpy as np
 from math import *
 import random
+from PySide6.QtCore import Signal, Slot
 
 
 class Reels:
@@ -50,7 +51,7 @@ class Reels:
 class PlayingField:
     """The playingfield is the full screen with 6 reels.
     """    
-
+    signal1 = Signal()
     def __init__(self):
 
         self.reels = []
@@ -59,6 +60,7 @@ class PlayingField:
             self.reels.append(r)
         self.full_field = np.zeros((5, 6))
         self.full_field_disp = np.empty((5, 6), dtype='<U5')
+        self.signal1 = Signal()
     
     def generate_field(self):
         """Generate new reels for all 6 reels in the playingfield.
@@ -87,12 +89,14 @@ class PlayingField:
         return zigzagline, straightline
     
 
-    def checkwinnings(self):
+    def checkwinnings(self, betsize):
         zigzags = []
         straights = []
 
         zigzag_arr = np.zeros((5, 6), dtype=bool)
         straight_arr = np.zeros((5, 6), dtype=bool)
+
+        totalwin = 0
 
         for i in range(5):
             
@@ -101,6 +105,10 @@ class PlayingField:
             zigzagwins = self.winningline(zigzag)
             straightwins = self.winningline(straight)
             if zigzagwins:
+                
+                symbol = int(self.full_field[i, 0])
+                win = self.prizecheck(symbol_val=symbol, length=zigzagwins, betsize=betsize)
+                totalwin += win
                 for x in range(zigzagwins):
                     
                     if (x + 1) % 2 == 0:
@@ -114,13 +122,17 @@ class PlayingField:
                         zigzag_arr[i, x] = True
             
             if straightwins:
+                symbol = int(self.full_field[i, 0])
+                win = self.prizecheck(symbol_val=symbol, length=straightwins, betsize=betsize)
+                totalwin += win
                 straight_arr[i, :straightwins] = True
             zigzags.append(zigzagwins)
             straights.append(straightwins)
         
 
-        return straight_arr, zigzag_arr
+        return straight_arr, zigzag_arr, totalwin
     
+
     def prizecheck(self, symbol_val:int, length:int, betsize):
         calculator = { 
             1 : lambda x, y: y * x*0.1,
@@ -131,7 +143,7 @@ class PlayingField:
             6 : lambda x, y: y * x * 0.5,
             7 : lambda x, y: y * x * 0.5,
             8 : lambda x, y: y * x * 0.6,
-            9 : lambda x, y: y * x * 2, 
+            9 : lambda x, y: y * x * 2,
             }
         winamount = calculator.get(symbol_val)(length, betsize)
         return winamount
@@ -140,15 +152,58 @@ class PlayingField:
     
     def winningline(self, line):
         inarow = 0
+        
         for i in range(5):
             if line[i] == line[i+1]:
                 inarow += 1
             else:
                 break
         if inarow >= 1:
+            
             return inarow + 1
         else:
             return False
+
+
+class BankAccount:
+
+    def __init__(self):
+        self.current_funds = 0
+        self.funds = 0
+        self._bet = 0
+
+    def deposit(self, amount):
+        self._set_funds(amount)
+        self.current_funds += amount
+
+
+    def placebet(self, amount):
+        self.current_bet = amount
+        self.current_funds -= amount
+    
+    def add_winnings(self, winnings):
+        self.current_funds += winnings
+        self.current_bet = 0
+    
+
+    def _get_funds(self):
+        return self.current_funds
+    
+    def _set_funds(self, amount):
+        self.funds += amount
+    
+    def _del_funds(self):
+        del self.funds
+
+    fundings = property(
+        fget=_get_funds,
+        fset=_set_funds,
+        fdel=_del_funds,
+    )
+        
+
+            
+
 
 
 def main():
@@ -157,6 +212,7 @@ def main():
     y.generate_field()
     x.generate_reel()
     y.checkwinnings()
+
     
 
 

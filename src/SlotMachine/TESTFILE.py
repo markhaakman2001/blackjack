@@ -1,8 +1,8 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QEasingCurve, QSize, Qt
 import PySide6.QtCore as Core
-from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup
-from src.SlotMachine.slot_generator import Reels, PlayingField
+from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
+from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
 from math import *
 import numpy as np
@@ -14,10 +14,15 @@ import sys
 class TestWindow(QtWidgets.QMainWindow):
 
     signal1 = Signal()
+    signal2 = Signal()
+    
 
     def __init__(self):
 
         super().__init__()
+
+        self.bank = BankAccount()
+        self.bank.deposit(10000)
 
         self.central_widget = QtWidgets.QWidget()
         self.resize(900, 700)
@@ -30,7 +35,18 @@ class TestWindow(QtWidgets.QMainWindow):
         self.start_btn.move(self.start_btn.pos)
         self.start_btn.resize(QSize(400, 50))
         self.start_btn.clicked.connect(self.displayreel)
+        self.start_btn.clicked.connect(self.getridofpopup)
 
+        # bet button
+        self.betbutton = QtWidgets.QComboBox()
+        self.betbutton.acceptDrops
+        self.betbutton.setParent(self.central_widget)
+        self.betbutton.pos = QPoint(150, 625)
+        self.betbutton.move(self.betbutton.pos)
+        self.betbutton.resize(QSize(50, 50))
+
+        self.betbutton.addItems(["$0.1", "$0.2", "$0.4", "$0.6", "$1", "$2", "$5", "$10"])
+        self.betsizes = [0.1, 0.2, 0.4, 0.6, 1, 2, 5, 10]
 
         # initialise the slot generator
         self.playingfield = PlayingField()
@@ -39,6 +55,7 @@ class TestWindow(QtWidgets.QMainWindow):
 
         self.fallanimationgroup = QParallelAnimationGroup()
         self.sequantialanimgroup = QSequentialAnimationGroup()
+        
         self.sequentialanimgroup1 = QSequentialAnimationGroup(self)
         self.sequentialanimgroup2 = QSequentialAnimationGroup(self)
 
@@ -56,7 +73,10 @@ class TestWindow(QtWidgets.QMainWindow):
                 self.label_array = np.column_stack((self.label_array, arr))
 
 
-        self.signal1.connect(self.enablestart)
+        self.lastwin = 0
+        self.dlg_off = True
+        self.signal1.connect(self.winpopup)
+        self.signal2.connect(self.enablestart)
         
         
         self.createfallanimation()
@@ -86,8 +106,6 @@ class TestWindow(QtWidgets.QMainWindow):
             self.labels.append(self.lbl)
         arr = np.array(self.labels)
         return arr
-
-
     
     def displayreel(self):
         """Generate a new playingfield and starts the fallinganimation for the labels in the slots.
@@ -95,7 +113,7 @@ class TestWindow(QtWidgets.QMainWindow):
         """        
         
         self.animationgroup = QParallelAnimationGroup()
-        
+        self.lastwin = 0
         
         self.printvisibility()
         # Generate a new random array of values
@@ -108,6 +126,7 @@ class TestWindow(QtWidgets.QMainWindow):
         
         #self.displaywinnersnew()
         self.fallanimationgroup.finished.connect(self.displaywinnersnew)
+        
         # self.displaywinners()
     
 
@@ -122,27 +141,24 @@ class TestWindow(QtWidgets.QMainWindow):
         print(this_arr)
 
     
-    def emitsignal(self):
-        self.signal1.emit()
-
-    
     def enablestart(self):
         self.start_btn.setEnabled(True)
 
+
+    
 
     def displaywinnersnew(self):
         """Displaywinners checks the displayarray for winning lines and creates two animationgroups for the labels that belong to winning lines.
             the animationgroups for straight lines and Animations for zigzag lines are added to a sequential animationgroup.
         """        
-        straight_arr, zigzag_arr = self.playingfield.checkwinnings()
+        straight_arr, zigzag_arr, totalwin = self.playingfield.checkwinnings(betsize=self.betsizes[self.betbutton.currentIndex()])
         arrlist = [straight_arr, zigzag_arr]
         self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
-        animated = False
         
-        self.sequantialanimgroup = QSequentialAnimationGroup(self)
+        
         self.sequantialanimgroup.finished.connect(self.enablestart)
         for i, linearray in enumerate(arrlist):
-            
+            self.anim_group[i].clear()
             
             if np.any(linearray):
                 
@@ -155,17 +171,19 @@ class TestWindow(QtWidgets.QMainWindow):
                     
                 #self.anim_group[i].start()
                 self.sequantialanimgroup.addAnimation(self.anim_group[i])
-                # self.sequantialanimgroup.finished.connect(self.enablestart)             
+        
+
+        if totalwin > 0:
+            self.lastwin = totalwin
             
-            
-            
+            self.sequantialanimgroup.finished.connect(self.signal1.emit)
+            self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
             self.sequantialanimgroup.start()
             
+        else:
+            self.signal2.emit()
+    
         
-            
-            
-
-
 
 
     def createfallanimation(self):
@@ -196,12 +214,6 @@ class TestWindow(QtWidgets.QMainWindow):
                 self.label.animation2.setKeyValueAt(0.60, QRect(self.label.shiftedpos, QSize(0, 0)))
                 self.label.animation2.setKeyValueAt(1, QRect(self.label.currentpos, QSize(80, 96)))
                 self.label.animation2.setDuration(800)
-                
-                
-        
-        
-
-
 
 
 
@@ -228,12 +240,25 @@ class TestWindow(QtWidgets.QMainWindow):
             self.label.isnotanimated()
             self.fallanimationgroup.start()
     
-    def winpopup(self, amount_won):
-        dlg = QtWidgets.QDialog(self)
-        dlg.setWindowTitle(f"You won ${amount_won}")
-        dlg.exec()
-            
-            
+
+    def winpopup(self):
+        if self.dlg_off:
+            self.dlg = QtWidgets.QDialog(self)
+            self.dlg.setWindowTitle(f"You win!")
+            self.dlg.resize(QSize(100, 25))
+            label = QtWidgets.QLabel(text=f"You win ${self.lastwin:.2f}")
+            label.setParent(self.dlg)
+            self.dlg_off = False
+            label.show()
+            self.dlg.show()
+    
+    
+    def getridofpopup(self):
+        try:
+            self.dlg.destroy()
+            self.dlg_off = True
+        except AttributeError:
+            pass
 
     def startanimationgroup(self):
         self.animationgroup.start()
@@ -246,6 +271,8 @@ class CustomLabels(QtWidgets.QLabel):
     Args:
         QtWidgets (_type_): _description_
     """    
+
+    
 
     def __init__(self):
         
@@ -261,6 +288,7 @@ class CustomLabels(QtWidgets.QLabel):
         self.height = 96
         self.setMaximumWidth(self.width)
         self.setMaximumHeight(self.height)
+        
 
     @Property(bool)
     def isanimated(self):
@@ -283,7 +311,7 @@ class CustomLabels(QtWidgets.QLabel):
     @Property(QPoint)
     def shiftedpos(self):
         return self.shiftedposition
-
+    
     
     def setpos(self, pos:QPoint):
         self.currentposition = pos
