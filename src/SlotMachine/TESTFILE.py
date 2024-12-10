@@ -66,6 +66,14 @@ class TestWindow(QtWidgets.QMainWindow):
             
 
     def createlabelarray(self, xpos):
+        """Create a reel of customlabels that is used to display the symbols on the playingfield.
+
+        Args:
+            xpos (int): The x position of the reel on the screen.
+
+        Returns:
+            numpy array: array of 5 custom labels with same xposition and stacked vertically with yposition.
+        """        
         self.labels = []
         for y in range(5):
             ypos = y * 96
@@ -82,6 +90,9 @@ class TestWindow(QtWidgets.QMainWindow):
 
     
     def displayreel(self):
+        """Generate a new playingfield and starts the fallinganimation for the labels in the slots.
+        When the fallinganimation is finished, the displaywinners method is called.
+        """        
         
         self.animationgroup = QParallelAnimationGroup()
         
@@ -101,6 +112,8 @@ class TestWindow(QtWidgets.QMainWindow):
     
 
     def printvisibility(self):
+        """Print the visibility setting of the labels. 
+        """        
         this_arr = np.empty((5, 6))
         for x in range(5):
             for y in range(6):
@@ -118,6 +131,9 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
     def displaywinnersnew(self):
+        """Displaywinners checks the displayarray for winning lines and creates two animationgroups for the labels that belong to winning lines.
+            the animationgroups for straight lines and Animations for zigzag lines are added to a sequential animationgroup.
+        """        
         straight_arr, zigzag_arr = self.playingfield.checkwinnings()
         arrlist = [straight_arr, zigzag_arr]
         self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
@@ -153,6 +169,9 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
     def createfallanimation(self):
+        """Creates the fallinganimation that is used whenever a new playingfield is generated.
+        The animation is an attribute of the customlabels and only needs to be generated once for each label in the labelarray.
+        """        
         for x in range(5):
             for y in range(6):
                 xpos = 200 + y * 80
@@ -166,6 +185,9 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
     def createwinanimation(self):
+        """Creates the winning animation that is used for labels that are part of a winning combination.
+        The animation is an attribute of the customlabels and only needs to be generated once for each label in the labelarray.
+        """        
         for x in range(5):
             for y in range(6):
                 self.label: CustomLabels = self.label_array[x, y]
@@ -184,6 +206,13 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
     def textinwindownew(self, text, xpos, index):
+        """Set a new image for the customlabel that corresponds to the value at that specific slot.
+
+        Args:
+            text (list[str]): List of the displayvalues of one of the reels.
+            xpos (None): not used (for now)
+            index (int): Index of the column where the reel is, between 0 and 5.
+        """        
         self.anims = []
         # self.animationgroup = QParallelAnimationGroup()
         for i, letter in enumerate(text):
@@ -198,7 +227,11 @@ class TestWindow(QtWidgets.QMainWindow):
             self.label.show()
             self.label.isnotanimated()
             self.fallanimationgroup.start()
-            
+    
+    def winpopup(self, amount_won):
+        dlg = QtWidgets.QDialog(self)
+        dlg.setWindowTitle(f"You won ${amount_won}")
+        dlg.exec()
             
             
 
@@ -208,8 +241,14 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
 class CustomLabels(QtWidgets.QLabel):
+    """Custom label class used for easier animations in the slot machine.
+
+    Args:
+        QtWidgets (_type_): _description_
+    """    
 
     def __init__(self):
+        
 
         super().__init__()
 
@@ -254,6 +293,11 @@ class CustomLabels(QtWidgets.QLabel):
     
 
     def setnewimage(self, filename):
+        """Used set a different image on the label.
+
+        Args:
+            filename (str): The dictionary key for the images.
+        """        
         
         self.pixmap1 = QPixmap()
         choices = {

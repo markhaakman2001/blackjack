@@ -9,15 +9,15 @@ class Reels:
 
         # What the slot machine has to display, instead of integers
         self.possible_values = { 
-            1 : "10",
-            2 : "J",
-            3 : "Q",
-            4 : "K",
-            5 : "A",
-            6 : "2",
-            7 : "3",
-            8 : "4",
-            9 : "5",
+            5 : "10",
+            6 : "J",
+            7 : "Q",
+            8 : "K",
+            9 : "A",
+            1 : "2",
+            2 : "3",
+            3 : "4",
+            4 : "5",
         }
 
         self.inverse_possible_values = {v: k for k, v in self.possible_values.items()}
@@ -28,6 +28,8 @@ class Reels:
     
 
     def generate_reel(self):
+        """For each of the 5 slots in the reel, choose a random integer between 1 and 9 that corresponds to a symbol in the game.
+        """        
 
         new_reel = []
 
@@ -46,6 +48,8 @@ class Reels:
         
 
 class PlayingField:
+    """The playingfield is the full screen with 6 reels.
+    """    
 
     def __init__(self):
 
@@ -57,6 +61,8 @@ class PlayingField:
         self.full_field_disp = np.empty((5, 6), dtype='<U5')
     
     def generate_field(self):
+        """Generate new reels for all 6 reels in the playingfield.
+        """        
         
         for i, reel in enumerate(self.reels):
             reel.generate_reel()
@@ -115,6 +121,22 @@ class PlayingField:
 
         return straight_arr, zigzag_arr
     
+    def prizecheck(self, symbol_val:int, length:int, betsize):
+        calculator = { 
+            1 : lambda x, y: y * x*0.1,
+            2 : lambda x, y: y * x *  0.2,
+            3 : lambda x, y: y * x *  0.2,
+            4 : lambda x, y: y * x *  0.2,
+            5 :  lambda x, y: y * x * 0.2 ,
+            6 : lambda x, y: y * x * 0.5,
+            7 : lambda x, y: y * x * 0.5,
+            8 : lambda x, y: y * x * 0.6,
+            9 : lambda x, y: y * x * 2, 
+            }
+        winamount = calculator.get(symbol_val)(length, betsize)
+        return winamount
+
+
     
     def winningline(self, line):
         inarow = 0
