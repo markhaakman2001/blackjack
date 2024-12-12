@@ -1,4 +1,5 @@
 from PySide6 import QtWidgets
+from PySide6.QtWidgets import QStyleOption, QStyle
 from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QEasingCurve, QSize, Qt
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
@@ -23,6 +24,8 @@ class TestWindow(QtWidgets.QMainWindow):
 
         self.bank = BankAccount()
         self.bank.deposit(10000)
+        self.funds = self.bank._get_funds()
+        print(self.funds)
 
         self.central_widget = QtWidgets.QWidget()
         self.resize(900, 700)
@@ -45,6 +48,14 @@ class TestWindow(QtWidgets.QMainWindow):
         self.betbutton.move(self.betbutton.pos)
         self.betbutton.resize(QSize(50, 50))
 
+        self.balance = QtWidgets.QTextEdit()
+        self.balance.setParent(self.central_widget)
+        self.balance.pos = QPoint(150, 575)
+        self.balance.move(self.balance.pos)
+        self.balance.resize(QSize(100, 50))
+                              
+
+
         self.betbutton.addItems(["$0.1", "$0.2", "$0.4", "$0.6", "$1", "$2", "$5", "$10"])
         self.betsizes = [0.1, 0.2, 0.4, 0.6, 1, 2, 5, 10]
 
@@ -54,7 +65,7 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
         self.fallanimationgroup = QParallelAnimationGroup()
-        self.sequantialanimgroup = QSequentialAnimationGroup()
+        # self.sequantialanimgroup = QSequentialAnimationGroup(self)
         
         self.sequentialanimgroup1 = QSequentialAnimationGroup(self)
         self.sequentialanimgroup2 = QSequentialAnimationGroup(self)
@@ -107,6 +118,11 @@ class TestWindow(QtWidgets.QMainWindow):
         arr = np.array(self.labels)
         return arr
     
+    def update_balance(self):
+        self.balance.clear()
+        self.balance.append(f"Current balance: ${self.bank._get_funds():.2f}")
+
+
     def displayreel(self):
         """Generate a new playingfield and starts the fallinganimation for the labels in the slots.
         When the fallinganimation is finished, the displaywinners method is called.
@@ -116,6 +132,8 @@ class TestWindow(QtWidgets.QMainWindow):
         self.lastwin = 0
         
         self.printvisibility()
+        self.bank.placebet(self.betsizes[self.betbutton.currentIndex()])
+        self.update_balance()
         # Generate a new random array of values
         self.playingfield.generate_field()
         self.start_btn.setEnabled(False)
@@ -126,6 +144,7 @@ class TestWindow(QtWidgets.QMainWindow):
         
         #self.displaywinnersnew()
         self.fallanimationgroup.finished.connect(self.displaywinnersnew)
+        
         
         # self.displaywinners()
     
@@ -143,10 +162,9 @@ class TestWindow(QtWidgets.QMainWindow):
     
     def enablestart(self):
         self.start_btn.setEnabled(True)
-
+        self.update_balance()
 
     
-
     def displaywinnersnew(self):
         """Displaywinners checks the displayarray for winning lines and creates two animationgroups for the labels that belong to winning lines.
             the animationgroups for straight lines and Animations for zigzag lines are added to a sequential animationgroup.
@@ -154,7 +172,7 @@ class TestWindow(QtWidgets.QMainWindow):
         straight_arr, zigzag_arr, totalwin = self.playingfield.checkwinnings(betsize=self.betsizes[self.betbutton.currentIndex()])
         arrlist = [straight_arr, zigzag_arr]
         self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
-        
+        self.sequantialanimgroup = QSequentialAnimationGroup(self)
         
         self.sequantialanimgroup.finished.connect(self.enablestart)
         for i, linearray in enumerate(arrlist):
@@ -182,6 +200,7 @@ class TestWindow(QtWidgets.QMainWindow):
             
         else:
             self.signal2.emit()
+
     
         
 
@@ -251,6 +270,8 @@ class TestWindow(QtWidgets.QMainWindow):
             self.dlg_off = False
             label.show()
             self.dlg.show()
+            self.bank.add_winnings(self.lastwin)
+            self.update_balance()
     
     
     def getridofpopup(self):
@@ -331,7 +352,7 @@ class CustomLabels(QtWidgets.QLabel):
         choices = {
             "A":"acecard.jpg",
             "K": "kheart.jpg",
-            "Q": "Qheart.jpg",
+            "Q": "qheart.jpg",
             "J": "jhearts.jpg",
             "10": "10heart.jpg",
             "5": "5heart.jpg",
@@ -347,6 +368,8 @@ class CustomLabels(QtWidgets.QLabel):
         self.setPixmap(self.pixmap1)
         self.setScaledContents(True)
 
+
+        
 
 
 

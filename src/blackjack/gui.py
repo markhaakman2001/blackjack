@@ -2,6 +2,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Slot
 import PySide6.QtCore as Core
 from src.blackjack.gui_table import Table
+from src.blackjack.gui_shoehand import Hand
 import sys
 import time
 
@@ -245,7 +246,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
             if split:
 
-                hand = self.table.hands[self.num][self.split_num]
+                hand: Hand = self.table.hands[self.num][self.split_num]
 
                 if hand.handtotal(hand.softhand()) >= 21:
                     text = self.table.checkforbust(hand)

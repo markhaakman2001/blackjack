@@ -126,6 +126,7 @@ class PlayingField:
                 win = self.prizecheck(symbol_val=symbol, length=straightwins, betsize=betsize)
                 totalwin += win
                 straight_arr[i, :straightwins] = True
+                
             zigzags.append(zigzagwins)
             straights.append(straightwins)
         
@@ -168,9 +169,9 @@ class PlayingField:
 class BankAccount:
 
     def __init__(self):
-        self.current_funds = 0
-        self.funds = 0
-        self._bet = 0
+        self.current_funds : float = 0
+        self.funds : float = 0
+        self._bet : float = 0
 
     def deposit(self, amount):
         self._set_funds(amount)
@@ -180,14 +181,18 @@ class BankAccount:
     def placebet(self, amount):
         self.current_bet = amount
         self.current_funds -= amount
+        self._set_funds(amount * (-1))
+        print(self.current_funds, self._get_funds())
     
     def add_winnings(self, winnings):
         self.current_funds += winnings
         self.current_bet = 0
+        self._set_funds((winnings))
+        print(self.current_funds, self._get_funds())
     
 
     def _get_funds(self):
-        return self.current_funds
+        return self.funds
     
     def _set_funds(self, amount):
         self.funds += amount

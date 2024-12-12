@@ -1,5 +1,6 @@
-from src.blackjack.gui_shoehand import Shoe, Hand, Bank
+from src.blackjack.gui_shoehand import Hand, Bank
 from src.blackjack.gui_playerdealer import Player, Dealer
+from src.extrafiles.labels import EasyCardLabels, Shoe, DeckOfCards
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot
 import sys
@@ -25,8 +26,8 @@ class Table:
     def deal_first_cards(self):
 
         for x in range(2):
-            cards = self.shoe.getcard(n=int(len(self.hands)+1))
-            self.dealer.hand.addcard(cards.pop(-1))
+            cards, card_symbols = self.shoe.getcard(n_cards=int(len(self.hands)+1))
+            self.dealer.hand.addcard(cards.pop(-1), card_symbols.pop(-1))
             self.player.get_cards(cards)
 
 
@@ -91,9 +92,9 @@ class Table:
         result = self.check_for_win(dealer_total, hand)
         return result
 
-    def hitcard(self, hand):
-        card = self.shoe.getcard()
-        hand.addcard(card)
+    def hitcard(self, hand : Hand):
+        card, cardsymbol = self.shoe.getcard()
+        hand.addcard(card, cardsymbol)
         text = f"Cards are {hand.cards}, total: {hand.handtotal(hand.softhand())}"
         return card, text
 
@@ -106,7 +107,7 @@ class Table:
             return True
 
 
-    def split(self, hand):
+    def split(self, hand : Hand):
         """split hand
 
         Args:
@@ -140,7 +141,7 @@ class Table:
         self.deal_first_cards()
         
         
-        print(self.shoe.cards)
+        #print(self.shoe.cards)
 
         for i, hand in enumerate(self.hands):
 

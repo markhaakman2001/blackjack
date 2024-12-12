@@ -1,63 +1,66 @@
 import numpy as np
 import random
 from math import *
+from src.extrafiles.labels import Shoe, DeckOfCards, EasyCardLabels
 
-class Shoe:
 
-    def __init__(self, d = 8):
-        """create a shoe with multiple decks
+# class Shoe:
 
-        Args:
-            d (int, optional): amount of decks. Defaults to 8.
-        """        
-        values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-        deck =  values * 4
-        self.decks = d
-        self.cards = deck * d
-        random.shuffle(self.cards)
+#     def __init__(self, d = 8):
+#         """create a shoe with multiple decks
+
+#         Args:
+#             d (int, optional): amount of decks. Defaults to 8.
+#         """        
+#         values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
+#         deck =  values * 4
+#         self.decks = d
+#         self.cards = deck * d
+#         random.shuffle(self.cards)
 
     
-    def getcard(self, n=1):
-        """take the next card or cards from the shoe.
+#     def getcard(self, n=1):
+#         """take the next card or cards from the shoe.
 
-        Args:
-            n (int, optional): amount of cards to be taken. Defaults to 1.
+#         Args:
+#             n (int, optional): amount of cards to be taken. Defaults to 1.
 
-        Returns:
-            int, list: the next card or cards from the shoe
-        """          
-        if n == 1:
-            card = self.cards.pop(0)
-            return card
-        else:
-            cards = []
-            for x in range(n):
-                card = self.cards.pop(0)
-                cards.append(card)
-            return cards
+#         Returns:
+#             int, list: the next card or cards from the shoe
+#         """          
+#         if n == 1:
+#             card = self.cards.pop(0)
+#             return card
+#         else:
+#             cards = []
+#             for x in range(n):
+#                 card = self.cards.pop(0)
+#                 cards.append(card)
+#             return cards
     
 
-    def neednewshoe(self):
-        return (len(self.cards) / (self.decks * 52)) < 0.5
+#     def neednewshoe(self):
+#         return (len(self.cards) / (self.decks * 52)) < 0.5
     
 
-    def getnewshoe(self):
-        self.__init__(self.decks)
+#     def getnewshoe(self):
+#         self.__init__(self.decks)
 
 
-    def new_shoe(self, decks):
-        values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-        deck =  values * 4
-        self.shoe = deck * decks
+#     def new_shoe(self, decks):
+#         values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
+#         deck =  values * 4
+#         self.shoe = deck * decks
 
         
-        self.shoe = random.shuffle(self.shoe)
+#         self.shoe = random.shuffle(self.shoe)
 
 
 class Hand:
     
     def __init__(self, bet=0):
         self.cards = []
+        self.card_symbols = []
         self.total = 0
         self.hands = []
         self.results = []
@@ -68,13 +71,14 @@ class Hand:
     def deactivate(self):
         self.active = False
 
-    def addcard(self, card):
+    def addcard(self, card, cardsymbol):
         """Add a card to the hand
 
         Args:
             card (int): The card thats added
         """        
         self.cards.append(card)
+        self.card_symbols.append(cardsymbol)
     
 
     def handtotal(self, ace = False):
@@ -98,14 +102,14 @@ class Hand:
         return self.total
         
     
-    def splithand(self, shoe):
+    def splithand(self, shoe : Shoe):
         self.split = True
         self.hands = [Hand(), Hand()]
         
         split_texts = []
 
         for i, hand in enumerate(self.hands):
-            hand.addcard(self.cards[0])
+            hand.addcard(self.cards[0], self.card_symbols[0])
             hand.addcard(shoe.getcard())
             split_text = f"Splithand {i+1}, cards: {hand.cards} : {hand.handtotal(hand.softhand())}"
             split_texts.append(split_text)
@@ -139,7 +143,7 @@ class Hand:
         elif total >= 17:
             return False
 
-    def PlayHand(self, card, no_double=True):
+    def PlayHand(self, card, cardsymbol, no_double=True):
         """Give the player a card and show the new total.
 
         Args:
@@ -148,7 +152,7 @@ class Hand:
         Returns:
             Bool: True if player hits, False if player busts or stands.
         """        
-        self.addcard(card)
+        self.addcard(card, cardsymbol)
         print(f"Your cards are {self.cards}, Total is {self.handtotal(self.softhand())}")
 
         
