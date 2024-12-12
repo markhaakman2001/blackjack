@@ -28,18 +28,21 @@ class Table:
         for x in range(2):
             cards, card_symbols = self.shoe.getcard(n_cards=int(len(self.hands)+1))
             self.dealer.hand.addcard(cards.pop(-1), card_symbols.pop(-1))
-            self.player.get_cards(cards)
+            self.player.get_cards(cards, card_symbols)
 
 
     def print_first_results(self):
         first_results = []
+        first_symbols = []
 
         for i, hand in enumerate(self.hands):
+            hand:Hand
             first_results.append(f"Hand {i + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
+            first_symbols.append(hand.card_symbols)
         
         dealerupcard = f"Dealer upcard is {self.dealer.dealerupcard()}"
 
-        return first_results, dealerupcard
+        return first_results, dealerupcard, first_symbols
 
     def checkforbust(self, hand):
 
@@ -174,8 +177,8 @@ class Table:
         self.dealer.reset()
 
     def dealer_play(self):
-        card = self.shoe.getcard()
-        txt = self.dealer.dealerplay(card)
+        card, cardsymbol = self.shoe.getcard(n_cards=1)
+        txt = self.dealer.dealerplay(card, cardsymbol)
         return txt
 
 

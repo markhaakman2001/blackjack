@@ -13,14 +13,14 @@ class Player:
         for x in range(hands):
             self.hands.append(Hand())
     
-    def get_cards(self, cards):
+    def get_cards(self, cards, cardsymbols):
         """add cards to the players hands
 
         Args:
             cards (_type_): the cards to be added
         """        
         for i, hand in enumerate(self.hands):
-            hand.addcard(cards[i])
+            hand.addcard(cards[i], cardsymbols[i])
 
 
     def print_hands(self):
@@ -41,9 +41,9 @@ class Dealer:
         upcard = self.hand.cards[0]
         return upcard
     
-    def dealerplay(self, card):
+    def dealerplay(self, card, card_symbol):
         
-        self.hand.addcard(card)
+        self.hand.addcard(card, card_symbol)
         return f"Dealer pulls {card}, cards are {self.hand.cards}, total is {self.hand.handtotal(self.hand.softhand())}"
     
     def reset(self):

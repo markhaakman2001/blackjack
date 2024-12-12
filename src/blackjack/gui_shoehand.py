@@ -110,7 +110,8 @@ class Hand:
 
         for i, hand in enumerate(self.hands):
             hand.addcard(self.cards[0], self.card_symbols[0])
-            hand.addcard(shoe.getcard())
+            card, card_symbol = shoe.getcard()
+            hand.addcard(card, card_symbol)
             split_text = f"Splithand {i+1}, cards: {hand.cards} : {hand.handtotal(hand.softhand())}"
             split_texts.append(split_text)
         
@@ -143,7 +144,7 @@ class Hand:
         elif total >= 17:
             return False
 
-    def PlayHand(self, card, cardsymbol, no_double=True):
+    def PlayHand(self, card, cardsymbol:str, no_double=True):
         """Give the player a card and show the new total.
 
         Args:

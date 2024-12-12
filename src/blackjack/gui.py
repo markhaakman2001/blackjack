@@ -1,8 +1,9 @@
 from PySide6 import QtWidgets
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSize, QPoint
 import PySide6.QtCore as Core
 from src.blackjack.gui_table import Table
 from src.blackjack.gui_shoehand import Hand
+from src.extrafiles.labels import EasyCardLabels
 import sys
 import time
 
@@ -13,10 +14,11 @@ class BJinterface(QtWidgets.QMainWindow):
 
         super().__init__()
         
-        self.num = 0
 
         central_widget =  QtWidgets.QWidget()
         self.setCentralWidget(central_widget)
+        self.showFullScreen()
+        
 
         self.vbox = QtWidgets.QVBoxLayout(central_widget)
         self.deal_label= QtWidgets.QLabel(text="Dealer:")
@@ -24,13 +26,17 @@ class BJinterface(QtWidgets.QMainWindow):
 
         self.deal_info = QtWidgets.QTextEdit(self)
         self.deal_info.setReadOnly(True)
-        self.vbox.addWidget(self.deal_info)
+        self.deal_info.size = QSize(100, 100)
+        self.deal_info.resize(self.deal_info.size)
+        self.deal_info.setParent(self)
+        self.deal_info.show()
 
         self.hand_lbl = QtWidgets.QLabel(text="Your hands:")
         self.vbox.addWidget(self.hand_lbl)
 
         self.hand_info = QtWidgets.QTextEdit(self)
         self.hand_info.setReadOnly(True)
+        self.hand_info.size = QSize(100, 100)
         self.vbox.addWidget(self.hand_info)
 
         self.display_txt = QtWidgets.QTextEdit(self)
@@ -84,10 +90,13 @@ class BJinterface(QtWidgets.QMainWindow):
 
         self.play_button.clicked.connect(self.start_round)
 
-        self.table = None
-        self.splitornot = False
-        self.split_flag = False
-        self.split_num = 0
+        self.table       = None     # table is initiated later
+        self.splitornot  = False    # this is True if the current hand is a splithand
+        self.split_flag  = False    # this is True if the current hand is split more than once
+        self.num         = 0        # Keeps track of the index of the current main hand being played
+        self.split_num   = 0        # Keeps track of the index of the current split hand being played
+        self.card_labels = []       # This list holds all the card labels of the cards that have been revealed.
+        self.popup_off   = True     # If there already is a popup this should be False
 
         self.timer = Core.QTimer()
 
@@ -111,14 +120,24 @@ class BJinterface(QtWidgets.QMainWindow):
 
         if self.table:
             self.table.deal_first_cards()
-            first_results, dealerupcard = self.table.print_first_results()
+            first_results, dealerupcard, first_symbols = self.table.print_first_results()
+            
+            for symbol in first_symbols[0]:
+                symbol:str
+                self.label = EasyCardLabels()
+                self.label.setParent(self.popup)
+                self.label.setnewimage(symbol)
+                self.label.show()
+            
             
             self.update_player(text = "\n".join([first_results[x] for x in range(len(first_results))]))
             print(first_results)
             self.update_dealer(dealerupcard)
 
+
     @Slot()
     def final_results(self):
+
         if self.table:
             if self.split_flag:
                 results = []
@@ -138,16 +157,24 @@ class BJinterface(QtWidgets.QMainWindow):
         
 
     def nexthand(self, split=False):
+        """This method is called in the following cases: 1) whenever the player chooses stand. 2) Whenever the player busts. 3) Whenever the player has a blackjack or when his hard total is 21.
+        The method iterates through the last hand and updates the results accordingly. When all hands are played the dealer will pull cards untill he reaches 17 or higher.
+
+        Args:
+            split (bool, optional): True if the hand is a splithand. Defaults to False.
+        """        
 
 
         if self.table:
             
             split = self.splitornot
 
+            # check if the current hand is a split hand
             if split:
                 
                 texts = []
 
+                # check the splithands cards
                 for i, hand in enumerate(self.table.hands[self.num]):
                     texts.append(f"Splithand {i+1}: {hand.cards}: {hand.handtotal(hand.softhand())}")
 
@@ -155,15 +182,18 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.textboxes[self.num].clear()
                 self.textboxes[self.num].append("\n".join([text for text in texts]))
 
-
+                # check if the splithand is the last hand in the current split
                 if  self.split_num == (len(self.table.hands[self.num])):
                     
-                    self.num += 1
-                    self.split_num = 0
+                    self.num       += 1            
+                    self.split_num  = 0            
                     self.splitornot = False
                     
+                    # also check if this hand is the final hand for all main hands
                     if self.lasthand():
                         self.nexthand()
+                    
+                    # update texts
                     else:
                         hand = self.table.hands[self.num]
                         self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
@@ -182,6 +212,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
             else:
                 
+                # if the last hand is a list, then it was a split and the results must be updated accordingly
                 if isinstance(self.table.hands[self.num - 1], list):
                     texts = []
 
@@ -195,7 +226,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 else:
                     self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
                 
-                
+                # if the lasthand was played, then its the dealers turn to play
                 if self.lasthand():
                     
                     dealer = self.table.dealer
@@ -203,8 +234,9 @@ class BJinterface(QtWidgets.QMainWindow):
                     
                     dealer_updates.append(f"Dealer shows {dealer.hand.cards}, total is {dealer.hand.handtotal(dealer.hand.softhand())}")
                     self.update_dealer(dealer_updates[0])
-                    dealerplay = dealer.hand.dealerturn()
 
+                    # while the dealer has less than 17 he must hit a card
+                    dealerplay = dealer.hand.dealerturn()
                     while dealerplay:
                         
                         dealer_updates.append(self.table.dealer_play())
@@ -311,8 +343,8 @@ class BJinterface(QtWidgets.QMainWindow):
         if self.table:
             split = self.splitornot
             if split:
-                n = self.split_num
-                hand = self.table.hands[self.num][n]
+                n          = self.split_num
+                hand       = self.table.hands[self.num][n]
                 card, text = self.table.hitcard(hand)
                 self.update_txt(f"You doubled, your new card is {card}.")
                 self.update_player(text)
@@ -321,7 +353,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.nexthand()
 
             else:
-                hand = self.table.hands[self.num]
+                hand       = self.table.hands[self.num]
                 card, text = self.table.hitcard(hand)
                 self.update_txt(f"You doubled, your new card is {card}.")
                 self.update_player(text)
@@ -352,9 +384,9 @@ class BJinterface(QtWidgets.QMainWindow):
 
                 self.split_flag = True
                 self.splitornot = True
-                
-                current_hand = self.table.hands[self.num]
-                texts, hands = self.table.split(current_hand)
+                current_hand    = self.table.hands[self.num]
+                texts, hands    = self.table.split(current_hand)
+
                 current_textbox.clear()
                 current_textbox.append(f"\n".join([text for text  in texts]))
                 self.table.hands.pop(self.num)
@@ -397,8 +429,9 @@ class BJinterface(QtWidgets.QMainWindow):
     
     
     def start_round(self):
-        self.num = 0
-        self.table = Table(hands=self.n_hands.value())
+        self.createpopupwindow()
+        self.num       = 0
+        self.table     = Table(hands=self.n_hands.value())
         self.textboxes = []
 
         for x in range(self.n_hands.value()):
@@ -415,7 +448,43 @@ class BJinterface(QtWidgets.QMainWindow):
             self.blackjack()
         else:
             self.update_txt("Hand 1, pick an action")
-        
+
+
+    def createpopupwindow(self):
+        if self.popup_off:
+            self.popup = QtWidgets.QDialog(self)
+
+            self.popup.resize(QSize(1000, 1000))
+            self.popup.show()
+            
+
+
+
+
+    def CreateCardLabel(self, card_symbol:str):
+
+        if not self.popup_off:
+            self.label : EasyCardLabels = EasyCardLabels()
+            self.label.setnewimage(card_symbol)
+            
+            return self.label
+            
+            
+
+    def destroypopup(self):
+        try:
+            self.popup.destroy()
+            self.popup_off = True
+        except AttributeError:
+            pass
+
+
+
+
+
+
+
+
 
 def main():
 
