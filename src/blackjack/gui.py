@@ -69,6 +69,9 @@ class BJinterface(QtWidgets.QMainWindow):
         self.n_hands       = QtWidgets.QSpinBox()
         self.play_button   = QtWidgets.QPushButton(text="Play")
 
+
+        self.extra_elevations   = [-40, -20, 0, 0, 0, -20, -40]
+        self.hand_label_list    = []
         
         self.hit_button.setParent(self)
         self.stand_button.setParent(self)
@@ -100,10 +103,6 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_button.show()
         self.n_hands.show()
         self.play_button.show()
-
-
-        
-
         
 
         self.n_hands.setValue(2)
@@ -146,11 +145,18 @@ class BJinterface(QtWidgets.QMainWindow):
 
         if self.table:
             self.table.deal_first_cards()
-            first_results, dealerupcard, first_symbols = self.table.print_first_results()
+            first_results, dealerupcard, first_symbols, dealer_symbols = self.table.print_first_results()
             
+            for x in range(len(self.table.hands)):
+                hand : Hand = self.table.hands[x]
+                label : EasyCardLabels = self.hand_label_list[x]
+                label.clear()
+                label.setText(f"{hand.handtotal(hand.softhand())}")
+                label.update()
+
+            self.firstanimations(first_symbols, dealer_symbol=dealer_symbols[0])
             
-            self.firstanimations(first_symbols)
-            
+
             
             self.update_player(text = "\n".join([first_results[x] for x in range(len(first_results))]))
             print(first_results)
@@ -161,8 +167,11 @@ class BJinterface(QtWidgets.QMainWindow):
     def final_results(self):
 
         if self.table:
+
             if self.split_flag:
+
                 results = []
+                
                 for i, hand in enumerate(self.table.hands):
 
                     if isinstance(hand, list):
@@ -171,6 +180,9 @@ class BJinterface(QtWidgets.QMainWindow):
                     else:
                         results.append(self.table.winlose(hand))
                         self.textboxes[i].append(self.table.winlose(hand))
+                        label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                        label.clear()
+                        label.setText(f"{self.table.hands[self.num].handtotal(self.table.hands[self.num].softhand())}")
            
             else:
                 results = [self.table.winlose(hand) for hand in self.table.hands]
@@ -203,6 +215,11 @@ class BJinterface(QtWidgets.QMainWindow):
                 
                 self.textboxes[self.num].clear()
                 self.textboxes[self.num].append("\n".join([text for text in texts]))
+
+                label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                label.clear()
+                label.setText("\n".join([text for text in texts]))
+                
 
                 # check if the splithand is the last hand in the current split
                 if  self.split_num == (len(self.table.hands[self.num])):
@@ -245,9 +262,17 @@ class BJinterface(QtWidgets.QMainWindow):
                     self.textboxes[self.num - 1].clear()
                     self.textboxes[self.num - 1].append("\n".join([text for text in texts]))
 
+                    label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                    label.clear()
+                    label.setText("\n".join([text for text in texts]))
+
                 else:
                     self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
-                
+                    label : QtWidgets.QLabel = self.hand_label_list[self.num - 1]
+                    label.clear()
+                    label.setText(f"{self.table.hands[self.num -1].handtotal(self.table.hands[self.num-1].softhand())}")
+
+
                 # if the lasthand was played, then its the dealers turn to play
                 if self.lasthand():
                     
@@ -328,17 +353,24 @@ class BJinterface(QtWidgets.QMainWindow):
 
             if split:
 
-                card, text = self.table.hitcard(self.table.hands[self.num][self.split_num])
+                card, text, cardsymbol = self.table.hitcard(self.table.hands[self.num][self.split_num])
                 self.update_txt(f"You hit, your new card is {card}.")
                 self.update_player(text)
                 self.checkforbust()
                       
             else:
-
-                card, text = self.table.hitcard(self.table.hands[self.num])
+                hand : Hand = self.table.hands[self.num]
+                card, text, cardsymbol = self.table.hitcard(hand)
+                n_cards =  len(hand.cards) - 1
+                self.createcardanimation(cardsymbol, n_cards)
+                label : EasyCardLabels = self.hand_label_list[self.num]
+                label.clear()
+                label.setText(f"{hand.handtotal(hand.softhand())}")
+                label.update()
                 self.update_txt(f"You hit, your new card is {card}.")
                 self.update_player(text)
                 self.checkforbust()
+        
 
     def stand(self, split=False):
 
@@ -458,8 +490,20 @@ class BJinterface(QtWidgets.QMainWindow):
         self.textboxes = []
 
         for x in range(self.n_hands.value()):
-            yposition = 450
-            xposition = x * 100
+
+            yposition  = 562 + int(self.extra_elevations[x])
+            xposition   = 65 + x * 128
+
+            n_label = QtWidgets.QLabel()
+            n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
+            n_label.setParent(self)
+            n_label.resize(QSize(80, 40))
+            n_label.move(QPoint(xposition, yposition))
+            self.hand_label_list.append(n_label)
+            n_label.show()
+
+
+
             txtbox = QtWidgets.QTextEdit()
             txtbox.setReadOnly(True)
             txtbox.append(f"Hand {x+1}: \n")
@@ -470,10 +514,9 @@ class BJinterface(QtWidgets.QMainWindow):
             #txtbox.show()
             
         self.update_txt("Round started, good luck!")
-        time.sleep(1.5)
         self.first_cards()
         if self.table.hands[0].blackjack():
-            self.blackjack()
+            self.firstcardanims.finished.connect(self.blackjack())
         else:
             self.update_txt("Hand 1, pick an action")
 
@@ -486,19 +529,24 @@ class BJinterface(QtWidgets.QMainWindow):
         return self.label
 
 
-    def firstanimations(self, first_symbols:list):
+    def firstanimations(self, first_symbols:list, dealer_symbol:str):
         self.animgroupseq    = QSequentialAnimationGroup()
         self.firstcardanims  = QSequentialAnimationGroup(self)
         self.secondcardanims = QSequentialAnimationGroup(self)
+        
+        
+        
 
         for x in range(len(first_symbols)):
             
+            yposition  = 490 + int(self.extra_elevations[x])
+
             for i, symbol in enumerate(first_symbols[x]):
                 symbol:str
-                yposition  = 550 - i * 50
-                xposition  = 125 + x * 125 + i*20
-                self.label = EasyCardLabels()
-
+                yposition  -= i * 35
+                xposition   = 75 + x * 128 + i*20
+                self.label  = EasyCardLabels()
+                
                 self.label.setParent(self)
                 self.label.setnewimage(symbol)
                 self.label.move(QPoint(800, 200))
@@ -508,16 +556,56 @@ class BJinterface(QtWidgets.QMainWindow):
                 
                 self.label.resize(QSize(60, 72))
                 self.label.show()
+                print(symbol)
                 
                 if i == 0:
                     self.firstcardanims.addAnimation(self.label.animation)
                 else:
                     self.secondcardanims.addAnimation(self.label.animation)
+        
+
+        self.deal_label = EasyCardLabels()
+        self.deal_label.setParent(self)
+        self.deal_label.setnewimage(dealer_symbol)
+        print(dealer_symbol)
+        self.deal_label.move(QPoint(800, 200))
+        self.deal_label.animation.setStartValue(QPoint(800, 200))
+        self.deal_label.animation.setEndValue(QPoint(500, 150))
+        self.deal_label.animation.setDuration(1000)
+        self.deal_label.resize(QSize(60, 72))
+        self.deal_label.show()
+
+            
         self.animgroupseq.addAnimation(self.firstcardanims)
+        self.animgroupseq.addAnimation(self.deal_label.animation)
         self.animgroupseq.addAnimation(self.secondcardanims)
         
         self.animgroupseq.start()
+    
+
+
+    def createcardanimation(self, card_symbol:str, n_cards:int):
+        self.label       = EasyCardLabels()
+        hand_number      = self.num
+        extra_elevations = self.extra_elevations
+
+        xposition  =  75 + hand_number * 128 + n_cards * 20
+        yposition  =  490 + int(extra_elevations[hand_number]) - 35 * n_cards
         
+
+        self.label.setnewimage(card_symbol)
+        self.label.setParent(self)
+        self.label.move(QPoint(800, 200))
+        self.label.animation.setStartValue(QPoint(800, 200))
+        self.label.animation.setEndValue(QPoint(xposition, yposition))
+        self.label.animation.setDuration(1000)
+        
+        self.label.resize(QSize(60, 72))
+        self.label.show()
+        self.label.animation.start()
+        
+
+
 
 
 def main():

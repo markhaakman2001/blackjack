@@ -170,7 +170,7 @@ class TestWindow(QtWidgets.QMainWindow):
         arrlist = [straight_arr, zigzag_arr]
         self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
         self.sequantialanimgroup = QSequentialAnimationGroup(self)
-        
+        self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
         self.sequantialanimgroup.finished.connect(self.enablestart)
         for i, linearray in enumerate(arrlist):
             self.anim_group[i].clear()
@@ -195,6 +195,7 @@ class TestWindow(QtWidgets.QMainWindow):
             self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
             self.sequantialanimgroup.start()
             
+          
         else:
             self.signal2.emit()
 

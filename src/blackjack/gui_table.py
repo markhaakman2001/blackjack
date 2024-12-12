@@ -41,8 +41,9 @@ class Table:
             first_symbols.append(hand.card_symbols)
         
         dealerupcard = f"Dealer upcard is {self.dealer.dealerupcard()}"
+        dealer_symbols = self.dealer.hand.card_symbols
 
-        return first_results, dealerupcard, first_symbols
+        return first_results, dealerupcard, first_symbols, dealer_symbols
 
     def checkforbust(self, hand):
 
@@ -99,7 +100,7 @@ class Table:
         card, cardsymbol = self.shoe.getcard()
         hand.addcard(card, cardsymbol)
         text = f"Cards are {hand.cards}, total: {hand.handtotal(hand.softhand())}"
-        return card, text
+        return card, text, cardsymbol
 
 
     def NextOrNot(self, hand):
@@ -182,11 +183,11 @@ class Table:
         return txt
 
 
-# def main():
-#     app = QtWidgets.QApplication(sys.argv)
-#     table = Table()
-#     table.ui.show()
-#     sys.exit(app.exec())
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    table = Table()
+    table.ui.show()
+    sys.exit(app.exec())
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
