@@ -1,14 +1,16 @@
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QStyleOption, QStyle
+from PySide6.QtWidgets import QStyleOption, QStyle, QGraphicsRotation
 from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QEasingCurve, QSize, Qt
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
 from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
-from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
+from src.extrafiles.backgroundwidget import BackGroundWidget
+from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter
 from math import *
 import numpy as np
 import random
 import sys
+
 
 
 class TestWindow(QtWidgets.QMainWindow):
@@ -16,8 +18,9 @@ class TestWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.centralwidget = QtWidgets.QWidget()
+        self.centralwidget = BackGroundWidget()
         self.setCentralWidget(self.centralwidget)
+        
         #self.label = EasyCardLabels()
         self.vbox = QtWidgets.QVBoxLayout()
         
@@ -142,15 +145,17 @@ class EasyCardLabels(QtWidgets.QLabel):
 
         super().__init__()
 
-        self.animated = False
-        self.pathname = "src/extrafiles/images/"
-        self.pixmap1 = QPixmap()
-        self.animation = QPropertyAnimation(self, b"pos", self)
-        self.animation2 = QPropertyAnimation(self, b"geometry", self)
-        self.width = 80
-        self.height = 96
-        self.setMaximumWidth(self.width)
-        self.setMaximumHeight(self.height)
+        self.rotation     =   QGraphicsRotation(self)
+        self.animated     =   False
+        self.pathname     =   "src/extrafiles/images/"
+        self.pixmap1      =   QPixmap()
+        self.animation    =   QPropertyAnimation(self, b"pos", self)
+        self.animation2   =   QPropertyAnimation(self, b"geometry", self)
+        self.width        =   60
+        self.height       =   72
+
+        self.setMaximumWidth(80)
+        self.setMaximumHeight(96)
         
 
     @Property(bool)
@@ -192,15 +197,23 @@ class EasyCardLabels(QtWidgets.QLabel):
         
         self.pixmap1 = QPixmap()
         self.pixmap1.load(f"{self.pathname}" + f"{cardname}.jpg")
-        self.pixmap = self.pixmap1
+        self.pixmap  = self.pixmap1
         self.setPixmap(self.pixmap1)
         self.setScaledContents(True)
+    
+    def rotatelabel(self, x_index=0):
+        self.rotation.setAngle(45)
+        self.rotation.setParent(self)
+        self.updateGeometry()
+        self.update()
+    
+
 
 
 
 def main():
-    app = QtWidgets.QApplication(sys.argv)
-    ui = TestWindow()
+    app  = QtWidgets.QApplication(sys.argv)
+    ui   = TestWindow()
     shoe = Shoe(4)
     ui.show()
     app.exec()

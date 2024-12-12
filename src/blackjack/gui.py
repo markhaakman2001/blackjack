@@ -1,9 +1,10 @@
 from PySide6 import QtWidgets
-from PySide6.QtCore import Slot, QSize, QPoint
+from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup
 import PySide6.QtCore as Core
 from src.blackjack.gui_table import Table
 from src.blackjack.gui_shoehand import Hand
 from src.extrafiles.labels import EasyCardLabels
+from src.extrafiles.backgroundwidget import BackGroundWidget
 import sys
 import time
 
@@ -15,79 +16,105 @@ class BJinterface(QtWidgets.QMainWindow):
         super().__init__()
         
 
-        central_widget =  QtWidgets.QWidget()
-        self.setCentralWidget(central_widget)
-        self.showFullScreen()
+        self.central_widget =  BackGroundWidget()
+        #self.setCentralWidget(self.central_widget)
+        self.central_widget.setParent(self)
         
-
-        self.vbox = QtWidgets.QVBoxLayout(central_widget)
+        self.resize(1000, 700)
+        self.central_widget.resize(QSize(1000, 700))
+        
+        
+        
         self.deal_label= QtWidgets.QLabel(text="Dealer:")
-        self.vbox.addWidget(self.deal_label)
+        
 
         self.deal_info = QtWidgets.QTextEdit(self)
         self.deal_info.setReadOnly(True)
-        self.deal_info.size = QSize(100, 100)
+        self.deal_info.size = QSize(300, 100)
         self.deal_info.resize(self.deal_info.size)
+        self.deal_label.setParent(self.deal_info)
+
         self.deal_info.setParent(self)
         self.deal_info.show()
 
         self.hand_lbl = QtWidgets.QLabel(text="Your hands:")
-        self.vbox.addWidget(self.hand_lbl)
+        
 
         self.hand_info = QtWidgets.QTextEdit(self)
         self.hand_info.setReadOnly(True)
-        self.hand_info.size = QSize(100, 100)
-        self.vbox.addWidget(self.hand_info)
+        self.hand_info.size = QSize(300, 100)
+        self.hand_info.resize(self.hand_info.size)
+        self.hand_info.move(QPoint(0, 100))
+        self.hand_info.setParent(self)
+        self.hand_info.show()
+
+        self.hand_lbl.setParent(self.hand_info)
+        self.hand_lbl.show()
 
         self.display_txt = QtWidgets.QTextEdit(self)
         self.display_txt.setReadOnly(True)
-        self.vbox.addWidget(self.display_txt)
+        self.display_txt.setParent(self)
+        self.display_txt.size = QSize(250, 115)
+        self.display_txt.resize(self.display_txt.size)
+        self.display_txt.move(QPoint(0, 635))
+        self.display_txt.show()
         
-        self.hbox_top = QtWidgets.QHBoxLayout()
-        self.vbox.addLayout(self.hbox_top)
-        
 
-        hbox = QtWidgets.QHBoxLayout()
-        self.vbox.addLayout(hbox)
 
-        hbox2 = QtWidgets.QHBoxLayout()
-        self.vbox.addLayout(hbox2)
-
-        hbox3 = QtWidgets.QHBoxLayout()
-        self.vbox.addLayout(hbox3)
-
-        self.confirm_btn = QtWidgets.QPushButton(text="Confirm Bet")
-        hbox3.addWidget(self.confirm_btn)
-
-        self.hit_button = QtWidgets.QPushButton(text="hit")
-        hbox.addWidget(self.hit_button)
-
-        self.stand_button = QtWidgets.QPushButton(text="Stand")
-        hbox.addWidget(self.stand_button)
-
+        self.confirm_btn   = QtWidgets.QPushButton(text="Confirm Bet")
+        self.hit_button    = QtWidgets.QPushButton(text="hit")
+        self.stand_button  = QtWidgets.QPushButton(text="Stand")
         self.double_button = QtWidgets.QPushButton(text="Double")
-        hbox.addWidget(self.double_button)
+        self.split_button  = QtWidgets.QPushButton(text="Split")
+        self.n_hands       = QtWidgets.QSpinBox()
+        self.play_button   = QtWidgets.QPushButton(text="Play")
 
-        self.split_button = QtWidgets.QPushButton(text="Split")
-        hbox.addWidget(self.split_button)
+        
+        self.hit_button.setParent(self)
+        self.stand_button.setParent(self)
+        self.double_button.setParent(self)
+        self.split_button.setParent(self)
+        self.n_hands.setParent(self)
+        self.play_button.setParent(self)
 
-        self.n_hands = QtWidgets.QSpinBox()
-        hbox2.addWidget(self.n_hands)
+        # Resize buttons
+        self.hit_button.resize(QSize(250, 35))
+        self.stand_button.resize(QSize(250, 35))
+        self.double_button.resize(QSize(250, 35))
+        self.split_button.resize(QSize(250, 35))
+        self.n_hands.resize(QSize(250, 35))
+        self.play_button.resize(QSize(250, 35))
+        
+        # move to correct position
+        self.double_button.move(QPoint(0, 600))
+        self.hit_button.move(QPoint(250, 600))
+        self.stand_button.move(QPoint(500, 600))
+        self.split_button.move(QPoint(750, 600))
+        self.n_hands.move(QPoint(250, 635))
+        self.play_button.move(QPoint(500, 635))
 
-        self.play_button = QtWidgets.QPushButton(text="Play")
-        hbox2.addWidget(self.play_button)
+        # show them
+        self.hit_button.show()
+        self.double_button.show()
+        self.stand_button.show()
+        self.split_button.show()
+        self.n_hands.show()
+        self.play_button.show()
+
+
+        
 
         
 
         self.n_hands.setValue(2)
         self.n_hands.setMinimum(1)
-        self.n_hands.setMaximum(8)
+        self.n_hands.setMaximum(7)
         
+        # connect buttons to the right methods
         self.hit_button.clicked.connect(self.hit)
         self.stand_button.clicked.connect(self.stand)
         self.double_button.clicked.connect(self.doubledown)
         self.split_button.clicked.connect(self.splityourhand)
-
         self.play_button.clicked.connect(self.start_round)
 
         self.table       = None     # table is initiated later
@@ -97,8 +124,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_num   = 0        # Keeps track of the index of the current split hand being played
         self.card_labels = []       # This list holds all the card labels of the cards that have been revealed.
         self.popup_off   = True     # If there already is a popup this should be False
-
-        self.timer = Core.QTimer()
+        
 
     
     def update_txt(self, text):
@@ -122,12 +148,8 @@ class BJinterface(QtWidgets.QMainWindow):
             self.table.deal_first_cards()
             first_results, dealerupcard, first_symbols = self.table.print_first_results()
             
-            for symbol in first_symbols[0]:
-                symbol:str
-                self.label = EasyCardLabels()
-                self.label.setParent(self.popup)
-                self.label.setnewimage(symbol)
-                self.label.show()
+            
+            self.firstanimations(first_symbols)
             
             
             self.update_player(text = "\n".join([first_results[x] for x in range(len(first_results))]))
@@ -346,6 +368,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 n          = self.split_num
                 hand       = self.table.hands[self.num][n]
                 card, text = self.table.hitcard(hand)
+
                 self.update_txt(f"You doubled, your new card is {card}.")
                 self.update_player(text)
                 self.split_num += 1
@@ -429,17 +452,22 @@ class BJinterface(QtWidgets.QMainWindow):
     
     
     def start_round(self):
-        self.createpopupwindow()
+        
         self.num       = 0
         self.table     = Table(hands=self.n_hands.value())
         self.textboxes = []
 
         for x in range(self.n_hands.value()):
+            yposition = 450
+            xposition = x * 100
             txtbox = QtWidgets.QTextEdit()
             txtbox.setReadOnly(True)
             txtbox.append(f"Hand {x+1}: \n")
             self.textboxes.append(txtbox)
-            self.hbox_top.addWidget(txtbox)
+            txtbox.setParent(self)
+            txtbox.resize(QSize(100, 100))
+            txtbox.move(QPoint(xposition, yposition))
+            #txtbox.show()
             
         self.update_txt("Round started, good luck!")
         time.sleep(1.5)
@@ -450,40 +478,46 @@ class BJinterface(QtWidgets.QMainWindow):
             self.update_txt("Hand 1, pick an action")
 
 
-    def createpopupwindow(self):
-        if self.popup_off:
-            self.popup = QtWidgets.QDialog(self)
-
-            self.popup.resize(QSize(1000, 1000))
-            self.popup.show()
-            
-
-
-
 
     def CreateCardLabel(self, card_symbol:str):
+        self.label : EasyCardLabels = EasyCardLabels()
+        self.label.setnewimage(card_symbol)
+        
+        return self.label
 
-        if not self.popup_off:
-            self.label : EasyCardLabels = EasyCardLabels()
-            self.label.setnewimage(card_symbol)
+
+    def firstanimations(self, first_symbols:list):
+        self.animgroupseq    = QSequentialAnimationGroup()
+        self.firstcardanims  = QSequentialAnimationGroup(self)
+        self.secondcardanims = QSequentialAnimationGroup(self)
+
+        for x in range(len(first_symbols)):
             
-            return self.label
-            
-            
+            for i, symbol in enumerate(first_symbols[x]):
+                symbol:str
+                yposition  = 550 - i * 50
+                xposition  = 125 + x * 125 + i*20
+                self.label = EasyCardLabels()
 
-    def destroypopup(self):
-        try:
-            self.popup.destroy()
-            self.popup_off = True
-        except AttributeError:
-            pass
-
-
-
-
-
-
-
+                self.label.setParent(self)
+                self.label.setnewimage(symbol)
+                self.label.move(QPoint(800, 200))
+                self.label.animation.setStartValue(QPoint(800, 200))
+                self.label.animation.setEndValue(QPoint(xposition, yposition))
+                self.label.animation.setDuration(1000)
+                
+                self.label.resize(QSize(60, 72))
+                self.label.show()
+                
+                if i == 0:
+                    self.firstcardanims.addAnimation(self.label.animation)
+                else:
+                    self.secondcardanims.addAnimation(self.label.animation)
+        self.animgroupseq.addAnimation(self.firstcardanims)
+        self.animgroupseq.addAnimation(self.secondcardanims)
+        
+        self.animgroupseq.start()
+        
 
 
 def main():

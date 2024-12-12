@@ -60,20 +60,17 @@ class TestWindow(QtWidgets.QMainWindow):
         self.betsizes = [0.1, 0.2, 0.4, 0.6, 1, 2, 5, 10]
 
         # initialise the slot generator
-        self.playingfield = PlayingField()
-        self.animationgroup = QParallelAnimationGroup()
-
-
-        self.fallanimationgroup = QParallelAnimationGroup()
-        # self.sequantialanimgroup = QSequentialAnimationGroup(self)
-        
+        self.playingfield         = PlayingField()
+        self.animationgroup       = QParallelAnimationGroup()
+        self.fallanimationgroup   = QParallelAnimationGroup()
         self.sequentialanimgroup1 = QSequentialAnimationGroup(self)
         self.sequentialanimgroup2 = QSequentialAnimationGroup(self)
 
         # Need label array to animate winning lines
         self.label_array = None
-        labels = []
-        self.first = True
+        labels           = []
+        self.first       = True
+
         # Label array for reusing labels instead of making new ones
         for x in range(6):
             xpos = 200 + x * 80
@@ -300,10 +297,10 @@ class CustomLabels(QtWidgets.QLabel):
 
         super().__init__()
 
-        self.animated = False
-        self.pathname = "src/SlotMachine/images/"
-        self.pixmap1 = QPixmap()
-        self.animation = QPropertyAnimation(self, b"pos", self)
+        self.animated   = False
+        self.pathname   = "src/SlotMachine/images/"
+        self.pixmap1    = QPixmap()
+        self.animation  = QPropertyAnimation(self, b"pos", self)
         self.animation2 = QPropertyAnimation(self, b"geometry", self)
         self.width = 80
         self.height = 96
@@ -350,15 +347,15 @@ class CustomLabels(QtWidgets.QLabel):
         
         self.pixmap1 = QPixmap()
         choices = {
-            "A":"acecard.jpg",
-            "K": "kheart.jpg",
-            "Q": "qheart.jpg",
-            "J": "jhearts.jpg",
+            "A" : "aheart.jpg",
+            "K" : "kheart.jpg",
+            "Q" : "qheart.jpg",
+            "J" : "jheart.jpg",
             "10": "10heart.jpg",
-            "5": "5heart.jpg",
-            "4": "4heart.jpg",
-            "3": "3heart.jpg",
-            "2": "2heart.jpg",
+            "5" : "5heart.jpg",
+            "4" : "4heart.jpg",
+            "3" : "3heart.jpg",
+            "2" : "2heart.jpg",
         }
 
         
