@@ -144,7 +144,8 @@ class EasyCardLabels(QtWidgets.QLabel):
         
 
         super().__init__()
-
+        self._shiftedpos  = QPoint(0, 0)
+        self._currentpos  = QPoint(0, 0)
         self.rotation     =   QGraphicsRotation(self)
         self.animated     =   False
         self.pathname     =   "src/extrafiles/images/"
@@ -173,19 +174,20 @@ class EasyCardLabels(QtWidgets.QLabel):
         return self.currently
     
     @Property(QPoint)
-    def currentpos(self):
-        return self.currentposition
+    def currentpos(self) -> QPoint:
+        return self._currentpos_
     
     @Property(QPoint)
     def shiftedpos(self):
-        return self.shiftedposition
+        return self._shiftedposition
     
-    
-    def setpos(self, pos:QPoint):
-        self.currentposition = pos
+    @currentpos.setter
+    def setcurrentpos(self, pos:QPoint):
+        self._currentpos_ = pos
 
-    def setshiftpos(self, shiftpos:QPoint):
-        self.shiftedposition = shiftpos
+    @shiftedpos.setter
+    def setshiftpos(self, currentpos:QPoint):
+        self._shiftedposition = QPoint(currentpos.x(), currentpos.y() -35)
     
 
     def setnewimage(self, cardname: str):

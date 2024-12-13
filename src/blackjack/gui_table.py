@@ -177,10 +177,10 @@ class Table:
         self.player.reset()
         self.dealer.reset()
 
-    def dealer_play(self):
+    def dealer_play(self) -> tuple[str, int, str]: 
         card, cardsymbol = self.shoe.getcard(n_cards=1)
         txt = self.dealer.dealerplay(card, cardsymbol)
-        return txt
+        return txt, card, cardsymbol
 
 
 def main():

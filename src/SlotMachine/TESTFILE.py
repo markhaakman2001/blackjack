@@ -54,7 +54,7 @@ class TestWindow(QtWidgets.QMainWindow):
         self.balance.move(self.balance.pos)
         self.balance.resize(QSize(100, 50))
                               
-
+        
 
         self.betbutton.addItems(["$0.1", "$0.2", "$0.4", "$0.6", "$1", "$2", "$5", "$10"])
         self.betsizes = [0.1, 0.2, 0.4, 0.6, 1, 2, 5, 10]
