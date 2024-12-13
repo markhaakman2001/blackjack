@@ -28,15 +28,6 @@ class BJinterface(QtWidgets.QMainWindow):
         self.deal_label= QtWidgets.QLabel(text="Dealer:")
         
 
-        self.deal_info = QtWidgets.QTextEdit()
-        self.deal_info.setReadOnly(True)
-        self.deal_info.size = QSize(300, 100)
-        self.deal_info.resize(self.deal_info.size)
-        #self.deal_label.setParent(self.deal_info)
-
-        #self.deal_info.setParent(self)
-        #self.deal_info.show()
-
         self.hand_lbl = QtWidgets.QLabel(text="Your hands:")
         
 
@@ -45,19 +36,12 @@ class BJinterface(QtWidgets.QMainWindow):
         self.hand_info.size = QSize(300, 100)
         self.hand_info.resize(self.hand_info.size)
         self.hand_info.move(QPoint(0, 100))
-        #self.hand_info.setParent(self)
-        #self.hand_info.show()
-
-        #self.hand_lbl.setParent(self.hand_info)
-        #self.hand_lbl.show()
 
         self.display_txt = QtWidgets.QTextEdit()
         self.display_txt.setReadOnly(True)
-        #self.display_txt.setParent(self)
         self.display_txt.size = QSize(250, 115)
         self.display_txt.resize(self.display_txt.size)
         self.display_txt.move(QPoint(0, 635))
-        #self.display_txt.show()
 
         self.dealer_handlabel = QtWidgets.QLabel()
         self.dealer_handlabel.resize(QSize(80, 40))
@@ -167,9 +151,6 @@ class BJinterface(QtWidgets.QMainWindow):
                 label.update()
 
             self.firstanimations(first_symbols, dealer_symbol=dealer_symbols[0])
-            
-
-            
             self.update_player(text = "\n".join([first_results[x] for x in range(len(first_results))]))
             print(first_results)
             self.update_dealer(dealerupcard)
@@ -180,33 +161,28 @@ class BJinterface(QtWidgets.QMainWindow):
 
         if self.table:
 
-            if self.split_flag:
 
-                results = []
+            results = []
+            
+            for i, hand in enumerate(self.table.hands):
                 
-                for i, hand in enumerate(self.table.hands):
-                    
-                    if isinstance(hand, list):
-                        labels : QtWidgets.QLabel = self.hand_label_list[i]
-                        for hand, label in zip(hand, labels):
-                            label.clear()
-                            label.setText(f"{self.table.winlose(hand)}")
-                            label.update()
-
-                    else:
-                        results.append(self.table.winlose(hand))
-                        
-                        label : QtWidgets.QLabel = self.hand_label_list[i]
+                if isinstance(hand, list):
+                    labels : QtWidgets.QLabel = self.hand_label_list[i]
+                    for hand, label in zip(hand, labels):
                         label.clear()
                         label.setText(f"{self.table.winlose(hand)}")
                         label.update()
-           
-            else:
-                results = [self.table.winlose(hand) for hand in self.table.hands]
 
-            self.update_txt(f"\n".join([results[x] for x in range(len(results))]))
-        
-
+                else:
+                    results.append(self.table.winlose(hand))
+                    print("YO")
+                    label : QtWidgets.QLabel = self.hand_label_list[i]
+                    label.clear()
+                    label.setText(f"{self.table.winlose(hand)}")
+                    label.update()
+  
+                
+    
     def nexthand(self, split=False):
         """This method is called in the following cases: 1) whenever the player chooses stand. 2) Whenever the player busts. 3) Whenever the player has a blackjack or when his hard total is 21.
         The method iterates through the last hand and updates the results accordingly. When all hands are played the dealer will pull cards untill he reaches 17 or higher.
@@ -283,14 +259,7 @@ class BJinterface(QtWidgets.QMainWindow):
                     label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
                     label.setText(f"{self.table.hands[self.num -1][-1].handtotal(self.table.hands[self.num-1][-1].softhand())}")
                     label.update()
-                #     texts = []
 
-                #     for i, hand in enumerate(self.table.hands[self.num - 1]):
-                        
-
-                    #label : QtWidgets.QLabel = self.hand_label_list[self.num]
-                    #label.clear()
-                    #label.setText("\n".join([text for text in texts]))
 
                 else:
                 #self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
@@ -312,15 +281,16 @@ class BJinterface(QtWidgets.QMainWindow):
                     dealer_updates.append(f"Dealer shows {dealer.hand.cards}, total is {dealer.hand.handtotal(dealer.hand.softhand())}")
                     self.update_dealer(dealer_updates[0])
                     self.create_dealer_animation(dealer_downcardsymbol, n_cards=1)
+                    self.dealer_handlabel.clear()
+                    self.dealer_handlabel.setText(f"{dealer_hand.handtotal(dealer_hand.softhand())}")
+                    self.dealer_handlabel.update()
                     # while the dealer has less than 17 he must hit a card
                     dealerplay = dealer.hand.dealerturn()
+
                     while dealerplay:
                         amountofcards : int    = len(dealer_hand.cards)
                         text, card, cardsymbol = self.table.dealer_play()
                         self.create_dealer_animation(cardsymbol, amountofcards)
-                        
-                        dealer_updates.append(text)
-                        self.update_dealer(text="\n".join([dealer_updates[i] for i in range(len(dealer_updates))]))
                         self.dealer_handlabel.clear()
                         self.dealer_handlabel.setText(f"{dealer_hand.handtotal(dealer_hand.softhand())}")
                         self.dealer_handlabel.update()
@@ -404,6 +374,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.checkforbust()
                       
             else:
+
                 hand : Hand = self.table.hands[self.num]
                 card, text, cardsymbol = self.table.hitcard(hand)
                 n_cards =  len(hand.cards) - 1
@@ -715,7 +686,6 @@ class BJinterface(QtWidgets.QMainWindow):
         self.deal_label = EasyCardLabels()
         self.deal_label.setParent(self)
         self.deal_label.setnewimage(dealer_symbol)
-        print(dealer_symbol)
         self.deal_label.move(QPoint(800, 200))
         self.deal_label.animation.setStartValue(QPoint(800, 200))
         self.deal_label.animation.setEndValue(QPoint(500, 150))
