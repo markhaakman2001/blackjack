@@ -2,7 +2,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup, QPropertyAnimation
 import PySide6.QtCore as Core
 from src.blackjack.gui_table import Table
-from src.blackjack.gui_shoehand import Hand
+from src.blackjack.gui_shoehand import Hand, Bank
 from src.extrafiles.labels import EasyCardLabels
 from src.extrafiles.backgroundwidget import BackGroundWidget
 import sys
@@ -16,17 +16,27 @@ class BJinterface(QtWidgets.QMainWindow):
         super().__init__()
         
 
+        self.bank = Bank()
+
+
+
         self.central_widget =  BackGroundWidget()
         #self.setCentralWidget(self.central_widget)
         self.central_widget.setParent(self)
         
         self.resize(1000, 700)
         self.central_widget.resize(QSize(1000, 700))
-        
-        
-        
         self.deal_label= QtWidgets.QLabel(text="Dealer:")
         
+
+        self.deal_info = QtWidgets.QTextEdit()
+        self.deal_info.setReadOnly(True)
+        self.deal_info.size = QSize(300, 100)
+        self.deal_info.resize(self.deal_info.size)
+        #self.deal_label.setParent(self.deal_info)
+
+        #self.deal_info.setParent(self)
+        #self.deal_info.show()
 
         self.hand_lbl = QtWidgets.QLabel(text="Your hands:")
         
@@ -374,7 +384,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.checkforbust()
                       
             else:
-
+                
                 hand : Hand = self.table.hands[self.num]
                 card, text, cardsymbol = self.table.hitcard(hand)
                 n_cards =  len(hand.cards) - 1
