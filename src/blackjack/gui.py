@@ -16,7 +16,7 @@ class BJinterface(QtWidgets.QMainWindow):
         super().__init__()
         
 
-        self.bank = Bank()
+        #self.bank = Bank()
 
 
 
