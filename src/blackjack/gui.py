@@ -185,16 +185,21 @@ class BJinterface(QtWidgets.QMainWindow):
                 results = []
                 
                 for i, hand in enumerate(self.table.hands):
-
+                    
                     if isinstance(hand, list):
-                        results.append(f"\n".join([self.table.winlose(handx) for handx in hand]))
-                        self.textboxes[i].append(f"\n".join([self.table.winlose(handx) for handx in hand]))
+                        labels : QtWidgets.QLabel = self.hand_label_list[i]
+                        for hand, label in zip(hand, labels):
+                            label.clear()
+                            label.setText(f"{self.table.winlose(hand)}")
+                            label.update()
+
                     else:
                         results.append(self.table.winlose(hand))
-                        self.textboxes[i].append(self.table.winlose(hand))
-                        label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                        
+                        label : QtWidgets.QLabel = self.hand_label_list[i]
                         label.clear()
-                        label.setText(f"{self.table.hands[self.num].handtotal(self.table.hands[self.num].softhand())}")
+                        label.setText(f"{self.table.winlose(hand)}")
+                        label.update()
            
             else:
                 results = [self.table.winlose(hand) for hand in self.table.hands]
@@ -220,19 +225,21 @@ class BJinterface(QtWidgets.QMainWindow):
                 
                 texts = []
 
+
+                label: QtWidgets.QLabel = self.hand_label_list[self.num][self.split_num-1]
+                label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+                label.update()
+
                 # check the splithands cards
                 for i, hand in enumerate(self.table.hands[self.num]):
                     texts.append(f"Splithand {i+1}: {hand.cards}: {hand.handtotal(hand.softhand())}")
 
+                    label : QtWidgets.QLabel = self.hand_label_list[self.num][i]
+                    label.clear()
+                    label.setText(f"{hand.handtotal(hand.softhand())}")
+                    label.update()
                 
-                self.textboxes[self.num].clear()
-                self.textboxes[self.num].append("\n".join([text for text in texts]))
-
-                label : QtWidgets.QLabel = self.hand_label_list[self.num]
-                label.clear()
-                label.setText("\n".join([text for text in texts]))
                 
-
                 # check if the splithand is the last hand in the current split
                 if  self.split_num == (len(self.table.hands[self.num])):
                     
@@ -240,15 +247,19 @@ class BJinterface(QtWidgets.QMainWindow):
                     self.split_num  = 0            
                     self.splitornot = False
                     
+                    
+
                     # also check if this hand is the final hand for all main hands
                     if self.lasthand():
                         self.nexthand()
                     
                     # update texts
                     else:
+                        label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                        label.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+                        label.update()
+
                         hand = self.table.hands[self.num]
-                        self.update_player(f"Hand {self.num + 1}, cards are {hand.cards}, total is {hand.handtotal(hand.softhand())}")
-                        self.update_txt(f"Hand {self.num + 1}, pick an action")
                         self.nexthand()
 
                 
@@ -257,7 +268,9 @@ class BJinterface(QtWidgets.QMainWindow):
                     if self.table.hands[self.num][self.split_num].blackjack():
                         self.blackjack()
                     else:
-                        self.update_txt(f"Splithand {self.split_num + 1}, pick an action")
+                        label : QtWidgets.QLabel = self.hand_label_list[self.num][self.split_num]
+                        label.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+                        label.update()
                 
 
 
@@ -265,21 +278,22 @@ class BJinterface(QtWidgets.QMainWindow):
                 
                 # if the last hand is a list, then it was a split and the results must be updated accordingly
                 if isinstance(self.table.hands[self.num - 1], list):
-                    texts = []
-
-                    for i, hand in enumerate(self.table.hands[self.num - 1]):
-                        texts.append(f"Splithand {i+1}: {hand.cards}: {hand.handtotal(hand.softhand())}")
-
-                
-                    self.textboxes[self.num - 1].clear()
-                    self.textboxes[self.num - 1].append("\n".join([text for text in texts]))
-
-                    label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                    label : QtWidgets.QLabel = self.hand_label_list[self.num - 1][-1]
                     label.clear()
-                    label.setText("\n".join([text for text in texts]))
+                    label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+                    label.setText(f"{self.table.hands[self.num -1][-1].handtotal(self.table.hands[self.num-1][-1].softhand())}")
+                    label.update()
+                #     texts = []
+
+                #     for i, hand in enumerate(self.table.hands[self.num - 1]):
+                        
+
+                    #label : QtWidgets.QLabel = self.hand_label_list[self.num]
+                    #label.clear()
+                    #label.setText("\n".join([text for text in texts]))
 
                 else:
-                    self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
+                #self.textboxes[self.num - 1].append(f"{self.table.hands[self.num - 1].cards} : {self.table.hands[self.num - 1].handtotal(self.table.hands[self.num - 1].softhand())} \n")
                     label : QtWidgets.QLabel = self.hand_label_list[self.num - 1]
                     label.clear()
                     label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
@@ -380,7 +394,11 @@ class BJinterface(QtWidgets.QMainWindow):
 
             if split:
 
-                card, text, cardsymbol = self.table.hitcard(self.table.hands[self.num][self.split_num])
+                card, text, cardsymbol       = self.table.hitcard(self.table.hands[self.num][self.split_num])
+                last_label: EasyCardLabels   = self.card_labels[self.num][self.split_num][-1]
+                last_label_pos : QPoint      = last_label.currentpos
+                self.createcardanimation_forsplit(cardsymbol, last_label_pos)
+                self.label2.animation.start()
                 self.update_txt(f"You hit, your new card is {card}.")
                 self.update_player(text)
                 self.checkforbust()
@@ -457,7 +475,7 @@ class BJinterface(QtWidgets.QMainWindow):
             if self.splitornot:
                 current_hand = self.table.hands[self.num][self.split_num]
                 texts, hands = self.table.split(current_hand)
-                current_textbox.append(f"\n".join([text for text in texts]))
+                #current_textbox.append(f"\n".join([text for text in texts]))
                 self.table.hands[self.num].pop(self.split_num)
                 self.table.hands[self.num].insert(self.split_num, hands[1])
                 self.table.hands[self.num].insert(self.split_num, hands[0])
@@ -488,8 +506,11 @@ class BJinterface(QtWidgets.QMainWindow):
                     self.table.hands.insert(self.num, hands)
 
                 if self.table.hands[self.num][0].blackjack():                
-                    self.blackjack()
+                    self.split_full_animgroup.finished.connect(self.blackjack)
                 else:
+                    label : QtWidgets.QLabel = self.hand_label_list[self.num][self.split_num]
+                    label.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+                    label.update()
                     self.update_txt("Splithand 1, pick an action")
             
 
@@ -572,6 +593,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_animgroup        = QParallelAnimationGroup(self)
         self.split_second_animgroup = QSequentialAnimationGroup(self)
         self.split_full_animgroup   = QSequentialAnimationGroup(self)
+        card_labels = [[], []]
 
         for i, label in enumerate(labels):
             self.label   = label
@@ -580,6 +602,7 @@ class BJinterface(QtWidgets.QMainWindow):
             yposition    = 490 + int(self.extra_elevations[self.num -1]) - i * 35
             shifted_ypos = yposition + i * 35
             
+
             self.label.setshiftpos = QPoint(shifted_xpos, shifted_ypos)
             self.label.setcurrentpos = QPoint(shifted_xpos, shifted_ypos)
             self.label.animation.setStartValue(QPoint(xposition, yposition))
@@ -587,18 +610,23 @@ class BJinterface(QtWidgets.QMainWindow):
             self.label.animation.setDuration(500)
             self.split_animgroup.addAnimation(self.label.animation)
 
-            self.createcardanimation_forsplit(newsymbols[i], self.label.currentpos)
+            self.createcardanimation_forsplit(newsymbols[i], self.label.currentpos, firstanim=True)
+            card_labels[i].append(self.label)
+            card_labels[i].append(self.label2)
             
             self.label.update()
         self.UpdateLabelsForSplit(hands)
         
+        self.card_labels.pop(self.num)
+        self.card_labels.insert(self.num, card_labels)
+
         self.split_full_animgroup.addAnimation(self.split_animgroup)
         self.split_full_animgroup.addAnimation(self.split_second_animgroup)
         self.split_full_animgroup.start()
 
 
 
-    def createcardanimation_forsplit(self, card_symbol:str, last_card_position:QPoint):
+    def createcardanimation_forsplit(self, card_symbol:str, last_card_position:QPoint, firstanim=False):
         self.label2       = EasyCardLabels()
 
 
@@ -609,12 +637,15 @@ class BJinterface(QtWidgets.QMainWindow):
         self.label2.setshiftpos   = last_card_position
         self.label2.setcurrentpos = self.label.shiftedpos
         self.label2.animation.setStartValue(QPoint(800, 200))
-        self.label2.animation.setEndValue(self.label.shiftedpos)
+        self.label2.animation.setEndValue(self.label2.shiftedpos)
         self.label2.animation.setDuration(500)
         
         self.label2.resize(QSize(60, 72))
         self.label2.show()
-        self.split_second_animgroup.addAnimation(self.label2.animation)
+        if firstanim:
+            self.split_second_animgroup.addAnimation(self.label2.animation)
+        else:
+            self.label2.animation.start()
     
 
     def UpdateLabelsForSplit(self, hands:list[Hand]):
@@ -741,9 +772,6 @@ class BJinterface(QtWidgets.QMainWindow):
         self.dealer_label.resize(QSize(60, 72))
         self.dealer_label.show()
         self.dealer_label.animation.start()
-        
-
-
 
 
 def main():
