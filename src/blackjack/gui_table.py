@@ -1,11 +1,10 @@
-from src.blackjack.gui_shoehand import Hand, Bank
+from src.blackjack.gui_shoehand import Hand, Bank, WinFunctions, WinType
 from src.blackjack.gui_playerdealer import Player, Dealer
 from src.extrafiles.labels import EasyCardLabels, Shoe, DeckOfCards
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot
 import sys
 import time
-
 
 
 class Table:
@@ -16,11 +15,10 @@ class Table:
         self.shoe = Shoe(8)
         self.player = Player(hands)
         self.dealer = Dealer()
-        self.bank = Bank(hands)
+        self.bank = Bank(500)
         self.hands = self.player.hands
         self.results = []
         self.bets = []
-        self.bank.deposit()
         
     
     def deal_first_cards(self):
@@ -30,6 +28,8 @@ class Table:
             self.dealer.hand.addcard(cards.pop(-1), card_symbols.pop(-1))
             self.player.get_cards(cards, card_symbols)
 
+    def get_current_funds(self):
+        return self.bank._funds
 
     def print_first_results(self):
         first_results = []
@@ -64,29 +64,29 @@ class Table:
 
         if self.dealer.hand.blackjack():
             if hand.blackjack():
-                return "Push"
+                return WinType.PUSH
             else:
-                return "Lose"
+                return WinType.LOSE
 
         elif hand.handtotal(hand.softhand()) > 21:
-            return "Lose"
+            return WinType.LOSE
         
         elif hand.handtotal(hand.softhand()) <= 21:
             
             if dealertotal > 21:
-                return "Win"
+                return WinType.WIN
 
             elif hand.blackjack():
-                return "BlackJack, win"
+                return WinType.BLACKJACK
             
             elif dealertotal == hand.handtotal(hand.softhand()):
-                return "Push"
+                return WinType.PUSH
             
             elif dealertotal < hand.handtotal(hand.softhand()):
-                return "Win"
+                return WinType.WIN
             
             elif dealertotal > hand.handtotal(hand.softhand()):
-                return "Lose"
+                return WinType.LOSE
 
     
 

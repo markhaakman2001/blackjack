@@ -2,58 +2,24 @@ import numpy as np
 import random
 from math import *
 from src.extrafiles.labels import Shoe, DeckOfCards, EasyCardLabels
+from enum import Enum
+from PySide6.QtCore import Signal, SignalInstance, Slot, QObject
 
+class WinFunctions:
 
-# class Shoe:
-
-#     def __init__(self, d = 8):
-#         """create a shoe with multiple decks
-
-#         Args:
-#             d (int, optional): amount of decks. Defaults to 8.
-#         """        
-#         values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-#         deck =  values * 4
-#         self.decks = d
-#         self.cards = deck * d
-#         random.shuffle(self.cards)
-
+    def __init__(self, function):
+        self.function = function
     
-#     def getcard(self, n=1):
-#         """take the next card or cards from the shoe.
+    def __call__(self, *args, **kwargs):
+        return self.function(*args, **kwargs)
 
-#         Args:
-#             n (int, optional): amount of cards to be taken. Defaults to 1.
+class WinType(Enum):
 
-#         Returns:
-#             int, list: the next card or cards from the shoe
-#         """          
-#         if n == 1:
-#             card = self.cards.pop(0)
-#             return card
-#         else:
-#             cards = []
-#             for x in range(n):
-#                 card = self.cards.pop(0)
-#                 cards.append(card)
-#             return cards
-    
+    BLACKJACK = WinFunctions(lambda x: x * 2.5)
+    LOSE      = WinFunctions(lambda x: x * 0  )
+    PUSH      = WinFunctions(lambda x: x * 1  )
+    WIN       = WinFunctions(lambda x: x * 2  )
 
-#     def neednewshoe(self):
-#         return (len(self.cards) / (self.decks * 52)) < 0.5
-    
-
-#     def getnewshoe(self):
-#         self.__init__(self.decks)
-
-
-#     def new_shoe(self, decks):
-#         values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-#         deck =  values * 4
-#         self.shoe = deck * decks
-
-        
-#         self.shoe = random.shuffle(self.shoe)
 
 
 class Hand:
@@ -64,7 +30,7 @@ class Hand:
         self.total = 0
         self.hands = []
         self.results = []
-        self.bet = bet
+        self._bet = bet
         self.split = False
         self.active = True
     
@@ -103,13 +69,14 @@ class Hand:
         
     
     def splithand(self, shoe : Shoe):
-        self.split = True
-        self.hands = [Hand(), Hand()]
-        
+        self.split  = True
+        self.hands  = [Hand(), Hand()]
+        current_bet = self._bet()
         split_texts = []
 
         for i, hand in enumerate(self.hands):
             hand.addcard(self.cards[0], self.card_symbols[0])
+            hand._place_bet(current_bet)
             card, card_symbol = shoe.getcard()
             hand.addcard(card, card_symbol)
             split_text = f"Splithand {i+1}, cards: {hand.cards} : {hand.handtotal(hand.softhand())}"
@@ -168,7 +135,6 @@ class Hand:
         else:
             return False
 
-        
     
     def blackjack(self):
         """Check for blackjack
@@ -178,6 +144,18 @@ class Hand:
         """        
         return (len(self.cards) == 2) and (self.handtotal() == 21)
 
+    
+    def _bet(self) -> int:
+        return self._bet
+
+    
+    def _place_bet(self, amount_credits):
+        self._bet = amount_credits
+    
+    
+    def _del_bet(self):
+        self._bet = 0
+
 
     def reset(self):
         self.cards = []
@@ -185,73 +163,92 @@ class Hand:
         self.__init__()
 
 
-class Bank:
+class Bank(QObject):
 
-    def __init__(self, hands):
-        """Initialise a bank account
+    BetsChanged = Signal(int, name="BetChanged")
 
-        Args:
-            hands (int): How many hands the player is playing with
-        """             
-        self.funds = 0
-        self.bets = []
-        for x in range(hands):
-            self.bets.append(0)
-        self.bank = 10**6
-    
-    def deposit(self, amount = 10**4):
-        """Add money to the funds
-
-        Args:
-            amount (float, optional): Amount of money to be added to funds. Defaults to 10**4.
-        """        
-        self.funds += amount
-    
-    def betamount(self, hand, amount = 100):
-        """Place a bet for a certain amount
-
-        Args:
-            amount (int, optional): How much money to bet. Defaults to 100.
-        """        
-        hand.bet += amount
-        self.funds -= amount
-        print(f"Your bet is {hand.bet}")
-
-    def amount_won(self, result, hand):
-        total_bet = hand.bet
-        calculator = { 
-            "BlackJack, win": lambda x: x * 2.5,
-            "Lose": lambda x: x * 0,
-            "Push": lambda x: x * 1,
-            "Win": lambda x: x * 2
-        }
-        win = calculator.get(result)(total_bet)
-        self.funds += win
-        return win
-    
-    def doubled(self, i):
-        self.bets[i] += self.bets[i]
-        self.funds -= (self.bets[i] / 2)
-        print(f"You doubled, your bet is now ${self.hand}")
-
-    def split(self, i):
+    def __init__(self, deposit:float):
+        super().__init__()
+        self.credits = deposit * 100
+        self.total_bets = 0
         
-        print(f"Split, your bet is now ${self.hand}")
+    
+    def emitsignal(self):
+        self.BetsChanged.emit(1)
+    
 
-    def winlosepush(self, condition = False):
-        hand = self.hand
-        win = 0
-        if condition == True:
-            self.funds += (hand * 2)
-            self.bank -= hand
-            win = hand * 2
-            
-        elif condition == False:
-            self.bank += hand
-            
-        elif condition == 3:
-            self.funds += hand
-            win = self.hand
+    def deposit_euros(self, amount):
+        """Deposit money into bank account
+
+        Args:
+            amount (float): amount in euros
+        """        
+        credit_extra = amount * 100
+        self.credits += credit_extra
+        self.BetsChanged.emit(1)
+    
+    def place_bet(self, amount, hand:Hand):
+        """place a bet on the current hand
+
+        Args:
+            amount (float): bet amount in euros
+            hand (Hand): which hand
+        """        
+        amount_in_credits = amount * 100
+        self.credits -= amount_in_credits
+        hand._place_bet(amount_in_credits)
+        self.total_bets += amount_in_credits
+        self.BetsChanged.emit(1)
+       
+    
+    def win_amount(self, RESULT : WinType, hand : Hand) -> int:
+        """Calculate the win based on the result and bet
+
+        Args:
+            RESULT (WinType): what type of win
+            hand (Hand): which hand
+
+        Returns:
+            int: amount won in credits
+        """        
+        bet_in_credits = hand._bet
+        win_in_credits = RESULT.value(bet_in_credits)
+        self.credits += win_in_credits
+        self.BetsChanged.emit(1)
+        return win_in_credits
         
-        self.hand = 0
-        return win
+
+    def DoubleDown(self, hand : Hand):
+        """Used when double down
+
+        Args:
+            hand (Hand): which hand
+        """        
+        current_bet_credits = hand._bet
+        self.credits -= current_bet_credits
+        hand._place_bet(current_bet_credits * 2)
+        self.total_bets += current_bet_credits
+        self.BetsChanged.emit(1)
+    
+    
+    def Split(self, hand : Hand):
+        current_bet = hand._bet
+        self.total_bets += current_bet
+        self.credits -= current_bet
+        self.BetsChanged.emit(1)
+
+    
+    @property
+    def _total_bets(self) -> float:
+        self._total_bets_euros = self.total_bets / 100
+        return self._total_bets_euros
+        
+
+
+    @property
+    def _funds(self) -> float:
+        self._funds_euros = (self.credits / 100)
+        return self._funds_euros
+
+    
+
