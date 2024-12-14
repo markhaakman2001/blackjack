@@ -9,6 +9,7 @@ import sys
 import time
 
 
+
 class BJinterface(QtWidgets.QMainWindow):
 
     def __init__(self):
@@ -16,9 +17,7 @@ class BJinterface(QtWidgets.QMainWindow):
         super().__init__()
         
 
-        #self.bank = Bank()
-
-
+        self.bank = Bank(1)
 
         self.central_widget =  BackGroundWidget()
         #self.setCentralWidget(self.central_widget)
@@ -154,6 +153,7 @@ class BJinterface(QtWidgets.QMainWindow):
             first_results, dealerupcard, first_symbols, dealer_symbols = self.table.print_first_results()
             
             for x in range(len(self.table.hands)):
+
                 hand : Hand            = self.table.hands[x]
                 label : EasyCardLabels = self.hand_label_list[x]
                 label.clear()
@@ -162,7 +162,6 @@ class BJinterface(QtWidgets.QMainWindow):
 
             self.firstanimations(first_symbols, dealer_symbol=dealer_symbols[0])
             self.update_player(text = "\n".join([first_results[x] for x in range(len(first_results))]))
-            print(first_results)
             self.update_dealer(dealerupcard)
 
 
