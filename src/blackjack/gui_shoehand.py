@@ -236,6 +236,12 @@ class Bank(QObject):
         self.total_bets += current_bet
         self.credits -= current_bet
         self.BetsChanged.emit(1)
+    
+    def clear_bets(self):
+        self.total_bets = 0
+        self._total_bets_euros = 0
+        print(f"Bank Cleared, balance is {self._funds}")
+
 
     
     @property

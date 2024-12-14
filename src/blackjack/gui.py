@@ -92,16 +92,19 @@ class BJinterface(QtWidgets.QMainWindow):
         self.stand_button.clicked.connect(self.stand)
         self.double_button.clicked.connect(self.doubledown)
         self.split_button.clicked.connect(self.splityourhand)
+        self.play_button.clicked.connect(self.ClearCurrentTable)
         self.play_button.clicked.connect(self.start_round)
+        
 
 
-        self.table       = None     # table is initiated later
-        self.splitornot  = False    # this is True if the current hand is a splithand
-        self.split_flag  = False    # this is True if the current hand is split more than once
-        self.num         = 0        # Keeps track of the index of the current main hand being played
-        self.split_num   = 0        # Keeps track of the index of the current split hand being played
-        self.card_labels = []       # This list holds all the card labels of the cards that have been revealed.
-        self.popup_off   = True     # If there already is a popup this should be False
+        self.table         = None     # table is initiated later
+        self.splitornot    = False    # this is True if the current hand is a splithand
+        self.split_flag    = False    # this is True if the current hand is split more than once
+        self.num           = 0        # Keeps track of the index of the current main hand being played
+        self.split_num     = 0        # Keeps track of the index of the current split hand being played
+        self.card_labels   = []       # This list holds all the card labels of the cards that have been revealed.
+        self.popup_off     = True     # If there already is a popup this should be False
+        self.dealer_labels = []
 
         self.bank  = None
         
@@ -157,9 +160,9 @@ class BJinterface(QtWidgets.QMainWindow):
                     for hand, label in zip(hand, labels):
                         bank  : Bank     = self.bank
                         result : WinType = self.table.winlose(hand)
-                        bank.win_amount(result, hand)
+                        amount_won       = bank.win_amount(result, hand)
                         label.clear()
-                        label.setText(f"{result.name}")
+                        label.setText(f"{result.name}\n ${amount_won/100}")
                         label.update()
 
                 else:
@@ -168,9 +171,9 @@ class BJinterface(QtWidgets.QMainWindow):
                     result : WinType         = self.table.winlose(hand)
                     label : QtWidgets.QLabel = self.hand_label_list[i]
                     bank  : Bank             = self.bank
-                    bank.win_amount(result, hand)
+                    amount_won               = bank.win_amount(result, hand)
                     label.clear()
-                    label.setText(f"{result.name}")
+                    label.setText(f"{result.name} \n ${amount_won/100}")
                     label.update()
   
                 
@@ -674,7 +677,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.deal_label.resize(QSize(60, 72))
         self.deal_label.show()
 
-            
+        self.dealer_labels.append(self.deal_label)
         self.animgroupseq.addAnimation(self.firstcardanims)
         self.animgroupseq.addAnimation(self.deal_label.animation)
         self.animgroupseq.addAnimation(self.secondcardanims)
@@ -722,7 +725,38 @@ class BJinterface(QtWidgets.QMainWindow):
         self.dealer_label.animation.setDuration(500)
         self.dealer_label.resize(QSize(60, 72))
         self.dealer_label.show()
+        self.dealer_labels.append(self.dealer_label)
         self.dealer_label.animation.start()
+
+
+    def ClearCurrentTable(self):
+        try:
+            self.table.reset()
+            for labels in self.card_labels:
+                labels : list[EasyCardLabels]
+                for label in labels:   
+                    label.deleteLater()
+                for label in self.dealer_labels:
+                    label : EasyCardLabels
+                    label.deleteLater()
+                for hand_label in self.hand_label_list:
+                    hand_label : QtWidgets.QLabel
+                    hand_label.clear()
+                    hand_label.update()
+                self.dealer_handlabel.clear()
+                self.dealer_handlabel.update()
+            
+            self.splitornot    = False
+            self.split_flag    = False
+            self.num           = 0
+            self.split_num     = 0
+            self.card_labels   = []
+            self.popup_off     = True
+            self.dealer_labels = []
+        except AttributeError:
+            print("There was an attribute error, but we'll ignore it for now")
+            
+            
 
 
 def main():

@@ -14,6 +14,3 @@ class WinType(Enum):
     LOSE      = WinFunctions(lambda x: x * 0  )
     PUSH      = WinFunctions(lambda x: x * 1  )
     WIN       = WinFunctions(lambda x: x * 2  )
-
-
-print(WinType.BLACKJACK.value(2))

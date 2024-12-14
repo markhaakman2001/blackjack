@@ -182,6 +182,12 @@ class Table:
         txt = self.dealer.dealerplay(card, cardsymbol)
         return txt, card, cardsymbol
 
+    def reset(self):
+        self.dealer.__init__()
+        self.player.__init__()
+        self.bank.clear_bets()
+        print(f"Reset, player hands: {self.player.hands}, dealer: {self.dealer.hand.cards}, {self.bank._total_bets}")
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
