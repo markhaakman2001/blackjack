@@ -741,18 +741,21 @@ class BJinterface(QtWidgets.QMainWindow):
                     label.deleteLater()
                 for hand_label in self.hand_label_list:
                     hand_label : QtWidgets.QLabel
-                    hand_label.clear()
-                    hand_label.update()
+                    hand_label.deleteLater()
+
+                    
+                    
                 self.dealer_handlabel.clear()
                 self.dealer_handlabel.update()
             
-            self.splitornot    = False
-            self.split_flag    = False
-            self.num           = 0
-            self.split_num     = 0
-            self.card_labels   = []
-            self.popup_off     = True
-            self.dealer_labels = []
+            self.hand_label_list = []
+            self.splitornot      = False
+            self.split_flag      = False
+            self.num             = 0
+            self.split_num       = 0
+            self.card_labels     = []
+            self.popup_off       = True
+            self.dealer_labels   = []
         except AttributeError:
             print("There was an attribute error, but we'll ignore it for now")
             
