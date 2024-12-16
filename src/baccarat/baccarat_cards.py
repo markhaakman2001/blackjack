@@ -113,47 +113,7 @@ class DeckOfCards:
             for card_symbol in CardSymbol:
                 self.new_card = Card(type = cardtype, Symbol=card_symbol)
                 self.all_cards.append(self.new_card)
-        
-                
 
-
-# class DeckOfCards:
-
-#     def __init__(self):
-#         self.all_cards = []
-#         self.types = [Kind.HEART, Kind.SPADES, Kind.DIAMOND, Kind.CLOVER]
-#         self.card_types = ["hearts", "spades", "diamond", "clover"]
-#         self.card_symbols = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a"]
-#         self.card_values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-#         self.symbol_value_dict = dict(zip(self.card_symbols, self.card_values))
-        
-#         self.card_value_dict_list = []
-
-#         for CardType in self.card_types:
-#             current_cards = []
-
-#             for CardSymbol in self.card_symbols:
-#                 specific_card = CardSymbol + CardType    
-#                 self.all_cards.append(specific_card)
-#                 current_cards.append(specific_card)
-
-#             current_dict = dict(zip(current_cards, self.card_values))
-#             self.card_value_dict_list.append(current_dict)
-            
-    
-#     def pickacard(self) -> str:
-#         x = random.randint(0, 51)
-#         card = self.all_cards[x]
-#         self.getcardvalue(card)
-#         return card
-    
-#     def getcardvalue(self, card:str) -> int:
-#         if card[-1] == "d":
-#             value = self.symbol_value_dict.get(card[:-7])
-#             return value
-#         else:
-#             value = self.symbol_value_dict.get(card[:-6])
-#             return value
 
 
 if __name__ == "__main__":
