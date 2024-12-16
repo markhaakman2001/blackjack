@@ -71,7 +71,7 @@ class Hand:
     def splithand(self, shoe : Shoe):
         self.split  = True
         self.hands  = [Hand(), Hand()]
-        current_bet = self._bet()
+        current_bet = self._bet
         split_texts = []
 
         for i, hand in enumerate(self.hands):

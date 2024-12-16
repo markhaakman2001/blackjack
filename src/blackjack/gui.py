@@ -92,7 +92,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.stand_button.clicked.connect(self.stand)
         self.double_button.clicked.connect(self.doubledown)
         self.split_button.clicked.connect(self.splityourhand)
-        self.play_button.clicked.connect(self.ClearCurrentTable)
+        #self.play_button.clicked.connect(self.ClearCurrentTable)
         self.play_button.clicked.connect(self.start_round)
         
 
@@ -356,8 +356,8 @@ class BJinterface(QtWidgets.QMainWindow):
             split = self.splitornot
 
             if split:
-
-                card, text, cardsymbol       = self.table.hitcard(self.table.hands[self.num][self.split_num])
+                hand : Hand                  = self.table.hands[self.num][self.split_num]
+                card, text, cardsymbol       = self.table.hitcard(hand)
                 last_label: EasyCardLabels   = self.card_labels[self.num][self.split_num][-1]
                 last_label_pos : QPoint      = last_label.currentpos
                 self.createcardanimation_forsplit(cardsymbol, last_label_pos)
@@ -488,7 +488,12 @@ class BJinterface(QtWidgets.QMainWindow):
     
     
     def start_round(self):
-        
+        try:
+            self.ClearCurrentTable()
+        except AttributeError:
+            print("?")
+            pass
+
         self.dealer_handlabel.setParent(self)
         self.dealer_handlabel.show()
         self.num         = 0
@@ -496,6 +501,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.textboxes   = []
         self.bank : Bank = self.table.bank
         self.bank.BetsChanged.connect(self.update_funds)
+        print(self.hand_label_list)
 
         for x in range(self.n_hands.value()):
 
@@ -548,7 +554,9 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_animgroup        = QParallelAnimationGroup(self)
         self.split_second_animgroup = QSequentialAnimationGroup(self)
         self.split_full_animgroup   = QSequentialAnimationGroup(self)
-        card_labels = [[], []]
+        self.card_labels_split = [[], []]
+
+
 
         for i, label in enumerate(labels):
             self.label   = label
@@ -566,14 +574,14 @@ class BJinterface(QtWidgets.QMainWindow):
             self.split_animgroup.addAnimation(self.label.animation)
 
             self.createcardanimation_forsplit(newsymbols[i], self.label.currentpos, firstanim=True)
-            card_labels[i].append(self.label)
-            card_labels[i].append(self.label2)
+            self.card_labels_split[i].append(self.label)
+            self.card_labels_split[i].append(self.label2)
             
             self.label.update()
         self.UpdateLabelsForSplit(hands)
         
         self.card_labels.pop(self.num)
-        self.card_labels.insert(self.num, card_labels)
+        self.card_labels.insert(self.num, self.card_labels_split)
 
         self.split_full_animgroup.addAnimation(self.split_animgroup)
         self.split_full_animgroup.addAnimation(self.split_second_animgroup)
@@ -583,7 +591,6 @@ class BJinterface(QtWidgets.QMainWindow):
 
     def createcardanimation_forsplit(self, card_symbol:str, last_card_position:QPoint, firstanim=False):
         self.label2       = EasyCardLabels()
-
 
         self.label2.setnewimage(card_symbol)
         self.label2.setParent(self)
@@ -730,34 +737,61 @@ class BJinterface(QtWidgets.QMainWindow):
 
 
     def ClearCurrentTable(self):
-        try:
-            self.table.reset()
-            for labels in self.card_labels:
-                labels : list[EasyCardLabels]
-                for label in labels:   
-                    label.deleteLater()
-                for label in self.dealer_labels:
-                    label : EasyCardLabels
-                    label.deleteLater()
-                for hand_label in self.hand_label_list:
-                    hand_label : QtWidgets.QLabel
-                    hand_label.deleteLater()
+        #try:
+        self.table.reset()
 
-                    
-                    
-                self.dealer_handlabel.clear()
-                self.dealer_handlabel.update()
-            
-            self.hand_label_list = []
-            self.splitornot      = False
-            self.split_flag      = False
-            self.num             = 0
-            self.split_num       = 0
-            self.card_labels     = []
-            self.popup_off       = True
-            self.dealer_labels   = []
-        except AttributeError:
-            print("There was an attribute error, but we'll ignore it for now")
+
+        # TO DO:
+        # fix loop such that all labels are destroyed before the start of a new round.
+        # make sure there are no attribute errors
+        # fix the amount of for loops 
+        for labels in self.card_labels:
+            labels : list[EasyCardLabels]
+            for label_list in labels:
+                
+                for x_label in label_list:
+                    if isinstance(x_label, list):
+                        for y_label in x_label:
+                            y_label: EasyCardLabels
+                            y_label.setParent(None)
+                            y_label.deleteLater()
+                    else:
+                        x_label : EasyCardLabels
+                        x_label.setParent(None)
+                        x_label.deleteLater()
+
+        for d_label in self.dealer_labels:
+            d_label : EasyCardLabels
+            d_label.setParent(None)
+            d_label.deleteLater()
+        for hand_label in self.hand_label_list:
+            hand_label : EasyCardLabels
+            if isinstance(hand_label, list):
+                for s_label in hand_label:
+                    s_label : EasyCardLabels
+                    s_label.setParent(None)
+                    s_label.deleteLater()
+            else:
+                hand_label.setParent(None)
+                hand_label.deleteLater()
+
+                
+                
+            self.dealer_handlabel.clear()
+            self.dealer_handlabel.update()
+        
+        print("card labels are:", self.card_labels)
+
+        self.hand_label_list = []
+        self.splitornot      = False
+        self.split_flag      = False
+        self.num             = 0
+        self.split_num       = 0
+        self.card_labels     = []
+        self.popup_off       = True
+        self.dealer_labels   = []
+        # except AttributeError:
+        #     print("There was an attribute error, but we'll ignore it for now")
             
             
 
