@@ -41,48 +41,6 @@ class CardSymbol(Enum):
         """
         return self.value[0]
 
-
-class Shoe:
-    """Class that contains a certain amount of decks in a random order.
-    """    
-
-    def __init__(self, ndecks):
-        self.singledeck = DeckOfCards()
-        self.all_shoe_cards = []
-        for x in range(ndecks):
-            one_full_deck = self.singledeck.all_cards
-            self.all_shoe_cards.extend(one_full_deck)
-        random.shuffle(self.all_shoe_cards)
-        for card in self.all_shoe_cards:
-            card : Card
-            print(card._get_CardName(), card._get_value())
-    
-
-
-    def getcard(self, n_cards : int = 1) -> int:
-        """take the next card or cards from the shoe.
-
-        Args:
-            n (int, optional): amount of cards to be taken. Defaults to 1.
-
-        Returns:
-            int, list: The card value or card values and the cardsymbols
-        """          
-        if n_cards == 1:
-            card = self.all_shoe_cards.pop(0)
-            card_value = self.singledeck.getcardvalue(card)
-            return card_value, card
-        else:
-            cards = []
-            card_vals = []
-            for x in range(n_cards):
-                card = self.all_shoe_cards.pop(0)
-                card_value = self.singledeck.getcardvalue(card)
-                cards.append(card)
-                card_vals.append(card_value)
-            return card_vals, cards
-
-
 class Card:
 
     def __init__(self, type : Kind, Symbol : CardSymbol):
@@ -107,6 +65,40 @@ class Card:
             return True
         else:
             return False
+
+
+class Shoe:
+    """Class that contains a certain amount of decks in a random order.
+    """    
+
+    def __init__(self, ndecks):
+        self.singledeck = DeckOfCards()
+        self.all_shoe_cards = []
+        for x in range(ndecks):
+            one_full_deck = self.singledeck.all_cards
+            self.all_shoe_cards.extend(one_full_deck)
+        random.shuffle(self.all_shoe_cards)
+
+
+    def getcard(self, n_cards : int = 1) -> Card | list[Card]:
+        """take the next card or cards from the shoe.
+
+        Args:
+            n (int, optional): amount of cards to be taken. Defaults to 1.
+
+        Returns:
+            int, list: The card value or card values and the cardsymbols
+        """          
+        if n_cards == 1:
+            card = self.all_shoe_cards.pop(0)
+            return card
+        else:
+            cards : list[Card] = []
+            for x in range(n_cards):
+                card = self.all_shoe_cards.pop(0)
+                cards.append(card)
+            return cards
+
 
 
 class DeckOfCards:

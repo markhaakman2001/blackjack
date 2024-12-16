@@ -37,4 +37,31 @@ class BackGroundWidget(QtWidgets.QWidget):
         
 
         self.palette = QPalette()
-       
+
+class BaccaratBackground(QtWidgets.QWidget):
+
+    def __init__(self):
+        super().__init__()
+        
+        self.icon1 = QIcon()
+        self.pixmap = QPixmap()
+        self.pixmap.load("src/extrafiles/baccaratImage/baccarattable2.jpg")
+        self.label = QtWidgets.QLabel()
+        self.label.setParent(self)
+        self.label.pixmap = self.pixmap
+        self.label.setPixmap(self.pixmap)
+        
+        self.label.setScaledContents(True)
+        self.resize(QSize(1200, 600))
+        
+        self.label.size = QSize(1200, 600)
+        self.label.resize(self.label.size)
+        self.setMaximumSize(QSize(1200, 1000))
+        self.label.setMaximumSize(QSize(1200, 1000))
+        
+        
+        self.setAutoFillBackground(True)
+        
+        
+
+        self.palette = QPalette()
