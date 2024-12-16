@@ -53,7 +53,7 @@ class TestWindow(QtWidgets.QMainWindow):
         self.balance.pos = QPoint(150, 575)
         self.balance.move(self.balance.pos)
         self.balance.resize(QSize(100, 50))
-                              
+        
         
 
         self.betbutton.addItems(["$0.1", "$0.2", "$0.4", "$0.6", "$1", "$2", "$5", "$10"])
@@ -195,7 +195,7 @@ class TestWindow(QtWidgets.QMainWindow):
             self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
             self.sequantialanimgroup.start()
             
-          
+        
         else:
             self.signal2.emit()
 

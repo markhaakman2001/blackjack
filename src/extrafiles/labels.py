@@ -44,6 +44,8 @@ class TestWindow(QtWidgets.QMainWindow):
 
 
 class Shoe:
+    """Class that contains a certain amount of decks in a random order.
+    """    
 
     def __init__(self, ndecks):
         self.singledeck = DeckOfCards()
@@ -77,18 +79,6 @@ class Shoe:
                 cards.append(card)
                 card_vals.append(card_value)
             return card_vals, cards
-    
-
-
-    
-
-
-        
-
-
-
-
-
 
 
 class DeckOfCards:
