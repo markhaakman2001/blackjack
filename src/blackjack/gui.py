@@ -116,12 +116,11 @@ class BJinterface(QtWidgets.QMainWindow):
     
 
     def check_available_buttons(self, hand: Hand):
-        split_flag  = lambda : hand.cards[0] == hand.cards[1]
+        split_flag  = lambda : hand.cards[0] == hand.cards[1] and len(hand.cards) == 2
         double_flag = lambda : len(hand.cards) == 2
         s_flag = split_flag()
         d_flag = double_flag()
-        if double_flag:
-            self.split_button.setEnabled(s_flag)
+        self.split_button.setEnabled(s_flag)
         self.double_button.setEnabled(d_flag)
 
 
@@ -361,16 +360,18 @@ class BJinterface(QtWidgets.QMainWindow):
                 last_label: EasyCardLabels   = self.card_labels[self.num][self.split_num][-1]
                 last_label_pos : QPoint      = last_label.currentpos
                 self.createcardanimation_forsplit(cardsymbol, last_label_pos)
+                self.card_labels[self.num][self.split_num].append(self.label2)
                 self.label2.animation.start()
                 self.check_available_buttons(hand)
                 self.checkforbust()
-                      
+            
             else:
                 
                 hand : Hand = self.table.hands[self.num]
                 card, text, cardsymbol = self.table.hitcard(hand)
                 n_cards =  len(hand.cards) - 1
                 self.createcardanimation(cardsymbol, n_cards)
+                self.card_labels[self.num].append(self.label)
                 label : EasyCardLabels = self.hand_label_list[self.num]
                 label.clear()
                 label.setText(f"{hand.handtotal(hand.softhand())}")
@@ -402,9 +403,13 @@ class BJinterface(QtWidgets.QMainWindow):
         if self.table:
             split = self.splitornot
             if split:
-                n                      = self.split_num
-                hand                   = self.table.hands[self.num][n]
-                card, text, cardsymbol = self.table.hitcard(hand)
+                n                          = self.split_num
+                hand                       = self.table.hands[self.num][n]
+                last_card : EasyCardLabels = self.card_labels[self.num][n][-1]
+                last_card_pos              = last_card.pos()
+                card, text, cardsymbol     = self.table.hitcard(hand)
+                self.createcardanimation_forsplit(cardsymbol, last_card_pos)
+                self.card_labels[self.num][n].append(self.label2)
                 self.bank.DoubleDown(hand)
                 self.split_num += 1
                 self.check_available_buttons(hand)
@@ -415,6 +420,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 n_cards                = int(len(hand.cards))
                 card, text, cardsymbol = self.table.hitcard(hand)
                 self.createcardanimation(cardsymbol, n_cards)
+                self.card_labels[self.num].append(self.label)
                 self.bank.DoubleDown(hand)
                 self.num += 1
                 self.check_available_buttons(hand)
@@ -488,11 +494,9 @@ class BJinterface(QtWidgets.QMainWindow):
     
     
     def start_round(self):
-        try:
+        if self.table:
             self.ClearCurrentTable()
-        except AttributeError:
-            print("?")
-            pass
+        
 
         self.dealer_handlabel.setParent(self)
         self.dealer_handlabel.show()
@@ -508,13 +512,13 @@ class BJinterface(QtWidgets.QMainWindow):
             yposition  = 562 + int(self.extra_elevations[x])
             xposition   = 65 + x * 128
 
-            n_label = QtWidgets.QLabel()
-            n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
-            n_label.setParent(self)
-            n_label.resize(QSize(80, 40))
-            n_label.move(QPoint(xposition, yposition))
-            self.hand_label_list.append(n_label)
-            n_label.show()
+            self.n_label = QtWidgets.QLabel()
+            self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
+            self.n_label.setParent(self)
+            self.n_label.resize(QSize(80, 40))
+            self.n_label.move(QPoint(xposition, yposition))
+            self.hand_label_list.append(self.n_label)
+            self.n_label.show()
 
             hand : Hand = self.table.hands[x]
             
@@ -612,7 +616,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
     def UpdateLabelsForSplit(self, hands:list[Hand]):
         current_label : QtWidgets.QLabel = self.hand_label_list[self.num]
-        current_label.destroy()
+        current_label.destroy(True)
         current_x  = current_label.pos().x()
         current_y  = current_label.pos().y()
         new_x1     = current_x - 30
@@ -747,18 +751,17 @@ class BJinterface(QtWidgets.QMainWindow):
         # fix the amount of for loops 
         for labels in self.card_labels:
             labels : list[EasyCardLabels]
-            for label_list in labels:
+            for x_label in labels:
                 
-                for x_label in label_list:
-                    if isinstance(x_label, list):
-                        for y_label in x_label:
-                            y_label: EasyCardLabels
-                            y_label.setParent(None)
-                            y_label.deleteLater()
-                    else:
-                        x_label : EasyCardLabels
-                        x_label.setParent(None)
-                        x_label.deleteLater()
+                if isinstance(x_label, list):
+                    for y_label in x_label:
+                        y_label: EasyCardLabels
+                        y_label.setParent(None)
+                        y_label.deleteLater()
+                else:
+                    x_label : EasyCardLabels
+                    x_label.setParent(None)
+                    x_label.deleteLater()
 
         for d_label in self.dealer_labels:
             d_label : EasyCardLabels
@@ -769,6 +772,7 @@ class BJinterface(QtWidgets.QMainWindow):
             if isinstance(hand_label, list):
                 for s_label in hand_label:
                     s_label : EasyCardLabels
+                    
                     s_label.setParent(None)
                     s_label.deleteLater()
             else:
@@ -781,7 +785,6 @@ class BJinterface(QtWidgets.QMainWindow):
             self.dealer_handlabel.update()
         
         print("card labels are:", self.card_labels)
-
         self.hand_label_list = []
         self.splitornot      = False
         self.split_flag      = False
