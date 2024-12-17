@@ -38,10 +38,12 @@ class PlayerBanker:
 
 class BaccaratTable(QObject):
 
-    ValuesChanged = Signal(PlayerType, name="ValuesChanged")
-    PointsChanged = Signal(PlayerType, name="PointsChanged")
-    FinishedRound = Signal(int, name="FinishedRound")
-    WinnerSignal  = Signal(OutComeTypes, name="winner")
+    ValuesChanged   = Signal(PlayerType, name="ValuesChanged")
+    PointsChanged   = Signal(PlayerType, name="PointsChanged")
+    FinishedRound   = Signal(int, name="FinishedRound")
+    WinnerSignal    = Signal(OutComeTypes, name="winner")
+    CardDrawnSignal = Signal(Card)
+    PlayerChanged   = Signal(ActionState)
 
     def __init__(self):
         super().__init__()
@@ -49,27 +51,67 @@ class BaccaratTable(QObject):
         self.player       = PlayerBanker(PlayerType.PLAYER)
         self.banker       = PlayerBanker(PlayerType.BANKER)
         self.CurrentState = ActionState.PLAYERTURN
-        self.RuleChecker  = BaccaratRules(self)
 
         self.player_cards : list[Card] = self.player.cards_list
         self.banker_cards : list[Card] = self.banker.cards_list
         self.ValuesChanged.connect(self.PointsChange)
         self.FinishedRound.connect(self.checkwinner)
-    
+        self.PlayerChanged.connect(self.printsomethingelse)
+        self.WinnerSignal.connect(self.printsomething)
+        self.CardDrawnSignal.connect(self.PrintCard)
+
+    @Slot(Card)
+    def PrintCard(self, signal: Card):
+        print(f"A card was drawn while {self.CurrentState}, the value was {signal._get_value()}")
+
 
     @Slot(PlayerType)
     def PointsChange(self, signal):
         if signal == PlayerType.PLAYER:
+
             if self.player_cards[-1]._get_value() != 10:
                 self.PointsChanged.emit(PlayerType.PLAYER)
         else:
+
             if self.banker_cards[-1]._get_value() != 10:
                 self.PointsChanged.emit(PlayerType.BANKER)
     
-    def PerformAction(self, action : ActionTypes):
-        
-                
+    def DrawCard(self) -> Card | None:
 
+        if self.CurrentState == ActionState.PLAYERTURN:
+            new_card = self.shoe.getcard()
+            self.CardDrawnSignal.emit(new_card)
+            self.player.AddCard(new_card)
+            self.player.CalculatePoints()
+            return new_card
+        
+        elif self.CurrentState == ActionState.BANKERTURN:
+            new_card = self.shoe.getcard()
+            self.CardDrawnSignal.emit(new_card)
+            self.banker.AddCard(new_card)
+            self.banker.CalculatePoints()
+            return new_card
+        
+        elif self.CurrentState == ActionState.FINISHED:
+            self.FinishedRound.emit(1)
+
+    @Slot(OutComeTypes)
+    def printsomething(self, signal):
+        if isinstance(signal, OutComeTypes):
+            print(signal)
+        else:
+            print(f"Signal {signal}, djaai die")
+            pass
+    
+    @Slot(int)
+    def printsomethingelse(self, signal):
+        if signal == 0:
+            BaccaratRules().ChangeState(ActionState.FINISHED)
+            print("Finished")
+        elif signal == 1:
+            BaccaratRules().ChangeState(ActionState.FINISHED)
+            print("Also finished but with 1")
+                
 
     @Slot(int)
     def checkwinner(self):
@@ -88,28 +130,51 @@ class BaccaratTable(QObject):
     def PlaceFirstCards(self) -> tuple[list[Card], list[Card]]:
         
         new_cards : list[Card] = self.shoe.getcard(n_cards=4)
-
+        
         for i, card in enumerate(new_cards):
+
             if i in [0, 2]:
+
                 self.player.AddCard(card)
                 print(card._get_CardName(), card._get_value())
                 self.ValuesChanged.emit(PlayerType.PLAYER)
             else:
+
                 self.banker.AddCard(card)
                 print(card._get_CardName(), card._get_value())
                 self.ValuesChanged.emit(PlayerType.BANKER)
         
-        print(self.player.CalculatePoints())
-        print(self.banker.CalculatePoints())
-        naturwin = BaccaratRules(self).CheckNaturalWin()
+        print(f"Player points: {self.player.CalculatePoints()}")
+        print(f"Banker points: {self.banker.CalculatePoints()}")
+        
 
         return self.player_cards, self.banker_cards
     
+
+    def BankerAction(self, action : ActionTypes):
+        if action == ActionTypes.DRAW:
+            self.DrawCard()
+            BaccaratRules().ChangeState(ActionState.FINISHED)
+        elif action == ActionTypes.STAND:
+            BaccaratRules().ChangeState(ActionState.FINISHED)
+
     def PlayRound(self):
+        
         self.PlaceFirstCards()
-        natural_win = self.RuleChecker.CheckNaturalWin()
+        natural_win = BaccaratRules.CheckNaturalWin(self)
         if not natural_win:
-            player_action = self.RuleChecker.TwoCardActions(self.player.CalculatePoints())
+            action = BaccaratRules.DrawOrStand(self)
+            if action == ActionTypes.DRAW:
+                card = self.DrawCard(self)
+                BaccaratRules.ChangeState(self, ActionState.BANKERTURN)
+                self.BankerAction(BaccaratRules.BankerDrawOrStand(self, card._get_value()))
+            else:
+                BaccaratRules.ChangeState(self, ActionState.BANKERTURN)
+                self.BankerAction(BaccaratRules.TwoCardActions(self))
+
+
+                
+
 
 
 
@@ -122,6 +187,10 @@ class BaccaratRules(BaccaratTable):
     
     def ChangeState(self, NewState : ActionState):
         self.CurrentState = NewState
+        if self.CurrentState == ActionState.PLAYERTURN or self.CurrentState == ActionState.BANKERTURN:
+            self.PlayerChanged.emit(NewState)
+        else:
+            self.FinishedRound.emit(0)
 
     def TwoCardActions(self, Points) -> ActionTypes:
         ActionDict = { 
@@ -139,8 +208,9 @@ class BaccaratRules(BaccaratTable):
 
         return ActionDict.get(Points)
 
+    @classmethod
     def CheckNaturalWin(self) -> bool:
-        player_action = self.TwoCardActions(self.player.CalculatePoints())
+        player_action =self.TwoCardActions(self.player.CalculatePoints())
         banker_action = self.TwoCardActions(self.banker.CalculatePoints())
         if banker_action == ActionTypes.NATURAL_STAND or player_action == ActionTypes.NATURAL_STAND:
             self.ChangeState(ActionState.FINISHED)
@@ -154,7 +224,11 @@ class BaccaratRules(BaccaratTable):
         if self.CurrentState == ActionState.PLAYERTURN:
             points               = self.player.CalculatePoints()
             action : ActionTypes = self.TwoCardActions(points)
-            self.ChangeState(ActionState.BANKERTURN)
+            return action
+        
+        elif self.CurrentState == ActionState.BANKERTURN:
+            points               = self.banker.CalculatePoints()
+            action : ActionTypes = self.TwoCardActions(points)
             return action
         
     def BankerDrawOrStand(self, PlayerThirdCard : int):
@@ -169,11 +243,11 @@ class BaccaratRules(BaccaratTable):
         BankerActionDict = { 3: banker3, 4:banker4, 5:banker5 , 6:banker6, 7:banker7}
 
         if BankerPoints <= 2:
-            self.FinishedRound.emit(0)
+            
             return ActionTypes.DRAW
         
         elif BankerPoints > 6:
-            self.ChangeState(ActionState.FINISHED)
+            
             self.FinishedRound.emit(0)
             return ActionTypes.STAND
         
@@ -184,10 +258,7 @@ class BaccaratRules(BaccaratTable):
 
 if __name__ == "__main__":
     table = BaccaratTable()
-    results = table.PlaceFirstCards()
-    results2 = BaccaratTable.PlaceFirstCards(table)
-    print(results2)
-    print(results)
+    table.PlayRound()
 
 
 
