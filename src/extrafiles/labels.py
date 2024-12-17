@@ -201,18 +201,6 @@ class EasyCardLabels(QtWidgets.QLabel):
         self.update()
 
 
-class BaccaratCard(EasyCardLabels):
-
-    def __init__(self):
-        super().__init__()
-
-    def CreateAnimation(self,xposition, card: Card):
-        yposition = 118
-        CardName  = card._get_CardName()
-        self.setnewimage(CardName)
-        self.animation.setStartValue(QPoint(0, 0))
-        self.animation.setEndValue(QPoint(xposition, yposition))
-        self.animation.setDuration(500)
 
 
 

@@ -58,7 +58,7 @@ class BaccaratTable(QObject):
         self.ValuesChanged.connect(self.PointsChange)
         self.FinishedRound.connect(self.checkwinner)
         self.PlayerChanged.connect(self.printsomethingelse)
-        self.WinnerSignal.connect(self.printsomething)
+        
         self.CardDrawnSignal.connect(self.PrintCard)
 
     @Slot(Card)

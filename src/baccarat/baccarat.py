@@ -29,9 +29,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.central_widget.resize(QSize(1200, 600))
         self.resize(1200, 700)
 
-        self.banker_left_right_x = [690, 790]           # Xpositions for bankers cards
-        self.player_left_right_x = [328, 428]           # Xpositions for players cards
-        self.label_ypos          = 118                  # right in the middle of the box
+        self.banker_left_right_x = [690, 790]               # Xpositions for bankers cards
+        self.player_left_right_x = [328, 428]               # Xpositions for players cards
+        self.label_ypos          = 118                      # right in the middle of the box
         self.player_label        = QtWidgets.QLabel(self)   # Used to update and display the players points
         self.banker_label        = QtWidgets.QLabel(self)   # Used to update and display the bankers points
 
@@ -138,9 +138,18 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.StartingAnimationGroup.finished.connect(self.SecondAnimGroup.start)
         self.SecondAnimGroup.finished.connect(self.UpdatePoints)
 
-    @Slot(OutComeTypes)
-    def DeclareWinner(self, sig):
-        print(f"WE HAVE A WINNER {sig}")
+    @Slot(OutComeTypes, name="winner")
+    def DeclareWinner(self, signal1 : OutComeTypes):
+        print(f"WE HAVE A WINNER {signal1.name}")
+        self.dlg = QtWidgets.QDialog(self)
+        self.dlg.setWindowTitle(f"WINNER")
+        lbl = QtWidgets.QLabel(text=f"{signal1.name}")
+        lbl.setParent(self.dlg)
+        self.dlg.resize(QSize(100, 100))
+        lbl.resize(QSize(80, 80))
+        # lbl.show()
+        # self.dlg.show()
+        
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
