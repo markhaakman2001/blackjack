@@ -7,10 +7,11 @@ from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
 from math import *
 import numpy as np
 import random
-from src.extrafiles.labels import BaccaratCard
+from src.baccarat.baccarat_animations import BaccaratCard
 from src.extrafiles.backgroundwidget import BaccaratBackground
 from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
-from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe
+from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
+from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
 import sys
 
 
@@ -60,6 +61,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.start_btn.clicked.connect(self.StartRound)
         self.table.PointsChanged.connect(self.UpdatePoints)
+        self.table.FirstAnimSignal.connect(self.FirstAnimations)
+        self.table.CardDrawnSignal.connect(self.PlaceNewCard)
+        self.table.WinnerSignal.connect(self.DeclareWinner)
     
 
 
@@ -78,23 +82,28 @@ class BaccaratGui(QtWidgets.QMainWindow):
         points = self.table.banker.CalculatePoints()
         self.banker_label.setText(f"BANKER POINTS: {points}")
         self.banker_label.update()
-    
 
-    @Slot(PlayerType)
-    def UpdatePoints(self, signal):
-        if signal == PlayerType.PLAYER:
-            self.UpdatePlayerLabel()
-        elif signal == PlayerType.BANKER:
-            self.UpdateBankerLabel()
+
+    @Slot(name="PointsChanged")
+    def UpdatePoints(self):
+        self.UpdatePlayerLabel()
+        self.UpdateBankerLabel()
 
     @Slot()
     def StartRound(self):
         """Starts a game of baccarat by giving 2 cards to the player and two to the banker
         """        
-        self.StartingAnimationGroup         = QSequentialAnimationGroup()
-        self.player_card, self.banker_cards = self.table.PlaceFirstCards()
+        self.StartingAnimationGroup = QSequentialAnimationGroup()
+        self.SecondAnimGroup        = QSequentialAnimationGroup()
 
-        for player_xpos, banker_xpos, player_card, banker_card in zip(self.player_left_right_x, self.banker_left_right_x, self.player_card, self.banker_cards):
+        self.table.PlayRound()
+        
+        
+    @Slot(name="Animations")    
+    def FirstAnimations(self):
+        self.banker_cards = self.table.banker_cards
+        self.player_cards = self.table.player_cards
+        for player_xpos, banker_xpos, player_card, banker_card in zip(self.player_left_right_x, self.banker_left_right_x, self.player_cards, self.banker_cards):
 
             self.CurrentPlayerCard = BaccaratCard()
             self.CurrentBankerCard = BaccaratCard()
@@ -113,6 +122,25 @@ class BaccaratGui(QtWidgets.QMainWindow):
         
         self.StartingAnimationGroup.start()
 
+    @Slot(Card)
+    def PlaceNewCard(self, signal : Card):
+        self.current_card = BaccaratCard()
+        self.current_card.setParent(self)
+        if self.table.CurrentState == ActionState.PLAYERTURN:
+            xposition = 228
+        
+        elif self.table.CurrentState == ActionState.BANKERTURN:
+            xposition = 890
+        
+        self.current_card.CreateAnimation(xposition, signal)
+        self.current_card.show()
+        self.SecondAnimGroup.addAnimation(self.current_card.animation)
+        self.StartingAnimationGroup.finished.connect(self.SecondAnimGroup.start)
+        self.SecondAnimGroup.finished.connect(self.UpdatePoints)
+
+    @Slot(OutComeTypes)
+    def DeclareWinner(self, sig):
+        print(f"WE HAVE A WINNER {sig}")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
