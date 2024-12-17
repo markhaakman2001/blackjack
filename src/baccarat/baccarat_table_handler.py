@@ -3,8 +3,7 @@ import random
 from enum import Enum, auto
 from src.baccarat.baccarat_cards import Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionTypes, PlayerType, ActionState, OutComeTypes, SideBets
-from PySide6.QtCore import Slot, Signal, QObject
-
+from PySide6.QtCore import Slot, Signal, QObject, SignalInstance, Qt
 
 class PlayerBanker:
 
@@ -42,9 +41,11 @@ class BaccaratTable(QObject):
     PointsChanged   = Signal(PlayerType, name="PointsChanged")
     FinishedRound   = Signal(int, name="FinishedRound")
     WinnerSignal    = Signal(OutComeTypes, name="winner")
+    
     CardDrawnSignal = Signal(Card)
     FirstAnimSignal = Signal(name="Animations")
     PlayerChanged   = Signal(ActionState)
+    
 
     def __init__(self):
         super().__init__()
@@ -55,10 +56,10 @@ class BaccaratTable(QObject):
 
         self.player_cards : list[Card] = self.player.cards_list
         self.banker_cards : list[Card] = self.banker.cards_list
+
         self.ValuesChanged.connect(self.PointsChange)
         self.FinishedRound.connect(self.checkwinner)
         self.PlayerChanged.connect(self.printsomethingelse)
-        
         self.CardDrawnSignal.connect(self.PrintCard)
 
     @Slot(Card)
@@ -122,6 +123,7 @@ class BaccaratTable(QObject):
     def checkwinner(self):
         player_points = self.player.CalculatePoints()
         banker_points = self.banker.CalculatePoints()
+
         if player_points == banker_points:
             self.WinnerSignal.emit(OutComeTypes.TIE)
         

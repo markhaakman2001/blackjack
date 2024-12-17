@@ -63,7 +63,8 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.table.PointsChanged.connect(self.UpdatePoints)
         self.table.FirstAnimSignal.connect(self.FirstAnimations)
         self.table.CardDrawnSignal.connect(self.PlaceNewCard)
-        self.table.WinnerSignal.connect(self.DeclareWinner)
+        self.table.WinnerSignal.connect(self.announcewinner)
+        self.table.WinnerSignal.connect(self.savewinners)
     
 
 
@@ -138,17 +139,27 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.StartingAnimationGroup.finished.connect(self.SecondAnimGroup.start)
         self.SecondAnimGroup.finished.connect(self.UpdatePoints)
 
+    def announcewinner(self):
+        
+        if self.SecondAnimGroup.state() == QAbstractAnimation.State.Running:
+            self.SecondAnimGroup.finished.connect(self.DeclareWinner)
+        else:
+            self.StartingAnimationGroup.finished.connect(self.DeclareWinner)
+
     @Slot(OutComeTypes, name="winner")
-    def DeclareWinner(self, signal1 : OutComeTypes):
-        print(f"WE HAVE A WINNER {signal1.name}")
+    def savewinners(self, signal1 : OutComeTypes):
+        self.result = signal1
+    
+    def DeclareWinner(self):
+        print(f"WE HAVE A WINNER {self.result}")
         self.dlg = QtWidgets.QDialog(self)
         self.dlg.setWindowTitle(f"WINNER")
-        lbl = QtWidgets.QLabel(text=f"{signal1.name}")
+        lbl = QtWidgets.QLabel(text=f"winner {self.result.name}")
         lbl.setParent(self.dlg)
-        self.dlg.resize(QSize(100, 100))
-        lbl.resize(QSize(80, 80))
-        # lbl.show()
-        # self.dlg.show()
+        self.dlg.resize(QSize(300, 150))
+        lbl.resize(QSize(200, 100))
+        lbl.show()
+        self.dlg.show()
         
 
 def main():
