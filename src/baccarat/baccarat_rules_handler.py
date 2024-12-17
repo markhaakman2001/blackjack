@@ -22,6 +22,8 @@ class ActionState(Enum):
     PLAYERTURN = auto()
     BANKERTURN = auto()
     FINISHED   = auto()
+        
+        
 
 class OutComeTypes(Enum):
 
@@ -34,14 +36,17 @@ class ActionTypes(Enum):
     """DRAW or STAND (True or False)
 
     """    
-    DRAW  = True
-    STAND = False
+    DRAW          = 0
+    STAND         = 1
+    NATURAL_STAND = 2
 
 
 class SideBets(Enum):
 
     PLAYERPAIR = auto()
     BANKERPAIR = auto()
+
+
 
 
 
