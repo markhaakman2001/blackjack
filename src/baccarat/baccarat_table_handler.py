@@ -2,24 +2,9 @@ import numpy as np
 import random
 from enum import Enum, auto
 from src.baccarat.baccarat_cards import Shoe, Card
-#from src.baccarat.baccarat_rules_handler import BaccaratRules, ActionTypes
+from src.baccarat.baccarat_rules_handler import ActionTypes, PlayerType, ActionState, OutComeTypes, SideBets
 from PySide6.QtCore import Slot, Signal, QObject
 
-
-class PlayerType(Enum):
-    PLAYER = "Player"
-    BANKER = "Banker"
-
-class ActionState(Enum):
-    PLAYERTURN = auto()
-    BANKERTURN = auto()
-    FINISHED   = auto()
-
-
-# class ActionTypes(Enum):
-
-#     DRAW  = True
-#     STAND = False
 
 
 
@@ -102,23 +87,6 @@ class BaccaratTable(QObject):
     def WhatNext(self):
         print(BaccaratRules.NextMove(self))
 
-class OutComeTypes(Enum):
-
-    BANKER = 0
-    PLAYER = 1
-    TIE    = 2
-
-
-class ActionTypes(Enum):
-
-    DRAW  = True
-    STAND = False
-
-
-class SideBets(Enum):
-
-    PLAYERPAIR = auto()
-    BANKERPAIR = auto()
 
 
 
@@ -131,7 +99,10 @@ class BaccaratRules(BaccaratTable):
     def NextMove(self):
         if self.CurrentState == ActionState.PLAYERTURN:
             points = self.player.CalculatePoints()
-        return True if points <= 5 else False
+            return ActionTypes.DRAW if points <= 5 else ActionTypes.STAND
+        elif self.CurrentState == ActionState.BANKERTURN:
+            pass
+
 
 
 
