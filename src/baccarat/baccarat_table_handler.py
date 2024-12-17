@@ -88,8 +88,6 @@ class BaccaratTable(QObject):
         print(BaccaratRules.NextMove(self))
 
 
-
-
 class BaccaratRules(BaccaratTable):
 
     def __init__(self):

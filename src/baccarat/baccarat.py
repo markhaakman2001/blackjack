@@ -68,7 +68,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
         """        
         self.player_label.clear()
         points = self.table.player.CalculatePoints()
-        self.player_label.setText(f"PLAYER, POINTS: {points}")
+        self.player_label.setText(f"PLAYER POINTS: {points}")
         self.player_label.update()
     
     def UpdateBankerLabel(self):
@@ -76,8 +76,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
         """        
         self.banker_label.clear()
         points = self.table.banker.CalculatePoints()
-        self.banker_label.setText(f"BANKER, POINTS: {points}")
+        self.banker_label.setText(f"BANKER POINTS: {points}")
         self.banker_label.update()
+    
 
     @Slot(PlayerType)
     def UpdatePoints(self, signal):
