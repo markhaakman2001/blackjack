@@ -6,6 +6,7 @@ from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimati
 from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from src.extrafiles.backgroundwidget import BackGroundWidget
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter
+from src.baccarat.baccarat_cards import Kind, CardSymbol, Card
 from math import *
 import numpy as np
 import random
@@ -198,7 +199,20 @@ class EasyCardLabels(QtWidgets.QLabel):
         self.rotation.setParent(self)
         self.updateGeometry()
         self.update()
-    
+
+
+class BaccaratCard(EasyCardLabels):
+
+    def __init__(self):
+        super().__init__()
+
+    def CreateAnimation(self,xposition, card: Card):
+        yposition = 118
+        CardName  = card._get_CardName()
+        self.setnewimage(CardName)
+        self.animation.setStartValue(QPoint(0, 0))
+        self.animation.setEndValue(QPoint(xposition, yposition))
+        self.animation.setDuration(500)
 
 
 
