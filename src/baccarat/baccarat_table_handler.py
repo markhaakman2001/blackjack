@@ -41,7 +41,6 @@ class BaccaratTable(QObject):
     PointsChanged   = Signal(PlayerType, name="PointsChanged")
     FinishedRound   = Signal(int, name="FinishedRound")
     WinnerSignal    = Signal(OutComeTypes, name="winner")
-    
     CardDrawnSignal = Signal(Card)
     FirstAnimSignal = Signal(name="Animations")
     PlayerChanged   = Signal(ActionState)
