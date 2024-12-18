@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QStyleOption, QStyle, QStyleOptionButton
 from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QEasingCurve, QSize, Qt
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation, QRectF
-from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter, QBrush, QColor, Qt, QRegion
+from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter, QBrush, QColor, Qt, QRegion, QIcon
 from math import *
 import numpy as np
 import random
@@ -19,10 +19,19 @@ class TestUI(QtWidgets.QMainWindow):
         self.central.setParent(self)
         self.resize(1200, 600)
 
-        self.testbutton1 = QPushButton(text="clickmew")
-        self.testbutton1.setParent(self)
-        self.testbutton1.show()
-        self.testbutton1.clicked.connect(self.ShowPopUp)
+        # self.testbutton1 = QPushButton(text="clickmew")
+        # self.testbutton1.setParent(self)
+        
+        # self.testbutton1.clicked.connect(self.ShowPopUp)
+        
+        # self.testbutton1.show()
+
+        self.iconbutton = CustomPushButton()
+        self.iconbutton.setParent(self)
+        self.iconbutton.resize(QSize(110, 110))
+        self.iconbutton.setStyleSheet("border: white ; border-radius ; 10px")
+        self.iconbutton.update()
+        self.iconbutton.show()
 
 
     def ShowPopUp(self):
@@ -50,6 +59,8 @@ class CustomComboBox(QDialog):
         self.btn4 = QCheckBox(text="4")
         self.grp = QtWidgets.QButtonGroup(self)
 
+        
+
         self.grp.addButton(self.btn3)
         self.grp.addButton(self.btn4)
 
@@ -69,6 +80,17 @@ class CustomComboBox(QDialog):
         self.btn3.move(QPoint(0, 125))
         self.btn4.move(QPoint(125,125))
 
+class CustomPushButton(QtWidgets.QPushButton):
+
+    def __init__(self):
+        super().__init__()
+        self._pixmap = QPixmap()
+        self._pixmap.load("tests/testimages/casinochip.jpg")
+
+        self._icon = QIcon(self._pixmap)
+        self.icon = self._icon
+        self.setIcon(self.icon)
+        self.setIconSize(QSize(100, 100))
 
 
 def main():
