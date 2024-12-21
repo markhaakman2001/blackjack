@@ -36,6 +36,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.banker_label        = QtWidgets.QLabel(self)   # Used to update and display the bankers points
 
         self.start_btn           = QtWidgets.QPushButton(text="PLAY")
+        self.all_cards           = []
+
+
 
         self.player_label.setParent(self)
         self.banker_label.setParent(self)
@@ -59,14 +62,13 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.table = BaccaratTable()
 
+        self.start_btn.clicked.connect(self.Replay)    
         self.start_btn.clicked.connect(self.StartRound)
         self.table.PointsChanged.connect(self.UpdatePoints)
         self.table.FirstAnimSignal.connect(self.FirstAnimations)
         self.table.CardDrawnSignal.connect(self.PlaceNewCard)
         self.table.WinnerSignal.connect(self.announcewinner)
         self.table.WinnerSignal.connect(self.savewinners)
-    
-
 
     def UpdatePlayerLabel(self):
         """Called when the players points have changed
@@ -120,6 +122,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
             self.StartingAnimationGroup.addAnimation(self.CurrentPlayerCard.animation)
             self.StartingAnimationGroup.addAnimation(self.CurrentBankerCard.animation)
+
+            self.all_cards.append(self.CurrentBankerCard)
+            self.all_cards.append(self.CurrentPlayerCard)
         
         self.StartingAnimationGroup.start()
 
@@ -138,6 +143,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.SecondAnimGroup.addAnimation(self.current_card.animation)
         self.StartingAnimationGroup.finished.connect(self.SecondAnimGroup.start)
         self.SecondAnimGroup.finished.connect(self.UpdatePoints)
+        self.all_cards.append(self.current_card)
 
     def announcewinner(self):
         
@@ -161,6 +167,15 @@ class BaccaratGui(QtWidgets.QMainWindow):
         lbl.show()
         self.dlg.show()
         
+
+    @Slot()
+    def Replay(self):
+        if len(self.all_cards) > 0:
+            self.table.ResetTable()
+            for card in self.all_cards:
+                card : BaccaratCard
+                card.deleteLater()
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

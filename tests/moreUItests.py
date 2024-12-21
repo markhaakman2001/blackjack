@@ -29,8 +29,6 @@ class TestUI(QtWidgets.QMainWindow):
         self.iconbutton = CustomPushButton()
         self.iconbutton.setParent(self)
         self.iconbutton.resize(QSize(110, 110))
-        self.iconbutton.setStyleSheet("border: white ; border-radius ; 10px")
-        self.iconbutton.update()
         self.iconbutton.show()
 
 

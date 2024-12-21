@@ -33,7 +33,11 @@ class PlayerBanker:
         else:
             self.total_value -= 10
             self.CalculatePoints()
-
+    
+    def Replay(self):
+        self.cards_list = []
+        self.total_value = 0
+        self.total_points = None
 
 class BaccaratTable(QObject):
 
@@ -181,7 +185,10 @@ class BaccaratTable(QObject):
                 points = self.banker.CalculatePoints()
                 self.BankerAction(self.RuleChecker.TwoCardActions(points))
 
-
+    def ResetTable(self):
+        self.player.Replay()
+        self.banker.Replay()
+        self.CurrentState = ActionState.PLAYERTURN
 
 
 class BaccaratRules:
