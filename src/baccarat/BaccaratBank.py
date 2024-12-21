@@ -14,6 +14,21 @@ from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
 import sys
 
+class BankingErrors(Exception):
+    """For errors in bankaccount 
+
+    Args:
+        Exception (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
+    def __init__(self):
+        self.message = "ERROR ERROR"
+        super().__init__(self.message)
+
+
+
 
 class Bank:
 
@@ -50,6 +65,11 @@ class Bank:
     
     @property
     def Balance(self):
+        """Get the balance in euros
+
+        Returns:
+            float : The current balance in euros
+        """        
         self._Balance = self.funds / 100
         return self._Balance
     
@@ -75,6 +95,13 @@ class Bank:
 
     def PlaceBet(self, who : OutComeTypes, amount):
         
+        try:
+            if amount * 100 > self.funds:
+                raise BankingErrors
+            else: 
+                pass
+        except BankingErrors:
+            print("Not possible")
         if who == OutComeTypes.BANKER:
             self._BankerBet += amount
         elif who == OutComeTypes.PLAYER:
@@ -83,6 +110,8 @@ class Bank:
             self._TieBet += amount
     
         self._funds -= amount * 100
+        
+        
 
 
 
@@ -94,8 +123,9 @@ def main():
     print(bankacc.funds)
     print(bankacc.Balance)
     bankacc.Deposit(50)
-    print(bankacc.funds)
-    print(bankacc.Balance)
+    
+    bankacc.PlaceBet(who=OutComeTypes.BANKER, amount=200)
+    bankacc.PlaceBet(who=OutComeTypes.BANKER, amount=1)
 
 if __name__ == "__main__":
     main()
