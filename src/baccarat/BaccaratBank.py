@@ -67,7 +67,6 @@ class Bank:
             amount (float): amount to deposit in euros
         """
         self.funds = amount
-
     
     @property
     def TotalBet(self):
@@ -81,6 +80,12 @@ class Bank:
         self._TieBet    = 0
 
     def PlaceBet(self, who : OutComeTypes, amount):
+        """Place a bet in euros on one of the outcomes
+
+        Args:
+            who (OutComeTypes): The outcome that the bet is placed on
+            amount (float): amount in euros
+        """        
         if who == OutComeTypes.BANKER:
             self._BankerBet += amount
         elif who == OutComeTypes.PLAYER:

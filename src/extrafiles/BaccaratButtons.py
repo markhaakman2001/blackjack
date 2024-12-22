@@ -1,11 +1,7 @@
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import  QDialog
 from PySide6.QtCore import Signal, QPoint, QSize, Slot
-import PySide6.QtCore as Core
-
 from PySide6.QtGui import QPixmap, QIcon
-import sys
-
 
 
 class BaccaratFicheOptionMenu(QDialog):
@@ -52,9 +48,9 @@ class BaccaratFicheOptionMenu(QDialog):
     
     @Slot(int, name="ButtonValue")
     def SendBetSizeSignal(self, signal):
+        self.BetSize = signal
         self.BetSizeSignal.emit(signal)
     
-
     @property
     def BetSize(self):
         return self._BetSize_
