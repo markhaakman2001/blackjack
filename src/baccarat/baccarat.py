@@ -4,7 +4,6 @@ from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QE
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
-from math import *
 import numpy as np
 import random
 from src.baccarat.baccarat_animations import BaccaratCard
@@ -12,6 +11,8 @@ from src.extrafiles.backgroundwidget import BaccaratBackground
 from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
 from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
+from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
+from src.baccarat.BaccaratBank import Bank
 import sys
 
 
@@ -29,28 +30,33 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.central_widget.resize(QSize(1200, 600))
         self.resize(1200, 700)
 
-        self.banker_left_right_x = [690, 790]               # Xpositions for bankers cards
-        self.player_left_right_x = [328, 428]               # Xpositions for players cards
-        self.label_ypos          = 118                      # right in the middle of the box
-        self.player_label        = QtWidgets.QLabel(self)   # Used to update and display the players points
-        self.banker_label        = QtWidgets.QLabel(self)   # Used to update and display the bankers points
-
+        self.banker_left_right_x = [690, 790]                            # Xpositions for bankers cards
+        self.player_left_right_x = [328, 428]                            # Xpositions for players cards
+        self.label_ypos          = 118                                   # right in the middle of the box
+        self.player_label        = QtWidgets.QLabel(self)                # Used to update and display the players points
+        self.banker_label        = QtWidgets.QLabel(self)                # Used to update and display the bankers points
+        self.BetSizeDialog       = BaccaratFicheOptionMenu(self)             # Dialog window to choose a betsize
+        self.OpenBetSizeMenu     = QtWidgets.QPushButton(text="BetSize") 
         self.start_btn           = QtWidgets.QPushButton(text="PLAY")
-        self.all_cards           = []
 
+        self.all_cards           = []
+        self.bank                = Bank(500)
 
 
         self.player_label.setParent(self)
         self.banker_label.setParent(self)
         self.start_btn.setParent(self)
+        self.OpenBetSizeMenu.setParent(self)
 
         self.player_label.resize(QSize(100, 50))
         self.banker_label.resize(QSize(100, 50))
         self.start_btn.resize(QSize(100, 50))
+        self.OpenBetSizeMenu.resize(QSize(100, 50))
 
         self.player_label.move(QPoint(328, 225))
         self.banker_label.move(QPoint(690, 225))
         self.start_btn.move(QPoint(550, 650))
+        self.OpenBetSizeMenu.move(QPoint(450, 650))
 
         self.player_label.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
         self.banker_label.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
@@ -69,6 +75,8 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.table.CardDrawnSignal.connect(self.PlaceNewCard)
         self.table.WinnerSignal.connect(self.announcewinner)
         self.table.WinnerSignal.connect(self.savewinners)
+        self.OpenBetSizeMenu.clicked.connect(self.ShowBetSizeMenu)
+
 
     def UpdatePlayerLabel(self):
         """Called when the players points have changed
@@ -85,6 +93,10 @@ class BaccaratGui(QtWidgets.QMainWindow):
         points = self.table.banker.CalculatePoints()
         self.banker_label.setText(f"BANKER POINTS: {points}")
         self.banker_label.update()
+
+    @Slot()
+    def ShowBetSizeMenu(self):
+        self.BetSizeDialog.exec()
 
 
     @Slot(name="PointsChanged")

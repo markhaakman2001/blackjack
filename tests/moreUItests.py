@@ -19,76 +19,132 @@ class TestUI(QtWidgets.QMainWindow):
         self.central.setParent(self)
         self.resize(1200, 600)
 
-        # self.testbutton1 = QPushButton(text="clickmew")
-        # self.testbutton1.setParent(self)
+        self.testbutton1 = QPushButton(text="clickmew")
+        self.testbutton1.setParent(self)
+        self.dlg = CustomComboBox()
+        self.testbutton1.clicked.connect(self.ShowPopUp)
         
-        # self.testbutton1.clicked.connect(self.ShowPopUp)
-        
-        # self.testbutton1.show()
+        self.testbutton1.show()
 
         self.iconbutton = CustomPushButton()
         self.iconbutton.setParent(self)
         self.iconbutton.resize(QSize(110, 110))
         self.iconbutton.show()
+        self.dlg.BetSizeSignal.connect(self.printiets)
 
 
     def ShowPopUp(self):
-        self.dlg = CustomComboBox()
-        self.dlg.btn1.clicked.connect(self.printiets)
-        self.dlg.show()
+        
+        self.dlg.exec()
     
-    @Slot()
-    def printiets(self):
-        print("yo")
+    @Slot(int, name="BetSize")
+    def printiets(self, signal):
+        print(f"Signal emitted BetSize changed to {signal}")
 
 
 
 class CustomComboBox(QDialog):
 
-    Signal1 = Signal(float, name="CLICK")
+    BetSizeSignal = Signal(int, name="BetSize")
 
     def __init__(self):
         super().__init__()
         self.resize(250, 250)
-        self.btn1 = QPushButton(text="1")
-        self.btn2 = QPushButton(text="2")
+        self.one_fiche         = CustomPushButton()
+        self.five_fiche        = CustomPushButton()
+        self.twentyfive_fiche  = CustomPushButton()
+        self.onehundred_fiche  = CustomPushButton()
 
-        self.btn3 = QCheckBox(text="3")
-        self.btn4 = QCheckBox(text="4")
-        self.grp = QtWidgets.QButtonGroup(self)
+        self.one_fiche.SetOneValueFiche()
+        self.five_fiche.SetFiveValueFiche()
+        self.twentyfive_fiche.SetTwentyFiveValueFiche()
+        self.onehundred_fiche.SetOneHundredValueFiche()
 
+        self.one_fiche.setParent(self)
+        self.five_fiche.setParent(self)
+        self.twentyfive_fiche.setParent(self)
+        self.onehundred_fiche.setParent(self)
         
 
-        self.grp.addButton(self.btn3)
-        self.grp.addButton(self.btn4)
+        self.one_fiche.resize(QSize(125, 125))
+        self.five_fiche.resize(QSize(125, 125))
+        self.twentyfive_fiche.resize(QSize(125, 125))
+        self.onehundred_fiche.resize(QSize(125, 125))
 
-        self.btn1.setParent(self)
-        self.btn2.setParent(self)
-        self.btn3.setParent(self)
-        self.btn4.setParent(self)
-        
+        self.one_fiche.move(QPoint(0, 0))
+        self.five_fiche.move(QPoint(125, 0))
+        self.twentyfive_fiche.move(QPoint(0, 125))
+        self.onehundred_fiche.move(QPoint(125,125))
 
-        self.btn1.resize(QSize(125, 125))
-        self.btn2.resize(QSize(125, 125))
-        self.btn3.resize(QSize(125, 125))
-        self.btn4.resize(QSize(125, 125))
+        self.one_fiche.ButtonValue.connect(self.SendBetSignal)
+        self.five_fiche.ButtonValue.connect(self.SendBetSignal)
+        self.twentyfive_fiche.ButtonValue.connect(self.SendBetSignal)
+        self.onehundred_fiche.ButtonValue.connect(self.SendBetSignal)
 
-        self.btn1.move(QPoint(0, 0))
-        self.btn2.move(QPoint(125, 0))
-        self.btn3.move(QPoint(0, 125))
-        self.btn4.move(QPoint(125,125))
+    
+    @Slot(int, name="ButtonValue")
+    def SendBetSignal(self, signal):
+        print(f"Current Betsize: {signal}")
+        self.BetSizeSignal.emit(signal)
+
+
 
 class CustomPushButton(QtWidgets.QPushButton):
+
+    ButtonValue = Signal(int, name="ButtonValue")
 
     def __init__(self):
         super().__init__()
         self._pixmap = QPixmap()
-        self._pixmap.load("tests/testimages/casinochip.jpg")
+        self._path   = "tests/testimages/"
+        self._value  = 0
+        self.clicked.connect(self.SendCurrentvalue)
+        
+    
+    def SetOneValueFiche(self):
+        self._pixmap.load("tests/testimages/1casinochip.jpg")
 
         self._icon = QIcon(self._pixmap)
         self.icon = self._icon
         self.setIcon(self.icon)
         self.setIconSize(QSize(100, 100))
+        self._value = 1
+        self.ButtonValue.emit(self._value)
+    
+    def SetFiveValueFiche(self):
+        self._pixmap.load("tests/testimages/5casinochip.jpg")
+
+        self._icon = QIcon(self._pixmap)
+        self.icon = self._icon
+        self.setIcon(self.icon)
+        self.setIconSize(QSize(100, 100))
+        self._value = 5
+        self.ButtonValue.emit(self._value)
+    
+    def SetTwentyFiveValueFiche(self):
+        self._pixmap.load("tests/testimages/25casinochip.jpg")
+
+        self._icon = QIcon(self._pixmap)
+        self.icon = self._icon
+        self.setIcon(self.icon)
+        self.setIconSize(QSize(100, 100))
+        self._value = 25
+        self.ButtonValue.emit(self._value)
+    
+    def SetOneHundredValueFiche(self):
+        self._pixmap.load("tests/testimages/100casinochip.jpg")
+
+        self._icon = QIcon(self._pixmap)
+        self.icon = self._icon
+        self.setIcon(self.icon)
+        self.setIconSize(QSize(100, 100))
+        self._value = 100
+        self.ButtonValue.emit(self._value)
+    
+    @Slot()
+    def SendCurrentvalue(self):
+        print(F"Current Value is {self._value}")
+        self.ButtonValue.emit(self._value)
 
 
 def main():
