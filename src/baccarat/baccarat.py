@@ -38,9 +38,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.BetSizeDialog       = BaccaratFicheOptionMenu(self)         # Dialog window to choose a betsize
         self.OpenBetSizeMenu     = QtWidgets.QPushButton(text="BetSize") 
         self.start_btn           = QtWidgets.QPushButton(text="PLAY")
-        self.BetPlayer           = QtWidgets.QPushButton(text="Bet on Player")
-        self.BetBanker           = QtWidgets.QPushButton(text="Bet on Banker")
-        self.BetTie              = QtWidgets.QPushButton(text="Bet on Tie")
+        self.BetPlayer           = QtWidgets.QPushButton(text="Player")
+        self.BetBanker           = QtWidgets.QPushButton(text="Banker")
+        self.BetTie              = QtWidgets.QPushButton(text="Tie")
 
 
         self.CurrentBetSizeImage = BaccaratFiche()
@@ -49,6 +49,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.all_cards           = []
         self.bank                = Bank(500)
+
 
         self.player_label.setParent(self)
         self.banker_label.setParent(self)
@@ -61,24 +62,33 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.player_label.resize(QSize(100, 50))
         self.banker_label.resize(QSize(100, 50))
-        self.start_btn.resize(QSize(100, 50))
-        self.OpenBetSizeMenu.resize(QSize(100, 50))
-        self.CurrentBetSizeImage.resize(QSize(100, 50))
-        self.BetPlayer.resize(QSize(100, 50))
-        self.BetBanker.resize(QSize(100, 50))
-        self.BetTie.resize(QSize(100, 50))
 
-        self.player_label.move(QPoint(328, 225))
+        self.player_label.move(QPoint(365, 225))
         self.banker_label.move(QPoint(690, 225))
-        self.start_btn.move(QPoint(550, 650))
-        self.OpenBetSizeMenu.move(QPoint(450, 650))
-        self.CurrentBetSizeImage.move(QPoint(350, 650))
-        self.BetPlayer.move(QPoint(250, 350))
-        self.BetBanker.move(QPoint(800, 350))
-        self.BetTie.move(QPoint(500, 350))
 
         self.player_label.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
         self.banker_label.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+
+
+        self.start_btn.resize(QSize(100, 50))
+        self.OpenBetSizeMenu.resize(QSize(100, 50))
+        self.CurrentBetSizeImage.resize(QSize(100, 50))
+
+        self.start_btn.move(QPoint(550, 650))
+        self.OpenBetSizeMenu.move(QPoint(450, 650))
+        self.CurrentBetSizeImage.move(QPoint(350, 650))
+
+
+        self.BetPlayer.resize(QSize(328, 355))
+        self.BetBanker.resize(QSize(333, 355))
+        self.BetTie.resize(QSize(150, 150))
+
+        self.BetPlayer.move(QPoint(40, 225))
+        self.BetBanker.move(QPoint(835, 225))
+        self.BetTie.move(QPoint(500, 350))
+
+        self.BetPlayer.setStyleSheet("color: blue ; font : bold 50px ; background: green")
+        self.BetBanker.setStyleSheet("color: red ; font: bold 50px ; background : green")
 
         self.start_btn.show()
         self.player_label.show()
@@ -89,13 +99,20 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.start_btn.clicked.connect(self.Replay)    
         self.start_btn.clicked.connect(self.StartRound)
+
         self.table.PointsChanged.connect(self.UpdatePoints)
         self.table.FirstAnimSignal.connect(self.FirstAnimations)
         self.table.CardDrawnSignal.connect(self.PlaceNewCard)
         self.table.WinnerSignal.connect(self.announcewinner)
         self.table.WinnerSignal.connect(self.savewinners)
+
         self.OpenBetSizeMenu.clicked.connect(self.ShowBetSizeMenu)
         self.BetSizeDialog.BetSizeSignal.connect(self.ChangeCurrentBetSize)
+
+        self.BetPlayer.clicked.connect(self.PlaceBetPlayer)
+        self.BetBanker.clicked.connect(self.PlaceBetBanker)
+        self.BetTie.clicked.connect(self.PlaceBetTie)
+        self.bank.BetSize = 1
 
 
     def UpdatePlayerLabel(self):
@@ -114,6 +131,17 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.banker_label.setText(f"BANKER POINTS: {points}")
         self.banker_label.update()
 
+    @Slot()
+    def PlaceBetPlayer(self):
+        self.bank.PlaceBet(who=OutComeTypes.PLAYER)
+    
+    @Slot()
+    def PlaceBetBanker(self):
+        self.bank.PlaceBet(who=OutComeTypes.BANKER)
+    
+    @Slot()
+    def PlaceBetTie(self):
+        self.bank.PlaceBet(who=OutComeTypes.TIE)
 
     @Slot(int, name="BetSize")
     def ChangeCurrentBetSize(self, signal):
@@ -125,8 +153,8 @@ class BaccaratGui(QtWidgets.QMainWindow):
             self.CurrentBetSizeImage.SetTwentyFiveValueFiche()
         elif signal == 100:
             self.CurrentBetSizeImage.SetOneHundredValueFiche()
+        self.bank.BetSize = signal
         self.CurrentBetSizeImage.update()
-
 
     @Slot()
     def ShowBetSizeMenu(self):
@@ -177,6 +205,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
     def PlaceNewCard(self, signal : Card):
         self.current_card = BaccaratCard()
         self.current_card.setParent(self)
+        
         if self.table.CurrentState == ActionState.PLAYERTURN:
             xposition = 228
         

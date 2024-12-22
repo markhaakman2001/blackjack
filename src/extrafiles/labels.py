@@ -125,9 +125,7 @@ class DeckOfCards:
 
 class EasyCardLabels(QtWidgets.QLabel):
     """Custom label class used for easier animations in the slot machine.
-
-    Args:
-        QtWidgets (_type_): _description_
+    Is a subclass of QLabel.
     """    
 
 

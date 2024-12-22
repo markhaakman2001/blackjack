@@ -11,6 +11,10 @@ import sys
 
 
 class BackGroundWidget(QtWidgets.QWidget):
+    """Custom Qwidget that functions as background image for the blackjack UI.
+    Inherits from QWidget.
+    
+    """    
 
     def __init__(self):
         super().__init__()
@@ -39,6 +43,10 @@ class BackGroundWidget(QtWidgets.QWidget):
         self.palette = QPalette()
 
 class BaccaratBackground(QtWidgets.QWidget):
+    """Custom QWidget that functions as the background image for the Baccarat UI.
+    
+    Inherits from QWidget.
+    """    
 
     def __init__(self):
         super().__init__()

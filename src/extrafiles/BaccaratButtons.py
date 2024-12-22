@@ -64,6 +64,10 @@ class BaccaratFicheOptionMenu(QDialog):
         self._BetSize_ = 1
 
 class BaccaratFiche(QtWidgets.QPushButton):
+    """Class that is used for displaying different valued fiches that function as Qpushbuttons
+
+    
+    """    
 
     ButtonValueSignal = Signal(int, name="ButtonValue")
 

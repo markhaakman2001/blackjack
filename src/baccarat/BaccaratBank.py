@@ -25,11 +25,10 @@ class Bank:
         Args:
             initial_deposit_euros (int, optional): _description_. Defaults to 0.
         """        
-        self._funds   = initial_deposit_euros * 100
+        self._funds     = initial_deposit_euros * 100
         self._PlayerBet = 0
         self._BankerBet = 0
         self._TieBet    = 0
-    
 
     @property
     def funds(self):
@@ -60,13 +59,6 @@ class Bank:
         self._Balance = self.funds / 100
         return self._Balance
     
-    def Deposit(self, amount):
-        """Deposit amount in euros
-
-        Args:
-            amount (float): amount to deposit in euros
-        """
-        self.funds = amount
     
     @property
     def TotalBet(self):
@@ -78,27 +70,62 @@ class Bank:
         self._BankerBet = 0
         self._PlayerBet = 0
         self._TieBet    = 0
+    
+    @property
+    def BetSize(self) -> int:
+        return self._BetSize
+    
+    @BetSize.setter
+    def BetSize(self, amount) -> None:
+        """Set the BetSize
 
-    def PlaceBet(self, who : OutComeTypes, amount):
+        Args:
+            amount (float): The currently selected BetSize in euros
+        """        
+        self._BetSize = int(amount * 100)
+    
+    @BetSize.deleter
+    def BetSize(self) -> None:
+        self._BetSize = 100
+
+    def Deposit(self, amount):
+        """Deposit amount in euros
+
+        Args:
+            amount (float): amount to deposit in euros
+        """
+        self.funds = amount
+
+    def PlaceBet(self, who : OutComeTypes) -> None:
         """Place a bet in euros on one of the outcomes
 
         Args:
             who (OutComeTypes): The outcome that the bet is placed on
             amount (float): amount in euros
         """        
+        amount = self.BetSize / 100
         if who == OutComeTypes.BANKER:
             self._BankerBet += amount
         elif who == OutComeTypes.PLAYER:
             self._PlayerBet += amount
         elif who == OutComeTypes.TIE:
             self._TieBet += amount
+
+        self._funds -= self.BetSize
+        print(f"You bet {amount} on {who.name}")
+        print(f"Your current balance is {self.Balance}")
     
-        self._funds -= amount * 100
+
+    # dit fix ik morgen wel
+    def CheckTotalWin(self, result : OutComeTypes) -> float:
+        
+        if result == OutComeTypes.BANKER:
+            TotalWinCredits = (self._BankerBet * 100) * 2
+        else:
+            pass
         
         
-
-
-
+        
 
 
 
@@ -107,9 +134,10 @@ def main():
     print(bankacc.funds)
     print(bankacc.Balance)
     bankacc.Deposit(50)
-    
-    bankacc.PlaceBet(who=OutComeTypes.BANKER, amount=200)
-    bankacc.PlaceBet(who=OutComeTypes.BANKER, amount=1)
+    bankacc.BetSize = 1
+    print(bankacc.BetSize)
+    bankacc.PlaceBet(who=OutComeTypes.BANKER)
+    bankacc.PlaceBet(who=OutComeTypes.BANKER)
 
 if __name__ == "__main__":
     main()
