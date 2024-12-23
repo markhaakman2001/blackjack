@@ -17,31 +17,50 @@ import sys
 
 
 
-class InsufficientFundsException(Exception):
+class InsufficientFundsError(Exception):
+    """Exception raised when the available funds are not sufficient for the current betsize
+    """    
 
-    def __init__(self, message="Insufficient funds to complete transaction", max_funds=100):
-        self.message = message
-        self.max_funds = max_funds
+    def __init__(self, max_funds: int, message="Insufficient funds to perform action"):
+        self.message   = message
+        self.max_funds = str(f"Maximum possible bet is {max_funds}")
         super().__init__(self.message)
     
+    def __str__(self):        
+        return str(f".\n".join([self.message, self.max_funds]))
+
+class ZeroFundsError(Exception):
+
+    def __init__(self, message="No available funds"):
+        self.message = message
+
     def __str__(self):
-        return f"Insufficient funds, maximum possible bet is {self.max_funds}"
+        return str("Your account contains no available funds, please make a deposit before placing a bet.")
+
+
+class BankingErrors(Exception):
+
+    def __init__(self):
+        pass
+
+    
+
 
 
 class NewBank(Bank):
 
-    def __init__(self, initial_deposit=500):
-        self._funds     = initial_deposit * 100
+    def __init__(self, initial_deposit=0):
+        self._funds     = initial_deposit
         super().__init__(self._funds)
     
 
     def PlaceBet(self, who):
         try:
             if self.funds < self.BetSize:
-                raise InsufficientFundsException(max_funds = self.Balance)
+                raise InsufficientFundsError(max_funds = self.Balance)
             else:               
                 return super().PlaceBet(who)
-        except InsufficientFundsException as e:
+        except InsufficientFundsError as e:
             print(e)
 
 if __name__ == "__main__":
