@@ -12,7 +12,8 @@ from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
 from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
 from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
-from src.baccarat.BaccaratBank import Bank
+#from src.baccarat.BaccaratBank import Bank
+from src.baccarat.BankingErrors import NewBank
 import sys
 
 
@@ -49,7 +50,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.CurrentBetSizeImage.SetOneValueFiche()
 
         self.all_cards           = []
-        self.bank                = Bank(500)
+        self.bank                = NewBank(500)
 
 
         self.player_label.setParent(self)
