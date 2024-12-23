@@ -41,13 +41,16 @@ class Bank:
     
     @funds.setter
     def funds(self, amount):
+
+        old_funds      = self._funds
         amount_credits = amount * 100
-        self._funds += amount_credits
+        self._funds = amount_credits + old_funds
     
     @funds.deleter
     def funds(self, amount):
+        old_funds      = self._funds
         amount_credits = amount * 100
-        self._funds -= amount_credits
+        self._funds =  old_funds - amount_credits
     
     @property
     def Balance(self):
@@ -117,12 +120,30 @@ class Bank:
     
 
     # dit fix ik morgen wel
-    def CheckTotalWin(self, result : OutComeTypes) -> float:
+    def CheckTotalWin(self, result : OutComeTypes) -> int:
+        """Calculate the amount won in credits. based on the result
+
+        Args:
+            result (OutComeTypes): PLAYER and BANKER pay 2:1, TIE pays 8:1
+
+        Returns:
+            int: The amount won in credits
+        """        
         
         if result == OutComeTypes.BANKER:
-            TotalWinCredits = (self._BankerBet * 100) * 2
-        else:
-            pass
+            TotalWinEuros = (self._BankerBet) * 2
+        elif result == OutComeTypes.PLAYER:
+            TotalWinEuros = (self._PlayerBet) * 2
+        elif result == OutComeTypes.TIE:
+            TotalWinEuros = (self._TieBet ) * 8
+        
+        TotalWinCredits = TotalWinEuros * 100
+
+        del self.TotalBet
+        
+        self.funds = TotalWinEuros
+
+        return TotalWinCredits
         
         
         

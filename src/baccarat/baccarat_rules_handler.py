@@ -22,6 +22,11 @@ class ActionState(Enum):
     PLAYERTURN = auto()
     BANKERTURN = auto()
     FINISHED   = auto()
+
+    @classmethod
+    def ResetState():
+        return ActionState.PLAYERTURN
+        
         
         
 
@@ -30,6 +35,8 @@ class OutComeTypes(Enum):
     BANKER = 0
     PLAYER = 1
     TIE    = 2
+    
+
 
 
 class ActionTypes(Enum):

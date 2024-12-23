@@ -231,24 +231,32 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.result = signal1
     
     def DeclareWinner(self):
-        print(f"WE HAVE A WINNER {self.result}")
+
+        self.LastTotalWinCredits = self.bank.CheckTotalWin(self.result)
+        TotalWinEuros = (self.LastTotalWinCredits / 100)
+
         self.dlg = QtWidgets.QDialog(self)
         self.dlg.setWindowTitle(f"WINNER")
-        lbl = QtWidgets.QLabel(text=f"winner {self.result.name}")
+
+        lbl = QtWidgets.QLabel(text=f"winner {self.result.name} \n You win ${TotalWinEuros}")
         lbl.setParent(self.dlg)
+
         self.dlg.resize(QSize(300, 150))
         lbl.resize(QSize(200, 100))
-        lbl.show()
         self.dlg.show()
         
 
     @Slot()
     def Replay(self):
-        if len(self.all_cards) > 0:
+        try:
             self.table.ResetTable()
             for card in self.all_cards:
                 card : BaccaratCard
                 card.deleteLater()
+            self.all_cards = []
+        
+        except RuntimeError:
+            print("WHY")
 
 
 def main():

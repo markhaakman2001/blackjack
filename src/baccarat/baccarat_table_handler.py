@@ -188,7 +188,9 @@ class BaccaratTable(QObject):
     def ResetTable(self):
         self.player.Replay()
         self.banker.Replay()
-        self.CurrentState = ActionState.PLAYERTURN
+        self.player_cards : list[Card] = self.player.cards_list
+        self.banker_cards : list[Card] = self.banker.cards_list
+        self.CurrentState              = ActionState.ResetState
 
 
 class BaccaratRules:
