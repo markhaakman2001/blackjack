@@ -17,14 +17,17 @@ import sys
 
 
 
-class Bank:
+class Bank(QObject):
+
+    BalanceChanged = Signal(name="BalanceChanged")
 
     def __init__(self, initial_deposit_euros = 0):
         """_summary_
 
         Args:
             initial_deposit_euros (int, optional): _description_. Defaults to 0.
-        """        
+        """       
+        super().__init__() 
         self._funds     = initial_deposit_euros * 100
         self._PlayerBet = 0
         self._BankerBet = 0
@@ -45,6 +48,7 @@ class Bank:
         old_funds      = self._funds
         amount_credits = amount * 100
         self._funds = amount_credits + old_funds
+        self.BalanceChanged.emit()
     
     @funds.deleter
     def funds(self, amount):
@@ -115,6 +119,7 @@ class Bank:
             self._TieBet += amount
 
         self._funds -= self.BetSize
+        self.BalanceChanged.emit()
         print(f"You bet {amount} on {who.name}")
         print(f"Your current balance is {self.Balance}")
     

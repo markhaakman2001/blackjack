@@ -26,9 +26,7 @@ class ActionState(Enum):
     @classmethod
     def ResetState():
         return ActionState.PLAYERTURN
-        
-        
-        
+
 
 class OutComeTypes(Enum):
 
@@ -36,7 +34,6 @@ class OutComeTypes(Enum):
     PLAYER = 1
     TIE    = 2
     
-
 
 
 class ActionTypes(Enum):

@@ -35,12 +35,13 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.label_ypos          = 118                                   # right in the middle of the box
         self.player_label        = QtWidgets.QLabel(self)                # Used to update and display the players points
         self.banker_label        = QtWidgets.QLabel(self)                # Used to update and display the bankers points
+        self.Balance_Label       = QtWidgets.QLabel(self)                # Used to display the players current balance and total betsize
         self.BetSizeDialog       = BaccaratFicheOptionMenu(self)         # Dialog window to choose a betsize
         self.OpenBetSizeMenu     = QtWidgets.QPushButton(text="BetSize") 
         self.start_btn           = QtWidgets.QPushButton(text="PLAY")
         self.BetPlayer           = QtWidgets.QPushButton(text="Player")
         self.BetBanker           = QtWidgets.QPushButton(text="Banker")
-        self.BetTie              = QtWidgets.QPushButton(text="Tie")
+        self.BetTie              = QtWidgets.QPushButton(text="Tie 8:1")
 
 
         self.CurrentBetSizeImage = BaccaratFiche()
@@ -54,6 +55,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.player_label.setParent(self)
         self.banker_label.setParent(self)
         self.start_btn.setParent(self)
+        self.Balance_Label.setParent(self)
         self.OpenBetSizeMenu.setParent(self)
         self.CurrentBetSizeImage.setParent(self)
         self.BetPlayer.setParent(self)
@@ -62,13 +64,15 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.player_label.resize(QSize(100, 50))
         self.banker_label.resize(QSize(100, 50))
+        self.Balance_Label.resize(QSize(300, 100))
 
-        self.player_label.move(QPoint(365, 225))
-        self.banker_label.move(QPoint(690, 225))
+        self.player_label.move(QPoint(300, 50))
+        self.banker_label.move(QPoint(790, 50))
+        self.Balance_Label.move(QPoint(0, 600))
 
         self.player_label.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
         self.banker_label.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
-
+        self.Balance_Label.setStyleSheet("border : 2px solid black ; border-radius 2px ; font : bold 20px ; background : grey")
 
         self.start_btn.resize(QSize(100, 50))
         self.OpenBetSizeMenu.resize(QSize(100, 50))
@@ -81,14 +85,15 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.BetPlayer.resize(QSize(328, 355))
         self.BetBanker.resize(QSize(333, 355))
-        self.BetTie.resize(QSize(150, 150))
+        self.BetTie.resize(QSize(470, 175))
 
         self.BetPlayer.move(QPoint(40, 225))
         self.BetBanker.move(QPoint(835, 225))
-        self.BetTie.move(QPoint(500, 350))
+        self.BetTie.move(QPoint(368, 225))
 
         self.BetPlayer.setStyleSheet("color: blue ; font : bold 50px ; background: green")
         self.BetBanker.setStyleSheet("color: red ; font: bold 50px ; background : green")
+        self.BetTie.setStyleSheet("color: white  ; font : bold 50px ; background : lightgreen")
 
         self.start_btn.show()
         self.player_label.show()
@@ -112,6 +117,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.BetPlayer.clicked.connect(self.PlaceBetPlayer)
         self.BetBanker.clicked.connect(self.PlaceBetBanker)
         self.BetTie.clicked.connect(self.PlaceBetTie)
+
+        self.bank.BalanceChanged.connect(self.UpdateBalanceLabel)
+        self.UpdateBalanceLabel()
         self.bank.BetSize = 1
 
 
@@ -130,6 +138,12 @@ class BaccaratGui(QtWidgets.QMainWindow):
         points = self.table.banker.CalculatePoints()
         self.banker_label.setText(f"BANKER POINTS: {points}")
         self.banker_label.update()
+
+    @Slot(int)
+    def UpdateBalanceLabel(self):
+        self.Balance_Label.clear()
+        self.Balance_Label.setText(f"Current balance: ${self.bank.Balance} \n Total bet: {self.bank.TotalBet / 100}")
+        self.Balance_Label.update()
 
     @Slot()
     def PlaceBetPlayer(self):
