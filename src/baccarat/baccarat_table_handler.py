@@ -1,9 +1,6 @@
-import numpy as np
-import random
-from enum import Enum, auto
 from src.baccarat.baccarat_cards import Shoe, Card
-from src.baccarat.baccarat_rules_handler import ActionTypes, PlayerType, ActionState, OutComeTypes, SideBets
-from PySide6.QtCore import Slot, Signal, QObject, SignalInstance, Qt
+from src.baccarat.baccarat_rules_handler import ActionTypes, PlayerType, ActionState, OutComeTypes
+from PySide6.QtCore import Slot, Signal, QObject
 
 class PlayerBanker:
 
