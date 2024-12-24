@@ -1,24 +1,16 @@
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QStyleOption, QStyle
-from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QEasingCurve, QSize, Qt
+from PySide6.QtCore import Slot, QPoint, QSize
 import PySide6.QtCore as Core
-from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
-from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
-import numpy as np
-import random
+from PySide6.QtCore import QSequentialAnimationGroup, QAbstractAnimation
 from src.baccarat.baccarat_animations import BaccaratCard
 from src.extrafiles.backgroundwidget import BaccaratBackground
-from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
-from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
-from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
+from src.baccarat.baccarat_table_handler import BaccaratTable
+from src.baccarat.baccarat_cards import Card
+from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
 from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
 from src.baccarat.BaccaratBank import Bank
-from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, BalanceError
+from src.baccarat.BankingErrors import BalanceError
 import sys
-
-
-
-
 
 
 class BaccaratGui(QtWidgets.QMainWindow):
@@ -180,11 +172,19 @@ class BaccaratGui(QtWidgets.QMainWindow):
     
     @Slot()
     def PlaceBetBanker(self):
-        self.bank.PlaceBet(who=OutComeTypes.BANKER)
+        try:    
+            self.bank.PlaceBet(who=OutComeTypes.BANKER)
+        except BalanceError as e:
+            print(e.with_traceback, e.__str__)
+            self.BalanceErrorPopup(e.__doc__, e.__str__())
     
     @Slot()
     def PlaceBetTie(self):
-        self.bank.PlaceBet(who=OutComeTypes.TIE)
+        try:
+            self.bank.PlaceBet(who=OutComeTypes.TIE)
+        except BalanceError as e:
+            print(e.with_traceback, e.__str__)
+            self.BalanceErrorPopup(e.__doc__, e.__str__())
 
     @Slot(int, name="BetSize")
     def ChangeCurrentBetSize(self, signal):
