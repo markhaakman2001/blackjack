@@ -4,6 +4,7 @@ from math import *
 from src.extrafiles.labels import Shoe, DeckOfCards, EasyCardLabels
 from enum import Enum
 from PySide6.QtCore import Signal, SignalInstance, Slot, QObject
+from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, ErrorChecker, BalanceError
 
 class WinFunctions:
 
@@ -173,7 +174,7 @@ class Bank(QObject):
         self.credits    = 0
         self.total_bets = 0
         self.BetSize    = 1
-        self._funds     = deposit
+        self.funds     = deposit
     
 
     def deposit_euros(self, amount):
@@ -199,13 +200,14 @@ class Bank(QObject):
         self.total_bets += amount_in_credits
         self.BetsChanged.emit(1)
 
+    @ErrorChecker._CheckFundsDecorator
     def PlaceOneBet(self):
         """Updated version of Place_bet
         """        
         CurrentBetSize      = self.BetSize
         CurrentBetCredits   = CurrentBetSize * 100
         self.total_bets    += CurrentBetCredits
-        self._funds         = (-1) * CurrentBetSize
+        self.funds         = (-1) * CurrentBetSize
         self.BetsChanged.emit(1)
         self.FundsChanged.emit()
 
@@ -222,7 +224,7 @@ class Bank(QObject):
         """        
         bet_in_credits = hand._bet
         win_in_credits = RESULT.value(bet_in_credits)
-        self._funds    = win_in_credits / 100
+        self.funds    = win_in_credits / 100
         self.BetsChanged.emit(1)
         self.FundsChanged.emit()
         return win_in_credits
@@ -235,7 +237,7 @@ class Bank(QObject):
             hand (Hand): which hand
         """        
         current_bet_credits = hand._bet
-        self._funds         = (-1) * (current_bet_credits / 100)
+        self.funds         = (-1) * (current_bet_credits / 100)
         self.total_bets    += current_bet_credits
         hand._place_bet(current_bet_credits * 2)
         self.BetsChanged.emit(1)
@@ -244,13 +246,13 @@ class Bank(QObject):
     def Split(self, hand : Hand):
         current_bet = hand._bet
         self.total_bets += current_bet
-        self._funds      = (-1) * (current_bet / 100)
+        self.funds      = (-1) * (current_bet / 100)
         self.BetsChanged.emit(1)
     
     def clear_bets(self):
         self.total_bets = 0
         self._total_bets_euros = 0
-        print(f"Bank Cleared, balance is {self._funds}")
+        print(f"Bank Cleared, balance is {self.funds}")
 
 
     
@@ -261,12 +263,12 @@ class Bank(QObject):
         
 
     @property
-    def _funds(self) -> float:
+    def funds(self) -> float:
         
         return self._funds_euros
 
-    @_funds.setter
-    def _funds(self, amount_euros):
+    @funds.setter
+    def funds(self, amount_euros):
         AmountCredits     = amount_euros * 100
         self.credits     += AmountCredits
         self._funds_euros = (self.credits / 100)

@@ -1,4 +1,4 @@
-from src.blackjack.gui_shoehand import Shoe, Hand, Bank
+from src.blackjack.gui_shoehand import Hand
 
 class Player:
 

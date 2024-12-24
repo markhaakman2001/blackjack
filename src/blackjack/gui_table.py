@@ -138,8 +138,8 @@ class Table:
     
     def PlayRound(self):
 
-        for hand in self.hands:
-            self.bank.betamount(hand, 100)
+        # for hand in self.hands:
+        #     self.bank.betamount(hand, 100)
 
         self.results = []
         
@@ -190,7 +190,7 @@ class Table:
         self.results = []
         self.bets    = []
         
-        print(f"Reset, player hands: {self.player.hands}, dealer: {self.dealer.hand.cards}, {self.bank._total_bets}")
+        print(f"Reset, player hands: {self.player.hands}, dealer: {self.dealer.hand.cards}")
 
 
 def main():

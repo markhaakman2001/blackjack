@@ -49,6 +49,8 @@ class ErrorChecker(object):
 
             from src.baccarat.BaccaratBank import Bank
 
+            print("Starting FundsCheck")
+            print(f"{[arg for arg in args]=}")
             self : Bank = args[0]
 
             if self.funds <= 0:
@@ -57,6 +59,7 @@ class ErrorChecker(object):
                 raise BalanceError(InsufficientFundsError(self.Balance))
             else:
                 func(*args, who)
+                print("FundsCheck complete")
 
         return CheckFunds
 

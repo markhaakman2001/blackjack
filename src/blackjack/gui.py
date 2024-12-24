@@ -207,7 +207,7 @@ class BJinterface(QtWidgets.QMainWindow):
     @Slot(int)
     def update_funds(self):
         self.bank_label.clear()
-        self.bank_label.setText(f"Balance: \n  ${self.bank._funds} \n Total bet: \n ${self.bank._total_bets}")
+        self.bank_label.setText(f"Balance: \n  ${self.bank.funds} \n Total bet: \n ${self.bank._total_bets}")
         self.bank_label.update()
     
 
@@ -235,7 +235,17 @@ class BJinterface(QtWidgets.QMainWindow):
                 label.update()
 
             self.firstanimations(first_symbols, dealer_symbol=dealer_symbols[0])
-    
+
+    def RoundFinished(self):
+        self.NextRoundButton = QtWidgets.QPushButton(text="Next Round")
+        self.NextRoundButton.setParent(self)
+        self.play_button.setEnabled(False)
+        self.play_button.update()
+
+        self.NextRoundButton.resize(QSize(250, 35)) 
+        self.NextRoundButton.move(QPoint(750, 635))
+        self.NextRoundButton.clicked.connect(self.ClearCurrentTable)
+        self.NextRoundButton.show()
 
     @Slot()
     def final_results(self):
@@ -257,6 +267,7 @@ class BJinterface(QtWidgets.QMainWindow):
                         label.setText(f"{result.name}\n ${amount_won/100}")
                         label.update()
                         self.update_funds()
+                        self.RoundFinished()
 
                 else:
                     results.append(self.table.winlose(hand))
@@ -269,6 +280,7 @@ class BJinterface(QtWidgets.QMainWindow):
                     label.setText(f"{result.name} \n ${amount_won/100}")
                     label.update()
                     self.update_funds()
+                    self.RoundFinished()
   
                 
     
@@ -590,10 +602,6 @@ class BJinterface(QtWidgets.QMainWindow):
     
     def start_round(self):
 
-        if self.table:
-            self.ClearCurrentTable()
-        
-
         self.dealer_handlabel.setParent(self)
         self.dealer_handlabel.show()
         self.num         = 0
@@ -895,8 +903,11 @@ class BJinterface(QtWidgets.QMainWindow):
         self.dealer_labels   = []
         self.dealer_labels   = []
         self.BetsLabelList   = None
-
         self.bets_list       = []
+
+        self.NextRoundButton.deleteLater()
+        self.play_button.setEnabled(True)
+        self.UpdatePossibleBets()
         # except AttributeError:
         #     print("There was an attribute error, but we'll ignore it for now")
             
