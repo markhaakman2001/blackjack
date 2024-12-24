@@ -207,7 +207,7 @@ class Bank(QObject):
         CurrentBetSize      = self.BetSize
         CurrentBetCredits   = CurrentBetSize * 100
         self.total_bets    += CurrentBetCredits
-        self.funds         = (-1) * CurrentBetSize
+        self.funds          = (-1) * CurrentBetSize
         self.BetsChanged.emit(1)
         self.FundsChanged.emit()
 
@@ -257,7 +257,7 @@ class Bank(QObject):
 
     
     @property
-    def _total_bets(self) -> float:
+    def TotalBet(self) -> float:
         self._total_bets_euros = self.total_bets / 100
         return self._total_bets_euros
         

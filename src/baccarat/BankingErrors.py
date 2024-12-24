@@ -45,7 +45,7 @@ class ErrorChecker(object):
     def _CheckFundsDecorator(func):
 
         
-        def CheckFunds(*args, who):
+        def CheckFunds(*args, **kwargs):
 
             from src.baccarat.BaccaratBank import Bank
 
@@ -58,7 +58,7 @@ class ErrorChecker(object):
             elif self.funds < self.BetSize:
                 raise BalanceError(InsufficientFundsError(self.Balance))
             else:
-                func(*args, who)
+                func(*args, **kwargs)
                 print("FundsCheck complete")
 
         return CheckFunds

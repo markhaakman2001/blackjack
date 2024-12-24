@@ -169,11 +169,13 @@ class BJinterface(QtWidgets.QMainWindow):
             self.BetsLabelList.append(self.CurrentBetLabel)
             self.BetButtonList.append(self.PlaceBetButton)
             self.BetButtonList[x].xButtonSignal.connect(self.UpdateBetLabel)
-            self.BetButtonList[x].xButtonSignal.connect(self.bank.PlaceOneBet)
+            self.BetButtonList[x].xButtonSignal.connect(self.PlaceBetBank)
             
             self.PlaceBetButton.show()
             self.CurrentBetLabel.show()
 
+    def PlaceBetBank(self):
+        self.bank.PlaceOneBet()
 
     @Slot(WhichButton, name="xButton")
     def UpdateBetLabel(self, signal: WhichButton):
@@ -207,7 +209,7 @@ class BJinterface(QtWidgets.QMainWindow):
     @Slot(int)
     def update_funds(self):
         self.bank_label.clear()
-        self.bank_label.setText(f"Balance: \n  ${self.bank.funds} \n Total bet: \n ${self.bank._total_bets}")
+        self.bank_label.setText(f"Balance: \n  ${self.bank.funds} \n Total bet: \n ${self.bank.TotalBet}")
         self.bank_label.update()
     
 
