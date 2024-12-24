@@ -53,14 +53,23 @@ class ZeroFundsError(Exception):
         return str("Your account contains no available funds, please make a deposit before placing a bet.")
 
 
-@DecoratorTest
-def CheckSufficientFundsForBet(funds, betsize) -> None:
-    if funds < betsize:
-        raise InsufficientFundsError(max_funds=funds)
-    else:
-        pass
+class ErrorChecker(object):
 
+    
+    def _CheckFundsDecorator(func):
+        
 
+        def CheckFunds(*args, who):
+            
+            self : NewBank = args[0]
+            if self.funds <= 0:
+                raise ZeroFundsError
+            elif self.funds < self.BetSize:
+                raise InsufficientFundsError(self.Balance)
+            else:
+                func(*args, who)
+
+        return CheckFunds
 
 
 class NewBank(Bank):
@@ -69,21 +78,26 @@ class NewBank(Bank):
         self._funds     = initial_deposit
         super().__init__(self._funds)
     
-
+    @ErrorChecker._CheckFundsDecorator
     def PlaceBet(self, who):
+        who=who
         try:
-            if self.funds < self.BetSize:
-                raise InsufficientFundsError(max_funds = self.Balance)
-            else:               
-                return super().PlaceBet(who)
-        except InsufficientFundsError as e:
-            print(e)
+            return super().PlaceBet(who=who)
+        except InsufficientFundsError(self.Balance) as e:
+            print("There was an error")
+
+        
+        
+        
 
 if __name__ == "__main__":
     bank = NewBank()
     bank.Deposit(100)
     bank.BetSize = 99
-    CheckSufficientFundsForBet(100, 101)
+    bank.PlaceBet(who=OutComeTypes.BANKER)
+    bank.PlaceBet(who=OutComeTypes.BANKER)
+
+   
     
     
 

@@ -12,8 +12,27 @@ from src.extrafiles.backgroundwidget import BaccaratBackground
 from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
 from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
+from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError
 import sys
 
+
+class ErrorChecker(object):
+
+    
+    def _CheckFundsDecorator(func):
+
+        
+        def CheckFunds(*args, who):
+            
+            self : Bank = args[0]
+            if self.funds <= 0:
+                raise ZeroFundsError
+            elif self.funds < self.BetSize:
+                raise InsufficientFundsError(self.Balance)
+            else:
+                func(*args, who)
+
+        return CheckFunds
 
 
 
@@ -103,6 +122,7 @@ class Bank(QObject):
         """
         self.funds = amount
 
+    @ErrorChecker._CheckFundsDecorator
     def PlaceBet(self, who : OutComeTypes) -> None:
         """Place a bet in euros on one of the outcomes
 
@@ -150,20 +170,34 @@ class Bank(QObject):
 
         return TotalWinCredits
         
-        
+
+class NewBank(Bank):
+    
+
+    def __init__(self, initial_deposit=0):
+        self._funds     = initial_deposit
+        super().__init__(self._funds)
+    
+    
+    def PlaceBet(self, who):
+        who=who
+        try:
+            return super().PlaceBet(who=who)
+        except InsufficientFundsError as e:
+            print(e)
+            raise InsufficientFundsError(self.Balance)
+        except ZeroFundsError as e:
+            print(e)
+            raise ZeroFundsError
         
 
 
 
 def main():
-    bankacc = Bank(150)
-    print(bankacc.funds)
-    print(bankacc.Balance)
-    bankacc.Deposit(50)
-    bankacc.BetSize = 1
-    print(bankacc.BetSize)
-    bankacc.PlaceBet(who=OutComeTypes.BANKER)
-    bankacc.PlaceBet(who=OutComeTypes.BANKER)
+    bank = NewBank()
+    bank.Deposit(100)
+    bank.BetSize = 101
+    bank.PlaceBet(who=OutComeTypes.BANKER)
 
 if __name__ == "__main__":
     main()

@@ -12,7 +12,6 @@ from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
 from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
 from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
-from src.baccarat.BaccaratBank import Bank
 import sys
 
 
@@ -38,35 +37,27 @@ class ZeroFundsError(Exception):
         return str("Your account contains no available funds, please make a deposit before placing a bet.")
 
 
-class BankingErrors(Exception):
-
-    def __init__(self):
-        pass
-
+class ErrorChecker(object):
     
-
-
-
-class NewBank(Bank):
-
-    def __init__(self, initial_deposit=0):
-        self._funds     = initial_deposit
-        super().__init__(self._funds)
     
+    def _CheckFundsDecorator(func):
+        
+        from src.baccarat.BaccaratBank import Bank
 
-    def PlaceBet(self, who):
-        try:
-            if self.funds < self.BetSize:
-                raise InsufficientFundsError(max_funds = self.Balance)
-            else:               
-                return super().PlaceBet(who)
-        except InsufficientFundsError as e:
-            print(e)
+        def CheckFunds(*args, who):
+            
+            self : Bank = args[0]
+            if self.funds <= 0:
+                raise ZeroFundsError
+            elif self.funds < self.BetSize:
+                raise InsufficientFundsError(self.Balance)
+            else:
+                func(*args, who)
+
+        return CheckFunds
+
+def main():
+    pass
 
 if __name__ == "__main__":
-    bank = NewBank()
-    bank.Deposit(100)
-    bank.BetSize = 99
-    bank.PlaceBet(OutComeTypes.BANKER)
-    print("one bet new the next:")
-    bank.PlaceBet(OutComeTypes.BANKER)
+    main()
