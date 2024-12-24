@@ -1,5 +1,3 @@
-
-
 class BalanceError(Exception):
     """An error occured while trying to place a bet.
     """    
