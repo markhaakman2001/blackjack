@@ -9,7 +9,7 @@ from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
 from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
 from src.baccarat.BaccaratBank import Bank
-from src.baccarat.BankingErrors import BalanceError
+from src.baccarat.BankingErrors import BalanceError, ZeroBetsPlacedError
 import sys
 
 
@@ -38,12 +38,16 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
 
         self.CurrentBetSizeImage = BaccaratFiche()
+        self.all_cards           = []
+        self.bank                = Bank(500)
+        self.bank.BetSize        = 1
+        self.table               = BaccaratTable()
+
+
         self.CurrentBetSizeImage.setEnabled(False)
         self.CurrentBetSizeImage.SetOneValueFiche()
 
-        self.all_cards           = []
-        self.bank                = Bank(500)
-
+        
         self.player_label.setParent(self)
         self.banker_label.setParent(self)
         self.start_btn.setParent(self)
@@ -91,9 +95,6 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.player_label.show()
         self.banker_label.show()
 
-
-        self.table = BaccaratTable()
-
         self.start_btn.clicked.connect(self.Replay)    
         self.start_btn.clicked.connect(self.StartRound)
 
@@ -112,7 +113,6 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.bank.BalanceChanged.connect(self.UpdateBalanceLabel)
         self.UpdateBalanceLabel()
-        self.bank.BetSize = 1
 
     def BalanceErrorPopup(self, error, error_message):
         self.BalancePopUpLabel = QtWidgets.QLabel()
@@ -139,7 +139,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
     def DestroyErrorPopUp(self):
         self.BalancePopUpLabel.close()
 
-
+    @Slot()
     def UpdatePlayerLabel(self):
         """Called when the players points have changed
         """        
@@ -148,6 +148,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.player_label.setText(f"PLAYER POINTS: {points}")
         self.player_label.update()
     
+    @Slot()
     def UpdateBankerLabel(self):
         """Called when the Bankers points have changed
         """        
@@ -208,14 +209,18 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.UpdatePlayerLabel()
         self.UpdateBankerLabel()
 
-    @Slot()
+    
+    
     def StartRound(self):
         """Starts a game of baccarat by giving 2 cards to the player and two to the banker
         """        
         self.StartingAnimationGroup = QSequentialAnimationGroup()
         self.SecondAnimGroup        = QSequentialAnimationGroup()
 
-        self.table.PlayRound()
+        try:
+            self.table.PlayRound(self.bank)
+        except ZeroBetsPlacedError as e:
+            self.BalanceErrorPopup(e.__doc__, e.__str__())
         
         
     @Slot(name="Animations")    
@@ -262,17 +267,20 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.SecondAnimGroup.finished.connect(self.UpdatePoints)
         self.all_cards.append(self.current_card)
 
+
     def announcewinner(self):
         
         if self.SecondAnimGroup.state() == QAbstractAnimation.State.Running:
-            self.SecondAnimGroup.finished.connect(self.DeclareWinner)
+            self.SecondAnimGroup.finished.connect(self.DeclareWinner, type=Core.Qt.ConnectionType.SingleShotConnection)
         else:
-            self.StartingAnimationGroup.finished.connect(self.DeclareWinner)
+            self.StartingAnimationGroup.finished.connect(self.DeclareWinner, type=Core.Qt.ConnectionType.SingleShotConnection)
+
 
     @Slot(OutComeTypes, name="winner")
     def savewinners(self, signal1 : OutComeTypes):
         self.result = signal1
     
+        
     def DeclareWinner(self):
 
         self.LastTotalWinCredits = self.bank.CheckTotalWin(self.result)
@@ -297,9 +305,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
                 card : BaccaratCard
                 card.deleteLater()
             self.all_cards = []
+        except AttributeError:
+            pass
         
-        except RuntimeError:
-            print("WHY")
 
 
 def main():

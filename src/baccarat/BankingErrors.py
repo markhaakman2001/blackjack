@@ -4,7 +4,6 @@ class BalanceError(Exception):
     pass
 
 
-
 class InsufficientFundsError(Exception):
     """Exception raised when the available funds are not sufficient for the current betsize
     """    
@@ -28,6 +27,18 @@ class ZeroFundsError(Exception):
         return str(f".\n".join([self.message, self.message2]))
 
 
+class ZeroBetsPlacedError(Exception):
+
+    def __init__(self, message="No active bets.", message2="Place a bet before starting."):
+        self.message  = message
+        self.message2 = message2
+        super().__init__(self.message)
+    
+    def __str__(self):
+        return str(f"\n".join([self.message, self.message2]))
+
+
+
 class ErrorChecker(object):
 
     
@@ -48,6 +59,26 @@ class ErrorChecker(object):
                 func(*args, who)
 
         return CheckFunds
+
+
+    def _CheckForPlacedBets(func):
+
+        def _CheckBets(*args):
+
+            from src.baccarat.BaccaratBank import Bank
+
+            table       = args[0]
+            self : Bank = args[1]
+            TotalBets   = self.TotalBet
+            if self.TotalBet == 0:
+                raise ZeroBetsPlacedError
+            else:
+                func(*args)
+        
+        return _CheckBets
+
+
+
 def main():
     pass
 
