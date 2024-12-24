@@ -5,6 +5,8 @@ from src.blackjack.gui_table import Table
 from src.blackjack.gui_shoehand import Hand, Bank, WinFunctions, WinType
 from src.extrafiles.labels import EasyCardLabels
 from src.extrafiles.backgroundwidget import BackGroundWidget
+from src.extrafiles.BaccaratButtons import BaccaratFicheOptionMenu, BaccaratFiche
+from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton
 import sys
 import time
 
@@ -42,6 +44,15 @@ class BJinterface(QtWidgets.QMainWindow):
         self.play_button   = QtWidgets.QPushButton(text="Play")
 
 
+        self.BetSizeDialog       = BaccaratFicheOptionMenu(self)
+        self.OpenBetSizeMenu     = QtWidgets.QPushButton(text="BetSize")
+        self.CurrentBetSizeImage = BaccaratFiche()
+        self.CurrentBetSizeImage.setEnabled(False)
+        self.CurrentBetSizeImage.SetOneValueFiche()
+
+        self.CurrentBetSizeImage.setParent(self)
+        self.OpenBetSizeMenu.setParent(self)
+
         self.extra_elevations   = [-40, -20, 0, 0, 0, -20, -40]
         self.hand_label_list    = []
         
@@ -59,6 +70,9 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_button.resize(QSize(250, 35))
         self.n_hands.resize(QSize(250, 35))
         self.play_button.resize(QSize(250, 35))
+
+        self.OpenBetSizeMenu.resize(QSize(500, 35))
+        self.CurrentBetSizeImage.resize(QSize(50, 50))
         
         # move to correct position
         self.double_button.move(QPoint(0, 600))
@@ -67,6 +81,8 @@ class BJinterface(QtWidgets.QMainWindow):
         self.split_button.move(QPoint(750, 600))
         self.n_hands.move(QPoint(250, 635))
         self.play_button.move(QPoint(500, 635))
+        self.OpenBetSizeMenu.move(QPoint(250, 670))
+        self.CurrentBetSizeImage.move(QPoint(200, 635))
 
 
         self.hit_button.setStyleSheet("background-color: green; color:white; font: bold 20px")
@@ -92,9 +108,11 @@ class BJinterface(QtWidgets.QMainWindow):
         self.stand_button.clicked.connect(self.stand)
         self.double_button.clicked.connect(self.doubledown)
         self.split_button.clicked.connect(self.splityourhand)
-        #self.play_button.clicked.connect(self.ClearCurrentTable)
         self.play_button.clicked.connect(self.start_round)
         
+        self.OpenBetSizeMenu.clicked.connect(self.ShowBetSizeMenu)
+        self.BetSizeDialog.BetSizeSignal.connect(self.ChangeCurrentBetSize)
+        self.n_hands.valueChanged.connect(self.UpdatePossibleBets)
 
 
         self.table         = None     # table is initiated later
@@ -105,9 +123,87 @@ class BJinterface(QtWidgets.QMainWindow):
         self.card_labels   = []       # This list holds all the card labels of the cards that have been revealed.
         self.popup_off     = True     # If there already is a popup this should be False
         self.dealer_labels = []
+        self.BetsLabelList = None
 
-        self.bank  = None
+        self.bets_list     = []
+        self.bank          = Bank(500)
+        self.bank.FundsChanged.connect(self.update_funds)
+        self.UpdatePossibleBets()
+        self.update_funds()
+    
+
+    def UpdatePossibleBets(self):
+
+        if self.BetsLabelList:
+
+            for label in self.BetsLabelList:
+                label     : QtWidgets.QLabel
+                label.deleteLater()
+                
         
+        n_bets = self.n_hands.value()
+        self.BetsLabelList : list[QtWidgets.QLabel]      = []
+        self.BetButtonList : list[BlackJackBetButton]    = []
+        self.bets_list                                   = [0] * n_bets
+        
+        for x in range(n_bets):
+
+            yposition   = 582 + int(self.extra_elevations[x])
+            xposition   = 65 + x * 128
+            self.CurrentBetLabel    = QtWidgets.QLabel()
+            self.PlaceBetButton     = BlackJackBetButton()
+            self.PlaceBetButton.setText("Bet")
+            self.PlaceBetButton._x_button = x
+
+            self.PlaceBetButton.setParent(self)
+            self.CurrentBetLabel.setParent(self)
+
+            self.CurrentBetLabel.setStyleSheet("color: black ; font: bold 15px")
+
+            self.PlaceBetButton.resize(QSize(60, 30))
+            self.CurrentBetLabel.resize(QSize(60, 20))
+
+            self.PlaceBetButton.move(QPoint(xposition, yposition - 30))
+            self.CurrentBetLabel.move(QPoint(xposition, yposition))
+            
+            self.BetsLabelList.append(self.CurrentBetLabel)
+            self.BetButtonList.append(self.PlaceBetButton)
+            self.BetButtonList[x].xButtonSignal.connect(self.UpdateBetLabel)
+            self.BetButtonList[x].xButtonSignal.connect(self.bank.PlaceOneBet)
+            
+            self.PlaceBetButton.show()
+            self.CurrentBetLabel.show()
+
+
+    @Slot(WhichButton, name="xButton")
+    def UpdateBetLabel(self, signal: WhichButton):
+        x             = signal.value
+        current_bet   = self.bank.BetSize
+        current_label = self.BetsLabelList[x]
+        NewBet = self.bets_list[x] + current_bet
+        self.bets_list[x] = NewBet
+        current_label.clear()
+        current_label.setText(f"${NewBet}")
+        current_label.update()
+
+
+    @Slot(int, name="BetSize")
+    def ChangeCurrentBetSize(self, signal):
+        if signal == 1:
+            self.CurrentBetSizeImage.SetOneValueFiche()
+        elif signal == 5:
+            self.CurrentBetSizeImage.SetFiveValueFiche()
+        elif signal == 25:
+            self.CurrentBetSizeImage.SetTwentyFiveValueFiche()
+        elif signal == 100:
+            self.CurrentBetSizeImage.SetOneHundredValueFiche()
+        self.bank.BetSize = signal
+        self.CurrentBetSizeImage.update()
+
+    @Slot()
+    def ShowBetSizeMenu(self):
+        self.BetSizeDialog.exec()
+
     @Slot(int)
     def update_funds(self):
         self.bank_label.clear()
@@ -122,8 +218,6 @@ class BJinterface(QtWidgets.QMainWindow):
         d_flag = double_flag()
         self.split_button.setEnabled(s_flag)
         self.double_button.setEnabled(d_flag)
-
-
 
 
     def first_cards(self):
@@ -141,8 +235,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 label.update()
 
             self.firstanimations(first_symbols, dealer_symbol=dealer_symbols[0])
-            
-
+    
 
     @Slot()
     def final_results(self):
@@ -163,6 +256,7 @@ class BJinterface(QtWidgets.QMainWindow):
                         label.clear()
                         label.setText(f"{result.name}\n ${amount_won/100}")
                         label.update()
+                        self.update_funds()
 
                 else:
                     results.append(self.table.winlose(hand))
@@ -174,6 +268,7 @@ class BJinterface(QtWidgets.QMainWindow):
                     label.clear()
                     label.setText(f"{result.name} \n ${amount_won/100}")
                     label.update()
+                    self.update_funds()
   
                 
     
@@ -494,6 +589,7 @@ class BJinterface(QtWidgets.QMainWindow):
     
     
     def start_round(self):
+
         if self.table:
             self.ClearCurrentTable()
         
@@ -503,13 +599,15 @@ class BJinterface(QtWidgets.QMainWindow):
         self.num         = 0
         self.table       = Table(hands=self.n_hands.value())
         self.textboxes   = []
-        self.bank : Bank = self.table.bank
+
         self.bank.BetsChanged.connect(self.update_funds)
         print(self.hand_label_list)
 
         for x in range(self.n_hands.value()):
+            
+            self.BetButtonList[x].deleteLater()
 
-            yposition  = 562 + int(self.extra_elevations[x])
+            yposition  = 542 + int(self.extra_elevations[x])
             xposition   = 65 + x * 128
 
             self.n_label = QtWidgets.QLabel()
@@ -522,7 +620,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
             hand : Hand = self.table.hands[x]
             
-            self.bank.place_bet(10, hand)
+            hand._place_bet((self.bets_list[x] * 100))
             
 
             txtbox = QtWidgets.QTextEdit()
@@ -566,7 +664,7 @@ class BJinterface(QtWidgets.QMainWindow):
             self.label   = label
             self.label2  = EasyCardLabels()
             shifted_xpos = xposition - 30 * (-1)**(i)
-            yposition    = 490 + int(self.extra_elevations[self.num -1]) - i * 35
+            yposition    = 470 + int(self.extra_elevations[self.num -1]) - i * 35
             shifted_ypos = yposition + i * 35
             
 
@@ -650,7 +748,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
         for x in range(len(first_symbols)):
             
-            yposition  = 490 + int(self.extra_elevations[x])
+            yposition  = 470 + int(self.extra_elevations[x])
             self.card_labels.append([])
 
             for i, symbol in enumerate(first_symbols[x]):
@@ -704,7 +802,7 @@ class BJinterface(QtWidgets.QMainWindow):
         extra_elevations = self.extra_elevations
 
         xposition  =  75 + hand_number * 128 + n_cards * 20
-        yposition  =  490 + int(extra_elevations[hand_number]) - 35 * n_cards
+        yposition  =  470 + int(extra_elevations[hand_number]) - 35 * n_cards
         
 
         self.label.setnewimage(card_symbol)
@@ -784,6 +882,8 @@ class BJinterface(QtWidgets.QMainWindow):
             self.dealer_handlabel.clear()
             self.dealer_handlabel.update()
         
+
+        self.bank.clear_bets()
         print("card labels are:", self.card_labels)
         self.hand_label_list = []
         self.splitornot      = False
@@ -793,6 +893,10 @@ class BJinterface(QtWidgets.QMainWindow):
         self.card_labels     = []
         self.popup_off       = True
         self.dealer_labels   = []
+        self.dealer_labels   = []
+        self.BetsLabelList   = None
+
+        self.bets_list       = []
         # except AttributeError:
         #     print("There was an attribute error, but we'll ignore it for now")
             

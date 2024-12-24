@@ -9,7 +9,6 @@ class Player:
             hands (int, optional): amount of hands. Defaults to 1.
         """        
         self.hands = []
-        self.bank = Bank(hands)
         for x in range(hands):
             self.hands.append(Hand())
     

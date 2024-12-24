@@ -199,7 +199,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
             self.CurrentBetSizeImage.SetOneHundredValueFiche()
         self.bank.BetSize = signal
         self.CurrentBetSizeImage.update()
-
+    
     @Slot()
     def ShowBetSizeMenu(self):
         self.BetSizeDialog.exec()

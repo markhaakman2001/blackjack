@@ -12,13 +12,14 @@ class Table:
     def __init__(self, hands=1):
 
         super().__init__()
-        self.shoe = Shoe(8)
+        self.shoe   = Shoe(8)
         self.player = Player(hands)
         self.dealer = Dealer()
-        self.bank = Bank(500)
+        #self.bank = Bank(500)
         self.hands = self.player.hands
         self.results = []
         self.bets = []
+        
         
     
     def deal_first_cards(self):
@@ -185,7 +186,10 @@ class Table:
     def reset(self):
         self.dealer.__init__()
         self.player.__init__()
-        self.bank.clear_bets()
+        self.hands   = self.player.hands
+        self.results = []
+        self.bets    = []
+        
         print(f"Reset, player hands: {self.player.hands}, dealer: {self.dealer.hand.cards}, {self.bank._total_bets}")
 
 
