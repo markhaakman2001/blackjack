@@ -12,8 +12,8 @@ from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
 from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
 from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
-from src.baccarat.BaccaratBank import NewBank
-from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError
+from src.baccarat.BaccaratBank import Bank
+from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, BalanceError
 import sys
 
 
@@ -50,8 +50,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.CurrentBetSizeImage.SetOneValueFiche()
 
         self.all_cards           = []
-        self.bank                = NewBank(500)
-
+        self.bank                = Bank(500)
 
         self.player_label.setParent(self)
         self.banker_label.setParent(self)
@@ -123,6 +122,31 @@ class BaccaratGui(QtWidgets.QMainWindow):
         self.UpdateBalanceLabel()
         self.bank.BetSize = 1
 
+    def BalanceErrorPopup(self, error, error_message):
+        self.BalancePopUpLabel = QtWidgets.QLabel()
+        self.error_timer       = Core.QTimer(self.BalancePopUpLabel)
+
+        self.BalancePopUpLabel.setWindowTitle(f"{error}")
+        self.BalancePopUpLabel.setText(f"{error_message}")
+        self.BalancePopUpLabel.setParent(self)
+
+        self.BalancePopUpLabel.setStyleSheet("color: darkblue ; font : bold 20px")
+        self.BalancePopUpLabel.move(QPoint(400, 50))
+        self.BalancePopUpLabel.width = 1200
+        self.BalancePopUpLabel.setFixedWidth(1000)
+
+        self.error_timer.setSingleShot(True)
+        self.error_timer.setInterval(1500)
+        self.error_timer.timeout.connect(self.BalancePopUpLabel.deleteLater)
+
+        self.BalancePopUpLabel.show()
+        self.error_timer.start()
+        
+
+    @Slot()
+    def DestroyErrorPopUp(self):
+        self.BalancePopUpLabel.close()
+
 
     def UpdatePlayerLabel(self):
         """Called when the players points have changed
@@ -148,7 +172,11 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
     @Slot()
     def PlaceBetPlayer(self):
-        self.bank.PlaceBet(who=OutComeTypes.PLAYER)
+        try:
+            self.bank.PlaceBet(who=OutComeTypes.PLAYER)
+        except BalanceError as e:
+            print(e.with_traceback, e.__str__)
+            self.BalanceErrorPopup(e.__doc__, e.__str__())
     
     @Slot()
     def PlaceBetBanker(self):

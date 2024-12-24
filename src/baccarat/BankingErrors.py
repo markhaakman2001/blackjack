@@ -15,6 +15,12 @@ from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMen
 import sys
 
 
+class BalanceError(Exception):
+    """An error occured while trying to place a bet.
+    """    
+    pass
+
+
 
 class InsufficientFundsError(Exception):
     """Exception raised when the available funds are not sufficient for the current betsize
@@ -30,32 +36,35 @@ class InsufficientFundsError(Exception):
 
 class ZeroFundsError(Exception):
 
-    def __init__(self, message="No available funds"):
+    def __init__(self, message="Your account contains no available funds."):
         self.message = message
+        self.message2 = "Please make a deposit before placing a bet."
+        super().__init__(self.message)
 
     def __str__(self):
-        return str("Your account contains no available funds, please make a deposit before placing a bet.")
+        return str(f".\n".join([self.message, self.message2]))
 
 
 class ErrorChecker(object):
-    
+
     
     def _CheckFundsDecorator(func):
-        
-        from src.baccarat.BaccaratBank import Bank
 
+        
         def CheckFunds(*args, who):
-            
+
+            from src.baccarat.BaccaratBank import Bank
+
             self : Bank = args[0]
+
             if self.funds <= 0:
-                raise ZeroFundsError
+                raise BalanceError(ZeroFundsError())
             elif self.funds < self.BetSize:
-                raise InsufficientFundsError(self.Balance)
+                raise BalanceError(InsufficientFundsError(self.Balance))
             else:
                 func(*args, who)
 
         return CheckFunds
-
 def main():
     pass
 

@@ -12,27 +12,27 @@ from src.extrafiles.backgroundwidget import BaccaratBackground
 from src.baccarat.baccarat_table_handler import BaccaratTable, PlayerType
 from src.baccarat.baccarat_cards import Kind, CardSymbol, Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionState, ActionTypes, OutComeTypes, PlayerType, SideBets
-from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError
+from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, BalanceError, ErrorChecker
 import sys
 
 
-class ErrorChecker(object):
+# class ErrorChecker(object):
 
     
-    def _CheckFundsDecorator(func):
+#     def _CheckFundsDecorator(func):
 
         
-        def CheckFunds(*args, who):
+#         def CheckFunds(*args, who):
             
-            self : Bank = args[0]
-            if self.funds <= 0:
-                raise ZeroFundsError
-            elif self.funds < self.BetSize:
-                raise InsufficientFundsError(self.Balance)
-            else:
-                func(*args, who)
+#             self : Bank = args[0]
+#             if self.funds <= 0:
+#                 raise BalanceError(ZeroFundsError())
+#             elif self.funds < self.BetSize:
+#                 raise BalanceError(InsufficientFundsError(self.Balance))
+#             else:
+#                 func(*args, who)
 
-        return CheckFunds
+#         return CheckFunds
 
 
 
@@ -181,14 +181,14 @@ class NewBank(Bank):
     
     def PlaceBet(self, who):
         who=who
-        try:
-            return super().PlaceBet(who=who)
-        except InsufficientFundsError as e:
-            print(e)
-            raise InsufficientFundsError(self.Balance)
-        except ZeroFundsError as e:
-            print(e)
-            raise ZeroFundsError
+        #try:
+        return super().PlaceBet(who=who)
+        # except InsufficientFundsError as e:
+        #     print(e)
+        #     raise InsufficientFundsError(self.Balance)
+        # except ZeroFundsError as e:
+        #     print(e)
+        #     raise ZeroFundsError
         
 
 
@@ -196,7 +196,8 @@ class NewBank(Bank):
 def main():
     bank = NewBank()
     bank.Deposit(100)
-    bank.BetSize = 101
+    bank.BetSize = 100
+    bank.PlaceBet(who=OutComeTypes.BANKER)
     bank.PlaceBet(who=OutComeTypes.BANKER)
 
 if __name__ == "__main__":
