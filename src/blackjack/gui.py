@@ -468,9 +468,13 @@ class BJinterface(QtWidgets.QMainWindow):
                 card, text, cardsymbol       = self.table.hitcard(hand)
                 last_label: EasyCardLabels   = self.card_labels[self.num][self.split_num][-1]
                 last_label_pos : QPoint      = last_label.currentpos
+                label : EasyCardLabels       = self.hand_label_list[self.num][self.split_num]
                 self.createcardanimation_forsplit(cardsymbol, last_label_pos)
                 self.card_labels[self.num][self.split_num].append(self.label2)
                 self.label2.animation.start()
+                label.clear()
+                label.setText(f"{hand.handtotal(hand.softhand())}")
+                label.update()
                 self.check_available_buttons(hand)
                 self.checkforbust()
             
@@ -568,9 +572,10 @@ class BJinterface(QtWidgets.QMainWindow):
                 texts, hands    = self.table.split(current_hand)
                 current_labels  = self.card_labels[self.num]
                 new_symbols     = [hands[i].card_symbols[-1] for i in range(2)]
+                current_label   = self.hand_label_list[self.num]
+                current_label.deleteLater()
                 self.splitanimation(current_labels, new_symbols, hands)
                 self.table.hands.pop(self.num)
-
                 if self.lasthand():
 
                     self.table.hands.append(hands)
@@ -647,6 +652,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.first_cards()
         firstlabel: EasyCardLabels = self.hand_label_list[0]
         firstlabel.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+        self.check_available_buttons(self.table.hands[0])
         if self.table.hands[0].blackjack():
             self.firstcardanims.finished.connect(self.blackjack())
         else:
@@ -724,7 +730,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
     def UpdateLabelsForSplit(self, hands:list[Hand]):
         current_label : QtWidgets.QLabel = self.hand_label_list[self.num]
-        current_label.destroy(True)
+        
         current_x  = current_label.pos().x()
         current_y  = current_label.pos().y()
         new_x1     = current_x - 30
@@ -745,6 +751,7 @@ class BJinterface(QtWidgets.QMainWindow):
         
         self.hand_label_list.pop(self.num)
         self.hand_label_list.insert(self.num, new_labels)
+        current_label.destroy(True)
         
 
 
