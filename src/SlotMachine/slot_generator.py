@@ -110,7 +110,7 @@ class PlayingField:
         return zigzagline, straightline
     
 
-    def checkwinnings(self, betsize) -> tuple[np.ndarray, np.ndarray, float]:
+    def checkwinnings(self, betsize, totalwin=0) -> tuple[np.ndarray, np.ndarray, float]:
         """Using the current PlayingField and the given betsize, checks for any winning lines.
 
         The PlayingField is a (5, 6) numpy array with integers representing symbols.
@@ -160,6 +160,7 @@ class PlayingField:
                 
                 symbol = int(self.full_field[i, 0])
                 win = self.prizecheck(symbol_val=symbol, length=zigzagwins, betsize=betsize)
+                print(f"ZigZagWin is {win}")
                 totalwin += win
                 for x in range(zigzagwins):
                     
@@ -176,6 +177,7 @@ class PlayingField:
             if straightwins:
                 symbol = int(self.full_field[i, 0])
                 win = self.prizecheck(symbol_val=symbol, length=straightwins, betsize=betsize)
+                print(f"Straightwin = {win}")
                 totalwin += win
                 straight_arr[i, :straightwins] = True
                 

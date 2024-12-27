@@ -5,7 +5,7 @@ import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
 from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
-from src.SlotMachine.ExtraSlotFiles import SlotWinType as Win
+from src.SlotMachine.ExtraSlotFiles import SlotWinType
 import numpy as np
 import random
 import sys
@@ -17,7 +17,7 @@ class TestWindow(QtWidgets.QMainWindow):
     signal1 = Signal()
     signal2 = Signal()
     
-    WinnerSignal = Signal(Win, name="WinnerSignal")
+    WinnerSignal = Signal(SlotWinType, name="WinnerSignal")
 
     def __init__(self):
 
@@ -82,17 +82,35 @@ class TestWindow(QtWidgets.QMainWindow):
                 self.label_array = np.column_stack((self.label_array, arr))
 
 
-        self.lastwin = 0
-        self.dlg_off = True
+        self.lastwin          = 0
+        self.dlg_off          = True
+        self.CurrentWin : SlotWinType = SlotWinType.ZEROWINS
+
         self.signal1.connect(self.winpopup)
         self.signal2.connect(self.enablestart)
-        
+
         
         self.createfallanimation()
         self.createwinanimation()
         
 
+    @Slot()
+    def UpdateWinnersConnections(self, signal : SlotWinType) -> None:
+        """Connect the right animationgroup to the winpopup signal.
+
+        Args:
+            signal (Win): What type of win
+        """       
+        print(f"Signal Received: {signal}")
+        print(f"Current WinState: {self.CurrentWin}")   
+        if self.CurrentWin == SlotWinType.ZEROWINS:
+            self.CurrentWin = signal
+            print(f"Updating State to {signal}")
+            self.sequantialanimgroup.finished.connect(self.winpopup)
+            self.sequantialanimgroup.finished.connect(self.enablestart)
             
+        else:
+            pass
 
     def createlabelarray(self, xpos):
         """Create a reel of customlabels that is used to display the symbols on the playingfield.
@@ -127,7 +145,8 @@ class TestWindow(QtWidgets.QMainWindow):
         """        
         
         self.animationgroup = QParallelAnimationGroup()
-        self.lastwin = 0
+        self.lastwin        = 0
+        self.CurrentWin     = SlotWinType.ZEROWINS
         
         self.printvisibility()
         self.bank.placebet(self.betsizes[self.betbutton.currentIndex()])
@@ -157,7 +176,7 @@ class TestWindow(QtWidgets.QMainWindow):
                 this_arr[x, y] = thislabel.windowOpacity()
         print(this_arr)
 
-    
+    @Slot()
     def enablestart(self):
         self.start_btn.setEnabled(True)
         self.update_balance()
@@ -166,18 +185,30 @@ class TestWindow(QtWidgets.QMainWindow):
     def displaywinnersnew(self):
         """Displaywinners checks the displayarray for winning lines and creates two animationgroups for the labels that belong to winning lines.
             the animationgroups for straight lines and Animations for zigzag lines are added to a sequential animationgroup.
-        """        
+        """    
         straight_arr, zigzag_arr, totalwin = self.playingfield.checkwinnings(betsize=self.betsizes[self.betbutton.currentIndex()])
-        arrlist = [straight_arr, zigzag_arr]
-        self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
-        self.sequantialanimgroup = QSequentialAnimationGroup(self)
+        arrlist                            = [straight_arr, zigzag_arr]
+        self.anim_group                    = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
+        self.sequantialanimgroup           = QSequentialAnimationGroup(self)
+        self.sequantialanimgroup.clear()
+        WinTypeList                        = [SlotWinType.STRAIGHTWIN, SlotWinType.ZIGZAGWIN]
         self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
-        self.sequantialanimgroup.finished.connect(self.enablestart, type=Qt.ConnectionType.SingleShotConnection)
+        #self.sequantialanimgroup.finished.connect(self.enablestart, type=Qt.ConnectionType.SingleShotConnection)
+        
+        print(f"TOTALWIN is {totalwin}")
+
         for i, linearray in enumerate(arrlist):
+
+            
             self.anim_group[i].clear()
             
             if np.any(linearray):
                 
+                signal : SlotWinType         = WinTypeList[i]
+                print(f"There should be a signal emitted: {signal}")
+                self.WinnerSignal.connect(self.UpdateWinnersConnections)
+                self.WinnerSignal.emit(signal)
+
                 for x in np.argwhere(linearray):
                     
                     self.label: CustomLabels = self.label_array[x[0]][x[1]]
@@ -188,17 +219,21 @@ class TestWindow(QtWidgets.QMainWindow):
                 #self.anim_group[i].start()
                 self.sequantialanimgroup.addAnimation(self.anim_group[i])
         
+        if totalwin == 0:
+            print("Enabling startbutton")
+            self.enablestart()
 
         if totalwin:
             self.lastwin = totalwin
             
-            self.sequantialanimgroup.finished.connect(self.signal1.emit, type=Qt.ConnectionType.SingleShotConnection)
+        #     self.sequantialanimgroup.finished.connect(self.signal1.emit, type=Qt.ConnectionType.SingleShotConnection)
             self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
+            print(self.sequantialanimgroup.state())
             self.sequantialanimgroup.start()
             
         
-        else:
-            self.signal2.emit()
+        # else:
+        #     self.signal2.emit()
 
     
         
@@ -258,7 +293,7 @@ class TestWindow(QtWidgets.QMainWindow):
             self.label.isnotanimated()
             self.fallanimationgroup.start()
     
-
+    @Slot()
     def winpopup(self):
         if self.dlg_off:
             self.dlg = QtWidgets.QDialog(self)
