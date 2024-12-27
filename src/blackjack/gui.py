@@ -131,14 +131,31 @@ class BJinterface(QtWidgets.QMainWindow):
         self.UpdatePossibleBets()
         self.update_funds()
     
+    
+    def DeleteBets(self) -> None:
+        """Used to delete the bets that were placed in the previous round.
+        resets the bet to 0 and deletes the label.
+        """        
+        for x, label in enumerate(self.BetsLabelList):
+            label.deleteLater()
+            self.bets_list[x] = 0
 
-    def UpdatePossibleBets(self):
+
+    def UpdatePossibleBets(self) -> None:
+        """Whenever the player switches the amount of hands with the n_hands spinbox this function is called to update the possible bets.
+        Uses the n_hands spinbox value to determine how many BET buttons and labels need to be shown on the window.
+        
+        Each BET button is a pushbutton with a specific index. Whenever this button is clicked it sends out the xButton signal.
+        The xButton signal is used to determine on which hand the bet is placed.
+        """        
 
         if self.BetsLabelList:
 
-            for label in self.BetsLabelList:
+            for button , label in zip(self.BetButtonList, self.BetsLabelList):
                 label     : QtWidgets.QLabel
+                button    : QtWidgets.QPushButton
                 label.deleteLater()
+                button.deleteLater()
                 
         
         n_bets = self.n_hands.value()
@@ -178,7 +195,12 @@ class BJinterface(QtWidgets.QMainWindow):
         self.bank.PlaceOneBet()
 
     @Slot(WhichButton, name="xButton")
-    def UpdateBetLabel(self, signal: WhichButton):
+    def UpdateBetLabel(self, signal: WhichButton) -> None:
+        """Whenever the player places a bet on a certain hand this function receives the signal and updates the bet accordingly.
+
+        Args:
+            signal (WhichButton): Signal that indicates which hand the button is connected to.
+        """        
         x             = signal.value
         current_bet   = self.bank.BetSize
         current_label = self.BetsLabelList[x]
@@ -190,7 +212,12 @@ class BJinterface(QtWidgets.QMainWindow):
 
 
     @Slot(int, name="BetSize")
-    def ChangeCurrentBetSize(self, signal):
+    def ChangeCurrentBetSize(self, signal) -> None:
+        """When the BANK sends a BetsChanged signal this function changes the current bet in the UI.
+
+        Args:
+            signal (int): What the new BetSize is in euros.
+        """        
         if signal == 1:
             self.CurrentBetSizeImage.SetOneValueFiche()
         elif signal == 5:
@@ -214,6 +241,11 @@ class BJinterface(QtWidgets.QMainWindow):
     
 
     def check_available_buttons(self, hand: Hand):
+        """Whenever an action is performed, this function checks the availability of the DOUBLE and SPLIT buttons.
+
+        Args:
+            hand (Hand): _description_
+        """        
         split_flag  = lambda : hand.cards[0] == hand.cards[1] and len(hand.cards) == 2
         double_flag = lambda : len(hand.cards) == 2
         s_flag = split_flag()
@@ -882,8 +914,10 @@ class BJinterface(QtWidgets.QMainWindow):
             d_label : EasyCardLabels
             d_label.setParent(None)
             d_label.deleteLater()
+        
         for hand_label in self.hand_label_list:
             hand_label : EasyCardLabels
+
             if isinstance(hand_label, list):
                 for s_label in hand_label:
                     s_label : EasyCardLabels
@@ -901,6 +935,7 @@ class BJinterface(QtWidgets.QMainWindow):
         
 
         self.bank.clear_bets()
+        self.DeleteBets()
         print("card labels are:", self.card_labels)
         self.hand_label_list = []
         self.splitornot      = False
@@ -916,7 +951,6 @@ class BJinterface(QtWidgets.QMainWindow):
 
         self.NextRoundButton.deleteLater()
         self.play_button.setEnabled(True)
-        self.UpdatePossibleBets()
         # except AttributeError:
         #     print("There was an attribute error, but we'll ignore it for now")
             

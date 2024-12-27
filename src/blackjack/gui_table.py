@@ -32,7 +32,7 @@ class Table:
     def get_current_funds(self):
         return self.bank._funds
 
-    def print_first_results(self):
+    def print_first_results(self) -> tuple[list, list, list, list]:
         first_results = []
         first_symbols = []
 
@@ -46,7 +46,7 @@ class Table:
 
         return first_results, dealerupcard, first_symbols, dealer_symbols
 
-    def checkforbust(self, hand):
+    def checkforbust(self, hand) -> str:
 
         if hand.handtotal(hand.softhand()) >= 21:
             
@@ -61,7 +61,7 @@ class Table:
                 return "You busted"
     
 
-    def check_for_win(self, dealertotal, hand):
+    def check_for_win(self, dealertotal, hand) -> WinType:
 
         if self.dealer.hand.blackjack():
             if hand.blackjack():
@@ -91,20 +91,20 @@ class Table:
 
     
 
-    def winlose(self, hand):
+    def winlose(self, hand) -> WinType:
         
         dealer_total = self.dealer.hand.handtotal(self.dealer.hand.softhand())
         result = self.check_for_win(dealer_total, hand)
         return result
 
-    def hitcard(self, hand : Hand):
+    def hitcard(self, hand : Hand) -> tuple[int, str, str]:
         card, cardsymbol = self.shoe.getcard()
         hand.addcard(card, cardsymbol)
         text = f"Cards are {hand.cards}, total: {hand.handtotal(hand.softhand())}"
         return card, text, cardsymbol
 
 
-    def NextOrNot(self, hand):
+    def NextOrNot(self, hand) -> bool:
 
         if hand.active:
             return False
@@ -112,7 +112,7 @@ class Table:
             return True
 
 
-    def split(self, hand : Hand):
+    def split(self, hand : Hand) -> tuple[list, list]:
         """split hand
 
         Args:
@@ -126,14 +126,14 @@ class Table:
         return texts, hands
     
 
-    def place_bets(self):
+    def place_bets(self) -> None:
 
         for i, hand in enumerate(self.hands):
             bet = float(input(f"Hand {i+1}, place your bet \n"))
             hand.bet += float(bet)
             self.bank.betamount(hand, amount=bet)
 
-    def addresults(self, hand):
+    def addresults(self, hand) -> None:
         self.results.append(hand)    
     
     def PlayRound(self):
