@@ -319,14 +319,24 @@ class BJinterface(QtWidgets.QMainWindow):
                 
     
     def nexthand(self, split=False):
-        """This method is called in the following cases: 1) whenever the player chooses stand. 2) Whenever the player busts. 3) Whenever the player has a blackjack or when his hard total is 21.
-        The method iterates through the last hand and updates the results accordingly. When all hands are played the dealer will pull cards untill he reaches 17 or higher.
+        """The NextHand function is called in the following cases:
+        1) Whenever a Player chooses STAND
+        2) Whenever a Player Busts or Hits 21.
+        3) Whenever a Player hits a BlackJack
+
+        The NextHand function Updates the GameState by updating all the previous labels and player results.
+
+        The last Hand_Label stylesheet is set to gold and the new one is highlighted with a white border.
+        Whenever a split is ongoing it will use the split_num index to highlight the next handlabel.
+
+        The PointTotal of the player is also updated with the Hand_label.
+
+        Whenever the previous hand was the last hand that a player had. this function starts the dealer animations and functions.
+        When the dealer animations have finished. The Final results function is called and all the labels are updated.
 
         Args:
-            split (bool, optional): True if the hand is a splithand. Defaults to False.
+            split (bool, optional): _description_. Defaults to False.
         """        
-
-
         if self.table:
             
             split = self.splitornot
