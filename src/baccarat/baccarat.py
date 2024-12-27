@@ -9,7 +9,7 @@ from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
 from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
 from src.baccarat.BaccaratBank import Bank
-from src.baccarat.BankingErrors import BalanceError, ZeroBetsPlacedError
+from src.baccarat.BankingErrors import BalanceError, ZeroBetsPlacedError, BettingError
 import sys
 
 
@@ -219,7 +219,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         try:
             self.table.PlayRound(self.bank)
-        except ZeroBetsPlacedError as e:
+        except BettingError as e:
             self.BalanceErrorPopup(e.__doc__, e.__str__())
         
         

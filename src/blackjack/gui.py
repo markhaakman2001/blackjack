@@ -7,6 +7,7 @@ from src.extrafiles.labels import EasyCardLabels
 from src.extrafiles.backgroundwidget import BackGroundWidget
 from src.extrafiles.BaccaratButtons import BaccaratFicheOptionMenu, BaccaratFiche
 from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton
+from src.baccarat.BankingErrors import ErrorChecker, ZeroBetsPlacedError, BalanceError, InsufficientFundsError, BettingError
 import sys
 import time
 
@@ -131,7 +132,33 @@ class BJinterface(QtWidgets.QMainWindow):
         self.UpdatePossibleBets()
         self.update_funds()
     
+
+    def BalanceErrorPopup(self, error, error_message):
+        self.BalancePopUpLabel = QtWidgets.QLabel()
+        self.error_timer       = Core.QTimer(self.BalancePopUpLabel)
+
+        self.BalancePopUpLabel.setWindowTitle(f"{error}")
+        self.BalancePopUpLabel.setText(f"{error_message}")
+        self.BalancePopUpLabel.setParent(self)
+
+        self.BalancePopUpLabel.setStyleSheet("color: darkblue ; font : bold 20px")
+        self.BalancePopUpLabel.move(QPoint(400, 50))
+        self.BalancePopUpLabel.width = 1200
+        self.BalancePopUpLabel.setFixedWidth(1000)
+
+        self.error_timer.setSingleShot(True)
+        self.error_timer.setInterval(1500)
+        self.error_timer.timeout.connect(self.BalancePopUpLabel.deleteLater)
+
+        self.BalancePopUpLabel.show()
+        self.error_timer.start()
+        
+
+    @Slot()
+    def DestroyErrorPopUp(self):
+        self.BalancePopUpLabel.close()
     
+
     def DeleteBets(self) -> None:
         """Used to delete the bets that were placed in the previous round.
         resets the bet to 0 and deletes the label.
@@ -315,8 +342,6 @@ class BJinterface(QtWidgets.QMainWindow):
                     label.update()
                     self.update_funds()
                     self.RoundFinished()
-  
-                
     
     def nexthand(self, split=False):
         """The NextHand function is called in the following cases:
@@ -649,57 +674,69 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.nexthand()
     
     
+    @ErrorChecker._CheckForPlacedBets
+    def CheckBetsBeforePlay(self):
+        pass
+
+    
     def start_round(self):
 
-        self.dealer_handlabel.setParent(self)
-        self.dealer_handlabel.show()
-        self.num         = 0
-        self.table       = Table(hands=self.n_hands.value())
-        self.textboxes   = []
+        try:
+            self.CheckBetsBeforePlay()
+                
 
-        self.bank.BetsChanged.connect(self.update_funds)
-        print(self.hand_label_list)
+            self.dealer_handlabel.setParent(self)
+            self.dealer_handlabel.show()
+            self.num         = 0
+            self.table       = Table(hands=self.n_hands.value())
+            self.textboxes   = []
 
-        for x in range(self.n_hands.value()):
+            self.bank.BetsChanged.connect(self.update_funds)
+            print(self.hand_label_list)
+
+            for x in range(self.n_hands.value()):
+                
+                self.BetButtonList[x].deleteLater()
+
+                yposition  = 542 + int(self.extra_elevations[x])
+                xposition   = 65 + x * 128
+
+                self.n_label = QtWidgets.QLabel()
+                self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
+                self.n_label.setParent(self)
+                self.n_label.resize(QSize(80, 40))
+                self.n_label.move(QPoint(xposition, yposition))
+                self.hand_label_list.append(self.n_label)
+                self.n_label.show()
+
+                hand : Hand = self.table.hands[x]
+                
+                hand._place_bet((self.bets_list[x] * 100))
+                
+
+                txtbox = QtWidgets.QTextEdit()
+                txtbox.setReadOnly(True)
+                txtbox.append(f"Hand {x+1}: \n")
+                self.textboxes.append(txtbox)
+                txtbox.setParent(self)
+                txtbox.resize(QSize(100, 100))
+                txtbox.move(QPoint(xposition, yposition))
+                #txtbox.show()
+
+            self.update_funds()       
             
-            self.BetButtonList[x].deleteLater()
-
-            yposition  = 542 + int(self.extra_elevations[x])
-            xposition   = 65 + x * 128
-
-            self.n_label = QtWidgets.QLabel()
-            self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
-            self.n_label.setParent(self)
-            self.n_label.resize(QSize(80, 40))
-            self.n_label.move(QPoint(xposition, yposition))
-            self.hand_label_list.append(self.n_label)
-            self.n_label.show()
-
-            hand : Hand = self.table.hands[x]
+            self.first_cards()
+            firstlabel: EasyCardLabels = self.hand_label_list[0]
+            firstlabel.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+            self.check_available_buttons(self.table.hands[0])
+            if self.table.hands[0].blackjack():
+                self.firstcardanims.finished.connect(self.blackjack())
+            else:
+                pass
             
-            hand._place_bet((self.bets_list[x] * 100))
-            
-
-            txtbox = QtWidgets.QTextEdit()
-            txtbox.setReadOnly(True)
-            txtbox.append(f"Hand {x+1}: \n")
-            self.textboxes.append(txtbox)
-            txtbox.setParent(self)
-            txtbox.resize(QSize(100, 100))
-            txtbox.move(QPoint(xposition, yposition))
-            #txtbox.show()
-
-        self.update_funds()       
-        
-        self.first_cards()
-        firstlabel: EasyCardLabels = self.hand_label_list[0]
-        firstlabel.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
-        self.check_available_buttons(self.table.hands[0])
-        if self.table.hands[0].blackjack():
-            self.firstcardanims.finished.connect(self.blackjack())
-        else:
-            pass
-
+        except BettingError as e:
+            self.BalanceErrorPopup(e.__doc__, e.__str__())
+    
 
 
     def CreateCardLabel(self, card_symbol:str):
@@ -769,6 +806,7 @@ class BJinterface(QtWidgets.QMainWindow):
         else:
             self.label2.animation.start()
     
+
 
     def UpdateLabelsForSplit(self, hands:list[Hand]):
         current_label : QtWidgets.QLabel = self.hand_label_list[self.num]
