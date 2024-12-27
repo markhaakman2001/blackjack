@@ -63,8 +63,29 @@ class PlayingField:
         self.signal1 = Signal()
     
     def generate_field(self):
-        """Generate new reels for all 6 reels in the playingfield.
-        """        
+        """
+        The PlayingField is a (5, 6) numpy array with integers representing symbols.
+        Each column represents a Reel of 5 symbols and each row can represent a line.
+
+        An example of a PlayingField represented by integers can be:
+        ----------
+
+        |   [[3. 1. 1. 8. 3. 5.]   | \n
+        |    [1. 7. 5. 5. 3. 2.]   | \n
+        |    [4. 7. 4. 1. 6. 4.]   | \n
+        |    [3. 6. 4. 1. 3. 6.]   | \n
+        |    [9. 1. 4. 1. 7. 7.]]  | \n
+
+        The same PlayingField represented by symbols is:
+        ----------
+        |   [['4' '2' '2'  'K'  '4' '10']   |\n
+        |    ['2' 'Q' '10' '10' '4' '3' ]   |\n
+        |    ['5' 'Q' '5'  '2'  'J' '5' ]   |\n
+        |    ['4' 'J' '5'  '2'  '4' 'J' ]   |\n
+        |    ['A' '2' '5'  '2'  'Q' 'Q' ]]  |\n
+
+        ----------
+        """               
         
         for i, reel in enumerate(self.reels):
             reel.generate_reel()
@@ -89,7 +110,38 @@ class PlayingField:
         return zigzagline, straightline
     
 
-    def checkwinnings(self, betsize):
+    def checkwinnings(self, betsize) -> tuple[np.ndarray, np.ndarray, float]:
+        """Using the current PlayingField and the given betsize, checks for any winning lines.
+
+        The PlayingField is a (5, 6) numpy array with integers representing symbols.
+        Each column represents a Reel of 5 symbols and each row can represent a line.
+
+        A winning line can be a straight vertical line with 2 or more identical symbols in a row starting from the leftmost reel.
+        A winning line can also be a 'ZigZag line', with 2 or more identical symbols in a row.
+
+        Example of a playing field with a winning straight line in the first row:
+        ----------
+        [[2. 2. 2. 2. 2. 2.] \n
+        [5. 3. 2. 2. 9. 9.] \n
+        [4. 2. 7. 5. 8. 7.] \n
+        [5. 1. 9. 1. 3. 2.] \n
+        [4. 6. 8. 4. 3. 8.]] \n
+        
+        ----------
+        Example of a playing field with a winning ZigZag line in the First and Last row:
+        ----------
+        [[2. 3. 2. 8. 2. 8.] \n
+        [5. 2. 3. 2. 9. 2.] \n
+        [4. 2. 7. 5. 8. 7.] \n
+        [5. 4. 9. 4. 3. 4.] \n
+        [4. 6. 4. 6. 4. 8.]] \n
+
+        Args:
+            betsize (_type_): _description_
+
+        Returns:
+            tuple[np.ndarray, np.ndarray, float]: _description_
+        """        
         zigzags = []
         straights = []
 
@@ -215,8 +267,10 @@ def main():
     x = Reels()
     y = PlayingField()
     y.generate_field()
+    print(y.full_field)
+    print(y.full_field_disp)
     x.generate_reel()
-    y.checkwinnings()
+    y.checkwinnings(1)
 
     
 

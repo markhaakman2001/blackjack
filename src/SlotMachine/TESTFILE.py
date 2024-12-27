@@ -5,7 +5,7 @@ import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
 from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
-from math import *
+from src.SlotMachine.ExtraSlotFiles import SlotWinType as Win
 import numpy as np
 import random
 import sys
@@ -17,6 +17,7 @@ class TestWindow(QtWidgets.QMainWindow):
     signal1 = Signal()
     signal2 = Signal()
     
+    WinnerSignal = Signal(Win, name="WinnerSignal")
 
     def __init__(self):
 
@@ -171,7 +172,7 @@ class TestWindow(QtWidgets.QMainWindow):
         self.anim_group = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
         self.sequantialanimgroup = QSequentialAnimationGroup(self)
         self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
-        self.sequantialanimgroup.finished.connect(self.enablestart)
+        self.sequantialanimgroup.finished.connect(self.enablestart, type=Qt.ConnectionType.SingleShotConnection)
         for i, linearray in enumerate(arrlist):
             self.anim_group[i].clear()
             
@@ -188,10 +189,10 @@ class TestWindow(QtWidgets.QMainWindow):
                 self.sequantialanimgroup.addAnimation(self.anim_group[i])
         
 
-        if totalwin > 0:
+        if totalwin:
             self.lastwin = totalwin
             
-            self.sequantialanimgroup.finished.connect(self.signal1.emit)
+            self.sequantialanimgroup.finished.connect(self.signal1.emit, type=Qt.ConnectionType.SingleShotConnection)
             self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)
             self.sequantialanimgroup.start()
             
