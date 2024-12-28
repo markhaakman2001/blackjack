@@ -23,8 +23,7 @@ class TestWindow(QtWidgets.QMainWindow):
 
         super().__init__()
 
-        self.bank = BankAccount()
-        self.bank.deposit(10000)
+        self.bank = BankAccount(100)
         self.funds = self.bank._get_funds()
         print(self.funds)
 
@@ -136,7 +135,7 @@ class TestWindow(QtWidgets.QMainWindow):
     
     def update_balance(self):
         self.balance.clear()
-        self.balance.append(f"Current balance: ${self.bank._get_funds():.2f}")
+        self.balance.append(f"Current balance: ${self.bank._Balance}")
 
 
     def displayreel(self):

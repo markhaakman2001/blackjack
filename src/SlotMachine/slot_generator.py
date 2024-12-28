@@ -222,28 +222,41 @@ class PlayingField:
 
 class BankAccount:
 
-    def __init__(self):
+    def __init__(self, initial_deposit_euros=0):
+        self._credits              = (initial_deposit_euros * 100)
+        self._Balance_             = 0
         self.current_funds : float = 0
-        self.funds : float = 0
-        self._bet : float = 0
+        self.funds : float         = 0
+        self._bet : float          = 0
 
-    def deposit(self, amount):
-        self._set_funds(amount)
-        self.current_funds += amount
+    def deposit(self, amount_euros):
+        self._FundsCredits_ = (amount_euros * 100)
 
 
-    def placebet(self, amount):
-        self.current_bet = amount
-        self.current_funds -= amount
-        self._set_funds(amount * (-1))
-        print(self.current_funds, self._get_funds())
+    def placebet(self, amount_euros):
+        self.current_bet = (amount_euros * 100)
+        self._FundsCredits_ = ((-1) * amount_euros) * 100
+        print(self._Balance, self._FundsCredits_)
     
-    def add_winnings(self, winnings):
-        self.current_funds += winnings
-        self.current_bet = 0
-        self._set_funds((winnings))
-        print(self.current_funds, self._get_funds())
+    def add_winnings(self, winnings_euros):
+        self._FundsCredits_ = (winnings_euros * 100)
+        self.current_bet    = 0
+        print(self._Balance, self._FundsCredits_)
     
+    @property
+    def _Balance(self): 
+        return (self._FundsCredits_ / 100)
+    
+    @property
+    def _FundsCredits_(self):
+        return self._credits
+
+    @_FundsCredits_.setter
+    def _FundsCredits_(self, amount_credits : int):
+        Old_funds = self._FundsCredits_
+        new_funds = Old_funds + amount_credits
+        self._credits = new_funds
+
 
     def _get_funds(self):
         return self.funds
