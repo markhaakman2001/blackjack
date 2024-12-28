@@ -244,7 +244,12 @@ class BankAccount:
         print(self._Balance, self._FundsCredits_)
     
     @property
-    def _Balance(self): 
+    def _Balance(self):
+        """Balance property used for displaying the balance in euros as a float.
+
+        Returns:
+            flaot: Balance in euros
+        """        
         return (self._FundsCredits_ / 100)
     
     @property
