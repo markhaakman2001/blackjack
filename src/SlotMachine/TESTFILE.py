@@ -6,6 +6,7 @@ from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimati
 from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
 from src.SlotMachine.ExtraSlotFiles import SlotWinType
+from src.baccarat.BankingErrors import BalanceError, ZeroFundsError, InsufficientFundsError, ErrorChecker
 import numpy as np
 import random
 import sys
@@ -87,11 +88,35 @@ class TestWindow(QtWidgets.QMainWindow):
 
         self.signal1.connect(self.winpopup)
         self.signal2.connect(self.enablestart)
+        self.betbutton.currentIndexChanged.connect(self.UpdateBetSize)
 
         
         self.createfallanimation()
         self.createwinanimation()
-        
+
+    @Slot()
+    def UpdateBetSize(self):
+        self.bank._BetSize_ = self.betsizes[self.betbutton.currentIndex()]
+
+    def BalanceErrorPopup(self, error, error_message):
+        self.BalancePopUpLabel = QtWidgets.QLabel()
+        self.error_timer       = Core.QTimer(self.BalancePopUpLabel)
+
+        self.BalancePopUpLabel.setWindowTitle(f"{error}")
+        self.BalancePopUpLabel.setText(f"{error_message}")
+        self.BalancePopUpLabel.setParent(self)
+
+        self.BalancePopUpLabel.setStyleSheet("color: darkblue ; font : bold 20px")
+        self.BalancePopUpLabel.move(QPoint(250, 350))
+        self.BalancePopUpLabel.width = 1200
+        self.BalancePopUpLabel.setFixedWidth(1000)
+
+        self.error_timer.setSingleShot(True)
+        self.error_timer.setInterval(1500)
+        self.error_timer.timeout.connect(self.BalancePopUpLabel.deleteLater)
+
+        self.BalancePopUpLabel.show()
+        self.error_timer.start()
 
     @Slot()
     def UpdateWinnersConnections(self, signal : SlotWinType) -> None:
@@ -143,26 +168,32 @@ class TestWindow(QtWidgets.QMainWindow):
         When the fallinganimation is finished, the displaywinners method is called.
         """        
         
-        self.animationgroup = QParallelAnimationGroup()
-        self.lastwin        = 0
-        self.CurrentWin     = SlotWinType.ZEROWINS
+        try:
+            self.bank.placebet()
+
+            self.animationgroup = QParallelAnimationGroup()
+            self.lastwin        = 0
+            self.CurrentWin     = SlotWinType.ZEROWINS
+            
+            self.printvisibility()
+            self.update_balance()
+            # Generate a new random array of values
+            self.playingfield.generate_field()
+            self.start_btn.setEnabled(False)
+            for i, reel in enumerate(self.playingfield.reels):
+                reel : Reels
+                text = reel.reel_disp
+                x = 200 + i * 80
+                self.textinwindownew(text, x, i)
+            
+            #self.displaywinnersnew()
+            self.fallanimationgroup.finished.connect(self.displaywinnersnew)
+            
+            
+            # self.displaywinners()
         
-        self.printvisibility()
-        self.bank.placebet(self.betsizes[self.betbutton.currentIndex()])
-        self.update_balance()
-        # Generate a new random array of values
-        self.playingfield.generate_field()
-        self.start_btn.setEnabled(False)
-        for i, reel in enumerate(self.playingfield.reels):
-            text = reel.reel_disp
-            x = 200 + i * 80
-            self.textinwindownew(text, x, i)
-        
-        #self.displaywinnersnew()
-        self.fallanimationgroup.finished.connect(self.displaywinnersnew)
-        
-        
-        # self.displaywinners()
+        except BalanceError as e:
+            self.BalanceErrorPopup(e.__doc__, e.__str__())
     
 
     def printvisibility(self):
@@ -185,7 +216,7 @@ class TestWindow(QtWidgets.QMainWindow):
         """Displaywinners checks the displayarray for winning lines and creates two animationgroups for the labels that belong to winning lines.
             the animationgroups for straight lines and Animations for zigzag lines are added to a sequential animationgroup.
         """    
-        straight_arr, zigzag_arr, totalwin = self.playingfield.checkwinnings(betsize=self.betsizes[self.betbutton.currentIndex()])
+        straight_arr, zigzag_arr, totalwin = self.playingfield.checkwinnings(self.bank._BetSize_)
         arrlist                            = [straight_arr, zigzag_arr]
         self.anim_group                    = [QParallelAnimationGroup(self), QParallelAnimationGroup(self)]
         self.sequantialanimgroup           = QSequentialAnimationGroup(self)
@@ -223,7 +254,7 @@ class TestWindow(QtWidgets.QMainWindow):
             self.enablestart()
 
         if totalwin:
-            self.lastwin = totalwin
+            self.lastwin = totalwin / 100
             
         #     self.sequantialanimgroup.finished.connect(self.signal1.emit, type=Qt.ConnectionType.SingleShotConnection)
             self.sequantialanimgroup.updateState(QAbstractAnimation.State.Running, QAbstractAnimation.State.Stopped)

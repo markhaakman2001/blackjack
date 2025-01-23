@@ -131,6 +131,26 @@ class ErrorChecker(object):
                 func(*args)
         
         return _CheckBets
+    
+
+    def _CheckSlotBalance(func):
+
+        def _CheckSlotBet(*args):
+            
+            from src.SlotMachine.slot_generator import BankAccount
+
+            self : BankAccount = args[0]
+            CurrentBetSize     = self._BetSize_
+            CurrentBalance     = self._FundsCredits_
+            
+            if CurrentBalance <= 0:
+                raise BalanceError(ZeroFundsError())
+            elif CurrentBetSize > CurrentBalance:
+                raise BalanceError(InsufficientFundsError(CurrentBalance))
+            else:
+                func(*args)
+        
+        return _CheckSlotBet
 
 
 

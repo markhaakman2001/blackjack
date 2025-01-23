@@ -2,6 +2,7 @@ import numpy as np
 from math import *
 import random
 from PySide6.QtCore import Signal, Slot
+from src.baccarat.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, ErrorChecker
 
 
 class Reels:
@@ -226,21 +227,21 @@ class BankAccount:
         self._credits              = (initial_deposit_euros * 100)
         self._Balance_             = 0
         self.current_funds : float = 0
-        self.funds : float         = 0
-        self._bet : float          = 0
+        self.funds         : float = 0
+        self._BetSize      : float = 0
 
     def deposit(self, amount_euros):
         self._FundsCredits_ = (amount_euros * 100)
 
 
-    def placebet(self, amount_euros):
-        self.current_bet = (amount_euros * 100)
-        self._FundsCredits_ = ((-1) * amount_euros) * 100
+    @ErrorChecker._CheckSlotBalance
+    def placebet(self):
+        self._FundsCredits_ = (-1) * self._BetSize_
         print(self._Balance, self._FundsCredits_)
     
     def add_winnings(self, winnings_euros):
         self._FundsCredits_ = (winnings_euros * 100)
-        self.current_bet    = 0
+        self._BetSize_      = 0
         print(self._Balance, self._FundsCredits_)
     
     @property
@@ -248,7 +249,7 @@ class BankAccount:
         """Balance property used for displaying the balance in euros as a float.
 
         Returns:
-            flaot: Balance in euros
+            float: Balance in euros
         """        
         return (self._FundsCredits_ / 100)
     
@@ -258,10 +259,28 @@ class BankAccount:
 
     @_FundsCredits_.setter
     def _FundsCredits_(self, amount_credits : int):
-        Old_funds = self._FundsCredits_
-        new_funds = Old_funds + amount_credits
+        Old_funds     = self._FundsCredits_
+        new_funds     = Old_funds + amount_credits
         self._credits = new_funds
 
+    @property
+    def _BetSize_(self):
+        """BetSize in credits
+
+        Returns:
+            int: Current BetSize in credits
+        """        
+        return self._BetSize
+    
+    @_BetSize_.setter
+    def _BetSize_(self, BetSize):
+        """Set the current betsize
+
+        Args:
+            BetSize (int): The new BetSize in euros
+        """        
+        self._BetSize = (BetSize * 100)
+        print(f"new betsize is {BetSize * 100}")
 
     def _get_funds(self):
         return self.funds
