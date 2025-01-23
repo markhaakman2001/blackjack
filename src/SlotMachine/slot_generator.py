@@ -228,7 +228,7 @@ class BankAccount:
         self._Balance_             = 0
         self.current_funds : float = 0
         self.funds         : float = 0
-        self._BetSize      : float = 0
+        self._BetSize      : float = 10
 
     def deposit(self, amount_euros):
         self._FundsCredits_ = (amount_euros * 100)
@@ -241,7 +241,6 @@ class BankAccount:
     
     def add_winnings(self, winnings_euros):
         self._FundsCredits_ = (winnings_euros * 100)
-        self._BetSize_      = 0
         print(self._Balance, self._FundsCredits_)
     
     @property

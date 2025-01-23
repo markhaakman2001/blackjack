@@ -13,7 +13,7 @@ import sys
 
 
 
-class TestWindow(QtWidgets.QMainWindow):
+class SlotMachineGUI(QtWidgets.QMainWindow):
 
     signal1 = Signal()
     signal2 = Signal()
@@ -88,6 +88,7 @@ class TestWindow(QtWidgets.QMainWindow):
 
         self.signal1.connect(self.winpopup)
         self.signal2.connect(self.enablestart)
+        self.WinnerSignal.connect(self.UpdateWinnersConnections)
         self.betbutton.currentIndexChanged.connect(self.UpdateBetSize)
 
         
@@ -174,8 +175,6 @@ class TestWindow(QtWidgets.QMainWindow):
             self.animationgroup = QParallelAnimationGroup()
             self.lastwin        = 0
             self.CurrentWin     = SlotWinType.ZEROWINS
-            
-            self.printvisibility()
             self.update_balance()
             # Generate a new random array of values
             self.playingfield.generate_field()
@@ -204,7 +203,7 @@ class TestWindow(QtWidgets.QMainWindow):
             for y in range(6):
                 thislabel: CustomLabels = self.label_array[x, y]
                 this_arr[x, y] = thislabel.windowOpacity()
-        print(this_arr)
+
 
     @Slot()
     def enablestart(self):
@@ -236,7 +235,7 @@ class TestWindow(QtWidgets.QMainWindow):
                 
                 signal : SlotWinType         = WinTypeList[i]
                 print(f"There should be a signal emitted: {signal}")
-                self.WinnerSignal.connect(self.UpdateWinnersConnections)
+                
                 self.WinnerSignal.emit(signal)
 
                 for x in np.argwhere(linearray):
@@ -438,6 +437,6 @@ class CustomLabels(QtWidgets.QLabel):
 
 
 app = QtWidgets.QApplication(sys.argv)
-ui = TestWindow()
+ui = SlotMachineGUI()
 ui.show()
 app.exec()
