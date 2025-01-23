@@ -142,11 +142,13 @@ class ErrorChecker(object):
             self : BankAccount = args[0]
             CurrentBetSize     = self._BetSize_
             CurrentBalance     = self._FundsCredits_
-            
+
             if CurrentBalance <= 0:
                 raise BalanceError(ZeroFundsError())
+            
             elif CurrentBetSize > CurrentBalance:
                 raise BalanceError(InsufficientFundsError(CurrentBalance))
+            
             else:
                 func(*args)
         

@@ -12,7 +12,11 @@ import sys
 import time
 
 
-
+# TO DO:
+# Make it so that the amount of hands cannot be changed after a bet has been placed on one of the hands.
+# fix some bugs with doubling probably 
+# add deposit option
+#
 class BJinterface(QtWidgets.QMainWindow):
 
     def __init__(self):
