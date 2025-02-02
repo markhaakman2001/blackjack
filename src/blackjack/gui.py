@@ -1,14 +1,15 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup, QPropertyAnimation
 import PySide6.QtCore as Core
-from src.blackjack.gui_table import Table
-from src.blackjack.gui_shoehand import Hand, Bank, WinFunctions, WinType
-from src.extrafiles.labels import EasyCardLabels
-from src.extrafiles.backgroundwidget import BackGroundWidget
-from src.extrafiles.BaccaratButtons import BaccaratFicheOptionMenu, BaccaratFiche
-from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton, BetButtonType
-from src.extrafiles.Errors.PlayingErrors import PlayingError, ActiveBetsError, BlackJackErrorChecker
-from src.baccarat.BankingErrors import BankingErrorChecker, ZeroBetsPlacedError, BalanceError, InsufficientFundsError, BettingError
+# from src.blackjack.gui_table import Table
+# from src.blackjack.gui_shoehand import Hand, Bank, WinFunctions, WinType
+# from src.extrafiles.labels import EasyCardLabels
+# from src.extrafiles.backgroundwidget import BackGroundWidget
+# from src.extrafiles.BaccaratButtons import BaccaratFicheOptionMenu, BaccaratFiche
+# from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton, BetButtonType
+# from src.extrafiles.Errors.PlayingErrors import PlayingError, ActiveBetsError, BlackJackErrorChecker
+# from src.baccarat.BankingErrors import BankingErrorChecker, ZeroBetsPlacedError, BalanceError, InsufficientFundsError, BettingError
+from src.extrafiles.BlackJackImports import *
 import sys
 import time
 
