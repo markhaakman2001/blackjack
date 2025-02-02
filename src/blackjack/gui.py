@@ -7,6 +7,7 @@ from src.extrafiles.labels import EasyCardLabels
 from src.extrafiles.backgroundwidget import BackGroundWidget
 from src.extrafiles.BaccaratButtons import BaccaratFicheOptionMenu, BaccaratFiche
 from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton
+from src.extrafiles.Errors.PlayingErrors import PlayingError, ActiveBetsError, BlackJackErrorChecker
 from src.baccarat.BankingErrors import ErrorChecker, ZeroBetsPlacedError, BalanceError, InsufficientFundsError, BettingError
 import sys
 import time
@@ -137,30 +138,30 @@ class BJinterface(QtWidgets.QMainWindow):
         self.update_funds()
     
 
-    def BalanceErrorPopup(self, error, error_message):
-        self.BalancePopUpLabel = QtWidgets.QLabel()
-        self.error_timer       = Core.QTimer(self.BalancePopUpLabel)
+    def ErrorPopUp(self, error, error_message):
+        self.ErrorPopUpLabel = QtWidgets.QLabel()
+        self.error_timer       = Core.QTimer(self.ErrorPopUpLabel)
 
-        self.BalancePopUpLabel.setWindowTitle(f"{error}")
-        self.BalancePopUpLabel.setText(f"{error_message}")
-        self.BalancePopUpLabel.setParent(self)
+        self.ErrorPopUpLabel.setWindowTitle(f"{error}")
+        self.ErrorPopUpLabel.setText(f"{error_message}")
+        self.ErrorPopUpLabel.setParent(self)
 
-        self.BalancePopUpLabel.setStyleSheet("color: darkblue ; font : bold 20px")
-        self.BalancePopUpLabel.move(QPoint(400, 50))
-        self.BalancePopUpLabel.width = 1200
-        self.BalancePopUpLabel.setFixedWidth(1000)
+        self.ErrorPopUpLabel.setStyleSheet("color: darkblue ; font : bold 20px")
+        self.ErrorPopUpLabel.move(QPoint(400, 50))
+        self.ErrorPopUpLabel.width = 1200
+        self.ErrorPopUpLabel.setFixedWidth(1000)
 
         self.error_timer.setSingleShot(True)
         self.error_timer.setInterval(1500)
-        self.error_timer.timeout.connect(self.BalancePopUpLabel.deleteLater)
+        self.error_timer.timeout.connect(self.ErrorPopUpLabel.deleteLater)
 
-        self.BalancePopUpLabel.show()
+        self.ErrorPopUpLabel.show()
         self.error_timer.start()
         
 
     @Slot()
     def DestroyErrorPopUp(self):
-        self.BalancePopUpLabel.close()
+        self.ErrorPopUpLabel.close()
     
 
     def DeleteBets(self) -> None:
@@ -171,7 +172,10 @@ class BJinterface(QtWidgets.QMainWindow):
             label.deleteLater()
             self.bets_list[x] = 0
 
-
+    @BlackJackErrorChecker._CheckForPlacedBets_
+    def ActiveHandsCheck(self):
+        pass
+    
     def UpdatePossibleBets(self) -> None:
         """Whenever the player switches the amount of hands with the n_hands spinbox this function is called to update the possible bets.
         Uses the n_hands spinbox value to determine how many BET buttons and labels need to be shown on the window.
@@ -180,47 +184,53 @@ class BJinterface(QtWidgets.QMainWindow):
         The xButton signal is used to determine on which hand the bet is placed.
         """        
 
-        if self.BetsLabelList:
+        try:
+            self.ActiveHandsCheck()
+        except PlayingError as e:
+            self.ErrorPopUp(e.__doc__, e.__str__())
 
-            for button , label in zip(self.BetButtonList, self.BetsLabelList):
-                label     : QtWidgets.QLabel
-                button    : QtWidgets.QPushButton
-                label.deleteLater()
-                button.deleteLater()
+        else:
+            if self.BetsLabelList:
+
+                for button , label in zip(self.BetButtonList, self.BetsLabelList):
+                    label     : QtWidgets.QLabel
+                    button    : QtWidgets.QPushButton
+                    label.deleteLater()
+                    button.deleteLater()
+                    
+            
+            n_bets = self.n_hands.value()
+            self.BetsLabelList : list[QtWidgets.QLabel]      = []
+            self.BetButtonList : list[BlackJackBetButton]    = []
+            self.bets_list                                   = [0] * n_bets
+            
+            for x in range(n_bets):
+
+                yposition   = 582 + int(self.extra_elevations[x])
+                xposition   = 65 + x * 128
+                self.CurrentBetLabel    = QtWidgets.QLabel()
+                self.PlaceBetButton     = BlackJackBetButton()
+                self.PlaceBetButton.setText("Bet")
+                self.PlaceBetButton._x_button = x
+
+                self.PlaceBetButton.setParent(self)
+                self.CurrentBetLabel.setParent(self)
+
+                self.CurrentBetLabel.setStyleSheet("color: black ; font: bold 15px")
+
+                self.PlaceBetButton.resize(QSize(60, 30))
+                self.CurrentBetLabel.resize(QSize(60, 20))
+
+                self.PlaceBetButton.move(QPoint(xposition, yposition - 30))
+                self.CurrentBetLabel.move(QPoint(xposition, yposition))
                 
-        
-        n_bets = self.n_hands.value()
-        self.BetsLabelList : list[QtWidgets.QLabel]      = []
-        self.BetButtonList : list[BlackJackBetButton]    = []
-        self.bets_list                                   = [0] * n_bets
-        
-        for x in range(n_bets):
-
-            yposition   = 582 + int(self.extra_elevations[x])
-            xposition   = 65 + x * 128
-            self.CurrentBetLabel    = QtWidgets.QLabel()
-            self.PlaceBetButton     = BlackJackBetButton()
-            self.PlaceBetButton.setText("Bet")
-            self.PlaceBetButton._x_button = x
-
-            self.PlaceBetButton.setParent(self)
-            self.CurrentBetLabel.setParent(self)
-
-            self.CurrentBetLabel.setStyleSheet("color: black ; font: bold 15px")
-
-            self.PlaceBetButton.resize(QSize(60, 30))
-            self.CurrentBetLabel.resize(QSize(60, 20))
-
-            self.PlaceBetButton.move(QPoint(xposition, yposition - 30))
-            self.CurrentBetLabel.move(QPoint(xposition, yposition))
-            
-            self.BetsLabelList.append(self.CurrentBetLabel)
-            self.BetButtonList.append(self.PlaceBetButton)
-            self.BetButtonList[x].xButtonSignal.connect(self.UpdateBetLabel)
-            self.BetButtonList[x].xButtonSignal.connect(self.PlaceBetBank)
-            
-            self.PlaceBetButton.show()
-            self.CurrentBetLabel.show()
+                self.BetsLabelList.append(self.CurrentBetLabel)
+                self.BetButtonList.append(self.PlaceBetButton)
+                self.BetButtonList[x].xButtonSignal.connect(self.UpdateBetLabel)
+                self.BetButtonList[x].xButtonSignal.connect(self.PlaceBetBank)
+                
+                self.PlaceBetButton.show()
+                self.CurrentBetLabel.show()
 
     def PlaceBetBank(self):
         self.bank.PlaceOneBet()
@@ -739,7 +749,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 pass
             
         except BettingError as e:
-            self.BalanceErrorPopup(e.__doc__, e.__str__())
+            self.ErrorPopUp(e.__doc__, e.__str__())
     
 
 

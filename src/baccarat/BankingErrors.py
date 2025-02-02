@@ -154,7 +154,19 @@ class ErrorChecker(object):
         
         return _CheckSlotBet
 
+def _LoggingDecorator_(func):
 
+    def LogIetsBro(*args, **kwargs):
+        print("Starting LOG")
+        for arg in args:
+            print(f"Function called with {arg=}")
+        for kwarg in kwargs:
+            print(f"Function called with {kwarg=}")
+        
+        func(*args, **kwargs)
+        print("LOG complete")
+
+    return LogIetsBro
 
 def main():
     pass

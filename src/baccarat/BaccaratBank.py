@@ -136,7 +136,10 @@ class Bank(QObject):
         self.funds = TotalWinEuros
 
         return TotalWinCredits
-        
+
+
+
+
 
 class NewBank(Bank):
     

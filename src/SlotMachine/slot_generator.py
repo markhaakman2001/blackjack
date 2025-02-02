@@ -2,8 +2,7 @@ import numpy as np
 from math import *
 import random
 from PySide6.QtCore import Signal, Slot
-from src.baccarat.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, ErrorChecker
-
+from src.baccarat.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, ErrorChecker, _LoggingDecorator_
 
 class Reels:
 
@@ -93,7 +92,7 @@ class PlayingField:
             self.full_field[:, i] = reel.reel_values
             self.full_field_disp[:, i] = reel.reel_disp
 
-        
+    
     def printaline(self, row_index):
         zigzagline = []
         straightline = self.full_field[row_index]
@@ -110,8 +109,8 @@ class PlayingField:
         
         return zigzagline, straightline
     
-
-    def checkwinnings(self, betsize, totalwin=0) -> tuple[np.ndarray, np.ndarray, float]:
+    #@_LoggingDecorator_
+    def checkwinnings(self, betsize) -> tuple[np.ndarray, np.ndarray, float]:
         """Using the current PlayingField and the given betsize, checks for any winning lines.
 
         The PlayingField is a (5, 6) numpy array with integers representing symbols.
@@ -185,7 +184,7 @@ class PlayingField:
             zigzags.append(zigzagwins)
             straights.append(straightwins)
         
-
+        print(straight_arr, zigzag_arr, totalwin)
         return straight_arr, zigzag_arr, totalwin
     
 
