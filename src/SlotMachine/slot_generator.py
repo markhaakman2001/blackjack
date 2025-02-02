@@ -2,7 +2,7 @@ import numpy as np
 from math import *
 import random
 from PySide6.QtCore import Signal, Slot
-from src.baccarat.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, ErrorChecker, _LoggingDecorator_
+from src.baccarat.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
 
 class Reels:
 
@@ -233,7 +233,7 @@ class BankAccount:
         self._FundsCredits_ = (amount_euros * 100)
 
 
-    @ErrorChecker._CheckSlotBalance
+    @BankingErrorChecker._CheckSlotBalance
     def placebet(self):
         self._FundsCredits_ = (-1) * self._BetSize_
         print(self._Balance, self._FundsCredits_)

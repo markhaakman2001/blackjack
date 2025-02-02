@@ -4,7 +4,7 @@ from math import *
 from src.extrafiles.labels import Shoe, DeckOfCards, EasyCardLabels
 from enum import Enum
 from PySide6.QtCore import Signal, SignalInstance, Slot, QObject
-from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, ErrorChecker, BalanceError
+from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, BankingErrorChecker, BalanceError
 
 class WinFunctions:
 
@@ -190,6 +190,8 @@ class Bank(QObject):
     def place_bet(self, amount, hand:Hand):
         """place a bet on the current hand
 
+        OLD VERSION: use PlaceOneBet instead!
+
         Args:
             amount (float): bet amount in euros
             hand (Hand): which hand
@@ -200,7 +202,7 @@ class Bank(QObject):
         self.total_bets += amount_in_credits
         self.BetsChanged.emit(1)
 
-    @ErrorChecker._CheckFundsDecorator
+    @BankingErrorChecker._CheckFundsDecorator
     def PlaceOneBet(self):
         """Updated version of Place_bet
         """        
@@ -211,6 +213,18 @@ class Bank(QObject):
         self.BetsChanged.emit(1)
         self.FundsChanged.emit()
 
+    
+    @BankingErrorChecker._CheckBetSizeForRemoval
+    def RemoveOneBet(self, CurrentBetOnHand):
+        """Used to Remove a place bet of the current BetSize
+        """        
+        CurrentBetSize      = self.BetSize
+        CurrentBetCredits   = CurrentBetSize * 100
+        self.total_bets    -= CurrentBetCredits
+        self.funds          = CurrentBetSize
+
+        self.BetsChanged.emit(1)
+        self.FundsChanged.emit()
 
     def win_amount(self, RESULT : WinType, hand : Hand) -> int:
         """Calculate the win based on the result and bet
@@ -286,6 +300,11 @@ class Bank(QObject):
     @BetSize.setter
     def BetSize(self, size):
         self._BetSize_ = size
+    
+    @property
+    def _MaxBet(self) -> float:
+        _MaxBet_ = self.funds
+        return _MaxBet_
 
     
 

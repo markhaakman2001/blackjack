@@ -6,7 +6,7 @@ from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimati
 from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture
 from src.SlotMachine.ExtraSlotFiles import SlotWinType
-from src.baccarat.BankingErrors import BalanceError, ZeroFundsError, InsufficientFundsError, ErrorChecker
+from src.baccarat.BankingErrors import BalanceError, ZeroFundsError, InsufficientFundsError, BankingErrorChecker
 import numpy as np
 import random
 import sys

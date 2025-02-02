@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal
 from src.baccarat.baccarat_rules_handler import OutComeTypes
-from src.baccarat.BankingErrors import ErrorChecker
+from src.baccarat.BankingErrors import BankingErrorChecker
 
 
 class Bank(QObject):
@@ -81,6 +81,11 @@ class Bank(QObject):
     def BetSize(self) -> None:
         self._BetSize = 100
 
+    @property
+    def _MaxBet(self) -> float:
+        _MaxBet_ = self.Balance
+        return _MaxBet_
+
     def Deposit(self, amount):
         """Deposit amount in euros
 
@@ -89,7 +94,7 @@ class Bank(QObject):
         """
         self.funds = amount
 
-    @ErrorChecker._CheckFundsDecorator
+    @BankingErrorChecker._CheckFundsDecorator
     def PlaceBet(self, who : OutComeTypes) -> None:
         """Place a bet in euros on one of the outcomes
 

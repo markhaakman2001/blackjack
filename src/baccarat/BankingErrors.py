@@ -30,6 +30,20 @@ class ZeroFundsError(BalanceError):
 class BettingError(Exception):
     pass
 
+class BetRemovalError(BettingError):
+    """Raised when a player tries to remove a bet that is greater than the bet that is currently placed.
+
+    Args:
+        BettingError (Exception): type of error
+    """    
+
+    def __init__(self, *args):
+        super().__init__(*args)
+    
+    def __str__(self):
+        message1 = "Cannot perform action"
+        message2 = "Current BetSize exceeds total bet placed"
+        return str(f".\n".join([message1, message2]))
 
 class ZeroBetsPlacedError(BettingError):
 
@@ -53,8 +67,7 @@ class InvalidBetError(BettingError):
         return str(f".\n".join([self.message, self.message2, self.message3]))
 
 
-
-class ErrorChecker(object):
+class BankingErrorChecker(object):
 
     
     def _CheckFundsDecorator(func):
@@ -76,11 +89,13 @@ class ErrorChecker(object):
             print("Starting FundsCheck")
             print(f"{[arg for arg in args]=}")
             self : Bank = args[0]
+            max_bet     = self._MaxBet
 
             if self.funds <= 0:
                 raise BalanceError(ZeroFundsError())
             elif self.funds < self.BetSize:
-                raise BalanceError(InsufficientFundsError(self.Balance))
+
+                raise BalanceError(InsufficientFundsError(max_bet))
             else:
                 func(*args, **kwargs)
                 print("FundsCheck complete")
@@ -153,6 +168,26 @@ class ErrorChecker(object):
                 func(*args)
         
         return _CheckSlotBet
+    
+    def _CheckBetSizeForRemoval(func):
+
+        def _CheckBetSizeRemoval(*args, **kwargs):
+
+            from src.blackjack.gui_shoehand   import Bank
+            from src.blackjack.gui            import BJinterface
+            from src.extrafiles.CustomButtons import WhichButton
+
+            self : Bank          = args[0]
+            TotalBetOnHand       = args[1]
+            CurrentBetSize       = self.BetSize
+
+            if TotalBetOnHand < CurrentBetSize:
+                raise BettingError(BetRemovalError())
+            else:
+                func(*args, **kwargs)
+
+        return _CheckBetSizeRemoval
+
 
 def _LoggingDecorator_(func):
 

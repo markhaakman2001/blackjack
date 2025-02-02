@@ -1,6 +1,6 @@
 from src.baccarat.baccarat_cards import Shoe, Card
 from src.baccarat.baccarat_rules_handler import ActionTypes, PlayerType, ActionState, OutComeTypes
-from src.baccarat.BankingErrors import ErrorChecker
+from src.baccarat.BankingErrors import BankingErrorChecker
 from PySide6.QtCore import Slot, Signal, QObject
 
 class PlayerBanker:
@@ -166,7 +166,7 @@ class BaccaratTable(QObject):
         elif action == ActionTypes.STAND:
             self.RuleChecker.ChangeState(ActionState.FINISHED)
 
-    @ErrorChecker._CheckForPlacedBets
+    @BankingErrorChecker._CheckForPlacedBets
     def PlayRound(self, *args):
         self.RuleChecker = BaccaratRules(self)
         self.PlaceFirstCards()

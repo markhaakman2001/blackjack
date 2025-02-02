@@ -6,9 +6,9 @@ from src.blackjack.gui_shoehand import Hand, Bank, WinFunctions, WinType
 from src.extrafiles.labels import EasyCardLabels
 from src.extrafiles.backgroundwidget import BackGroundWidget
 from src.extrafiles.BaccaratButtons import BaccaratFicheOptionMenu, BaccaratFiche
-from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton
+from src.extrafiles.CustomButtons import BlackJackBetButton, WhichButton, BetButtonType
 from src.extrafiles.Errors.PlayingErrors import PlayingError, ActiveBetsError, BlackJackErrorChecker
-from src.baccarat.BankingErrors import ErrorChecker, ZeroBetsPlacedError, BalanceError, InsufficientFundsError, BettingError
+from src.baccarat.BankingErrors import BankingErrorChecker, ZeroBetsPlacedError, BalanceError, InsufficientFundsError, BettingError
 import sys
 import time
 
@@ -192,17 +192,20 @@ class BJinterface(QtWidgets.QMainWindow):
         else:
             if self.BetsLabelList:
 
-                for button , label in zip(self.BetButtonList, self.BetsLabelList):
+                for button , label, removebtn in zip(self.BetButtonList, self.BetsLabelList, self.RemoveBetButtonList):
                     label     : QtWidgets.QLabel
                     button    : QtWidgets.QPushButton
+                    removebtn : QtWidgets.QPushButton
                     label.deleteLater()
                     button.deleteLater()
+                    removebtn.deleteLater()
                     
             
             n_bets = self.n_hands.value()
-            self.BetsLabelList : list[QtWidgets.QLabel]      = []
-            self.BetButtonList : list[BlackJackBetButton]    = []
-            self.bets_list                                   = [0] * n_bets
+            self.BetsLabelList       : list[QtWidgets.QLabel]      = []
+            self.BetButtonList       : list[BlackJackBetButton]    = []
+            self.RemoveBetButtonList : list[BlackJackBetButton]    = []
+            self.bets_list                                         = [0] * n_bets
             
             for x in range(n_bets):
 
@@ -210,41 +213,80 @@ class BJinterface(QtWidgets.QMainWindow):
                 xposition   = 65 + x * 128
                 self.CurrentBetLabel    = QtWidgets.QLabel()
                 self.PlaceBetButton     = BlackJackBetButton()
+                self.RemoveBetButton    = BlackJackBetButton()
+
+                self.RemoveBetButton._ButtonType = BetButtonType.REMOVEBET
+
                 self.PlaceBetButton.setText("Bet")
-                self.PlaceBetButton._x_button = x
+                self.RemoveBetButton.setText("Unbet")
+
+                self.PlaceBetButton._x_button  = x
+                self.RemoveBetButton._x_button = x
 
                 self.PlaceBetButton.setParent(self)
                 self.CurrentBetLabel.setParent(self)
+                self.RemoveBetButton.setParent(self)
 
                 self.CurrentBetLabel.setStyleSheet("color: black ; font: bold 15px")
+                self.RemoveBetButton.setStyleSheet("color: black ; font: bold 8px; background: red")
 
                 self.PlaceBetButton.resize(QSize(60, 30))
+                self.RemoveBetButton.resize(QSize(30, 30))
                 self.CurrentBetLabel.resize(QSize(60, 20))
 
                 self.PlaceBetButton.move(QPoint(xposition, yposition - 30))
+                self.RemoveBetButton.move(QPoint(xposition + 60, yposition - 30))
                 self.CurrentBetLabel.move(QPoint(xposition, yposition))
                 
                 self.BetsLabelList.append(self.CurrentBetLabel)
                 self.BetButtonList.append(self.PlaceBetButton)
-                self.BetButtonList[x].xButtonSignal.connect(self.UpdateBetLabel)
+                self.RemoveBetButtonList.append(self.RemoveBetButton)
+
+                #self.BetButtonList[x].xButtonSignal.connect(self.UpdateBetLabel)
+                #self.RemoveBetButtonList[x].xButtonRemovalSignal.connect(lambda x: self.UpdateBetLabel(x, removal=True))
+
                 self.BetButtonList[x].xButtonSignal.connect(self.PlaceBetBank)
+                self.RemoveBetButtonList[x].xButtonRemovalSignal.connect(self.RemoveBetBank)
                 
                 self.PlaceBetButton.show()
+                self.RemoveBetButton.show()
                 self.CurrentBetLabel.show()
 
-    def PlaceBetBank(self):
-        self.bank.PlaceOneBet()
-
     @Slot(WhichButton, name="xButton")
-    def UpdateBetLabel(self, signal: WhichButton) -> None:
+    def PlaceBetBank(self, signal : WhichButton):
+        try:
+            self.bank.PlaceOneBet()
+        except BalanceError as e:
+            self.ErrorPopUp(e.__doc__, e.__str__())
+        else:
+            self.UpdateBetLabel(signal)
+        
+    @Slot(WhichButton, name="xButtonRemoval")
+    def RemoveBetBank(self, signal : WhichButton):
+        try:
+            CurrentBetHand   = self.bets_list[signal.value]
+            self.bank.RemoveOneBet(CurrentBetHand)
+        except BettingError as e:
+            self.ErrorPopUp(e.__doc__, e.__str__())
+        else:
+            self.UpdateBetLabel(signal, removal=True)
+        
+
+    #@Slot(WhichButton, name="xButton")
+    # @Slot(WhichButton, name="xButtonRemoval")
+    def UpdateBetLabel(self, signal: WhichButton, removal=False) -> None:
         """Whenever the player places a bet on a certain hand this function receives the signal and updates the bet accordingly.
 
         Args:
             signal (WhichButton): Signal that indicates which hand the button is connected to.
         """        
+        
         x             = signal.value
         current_bet   = self.bank.BetSize
         current_label = self.BetsLabelList[x]
+        if removal:
+            current_bet = current_bet * (-1)
+        
         NewBet = self.bets_list[x] + current_bet
         self.bets_list[x] = NewBet
         current_label.clear()
@@ -688,7 +730,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 self.nexthand()
     
     
-    @ErrorChecker._CheckForPlacedBets
+    @BankingErrorChecker._CheckForPlacedBets
     def CheckBetsBeforePlay(self):
         pass
 
