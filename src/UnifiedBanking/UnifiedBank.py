@@ -40,12 +40,4 @@ class MainBank:
         OldFunds = self._FundsCredits
         NewFunds = OldFunds + AmountCredits
         self._FundsCredits = NewFunds
-    
-    def UpdateBankAccounts(self, bjbank, bacbank, slotbank, amount, origin):
-        bj_amount              = (amount / 100)
-        bac_amount             = (amount / 100)
-        slot_amount            = amount
-        update_amounts         = [bac_amount, bj_amount, slot_amount]
-        update_amounts[origin] = 0
 
-        bt.UpdateBalanceAfterChanges(bjbank, bacbank, slotbank, update_amounts)
