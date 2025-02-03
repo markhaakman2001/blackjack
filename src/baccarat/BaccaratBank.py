@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal
 from src.baccarat.baccarat_rules_handler import OutComeTypes
-from src.baccarat.BankingErrors import BankingErrorChecker
+from src.ErrorFiles.BankingErrors import BankingErrorChecker
 
 
 class Bank(QObject):

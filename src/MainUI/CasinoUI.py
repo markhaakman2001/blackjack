@@ -5,7 +5,7 @@ from src.baccarat.baccarat import BaccaratGui
 from src.baccarat.BaccaratBank import Bank
 from src.SlotMachine.SlotGui import SlotMachineGUI
 from src.SlotMachine.slot_generator import BankAccount
-from src.UnifiedBanking.UnifiedBank import MainBank
+from src.UnifiedBanking.UnifiedBank  import MainBank
 import sys
 import time
 

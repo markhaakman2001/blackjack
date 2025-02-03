@@ -1,46 +1,10 @@
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QStyleOption, QStyle, QGraphicsRotation
-from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QEasingCurve, QSize, Qt
-import PySide6.QtCore as Core
-from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
-from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
-from src.extrafiles.backgroundwidget import BackGroundWidget
-from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter
-from src.baccarat.baccarat_cards import Kind, CardSymbol, Card
-from math import *
-import numpy as np
+from PySide6.QtWidgets import QGraphicsRotation
+from PySide6.QtCore import QPropertyAnimation, QPoint
+from PySide6.QtCore import QPropertyAnimation, Property
+from PySide6.QtGui import QPixmap
 import random
-import sys
 
-
-
-class TestWindow(QtWidgets.QMainWindow):
-
-    def __init__(self):
-        super().__init__()
-
-        self.centralwidget = BackGroundWidget()
-        self.setCentralWidget(self.centralwidget)
-        
-        #self.label = EasyCardLabels()
-        self.vbox = QtWidgets.QVBoxLayout()
-        
-        #self.vbox.addWidget(self.label)
-        self.deck = DeckOfCards()
-        
-        self.testbtn = QtWidgets.QPushButton()
-        self.testbtn.setParent(self.centralwidget)
-        self.testbtn.pos = QPoint(100, 100)
-        self.testbtn.move(self.testbtn.pos)
-        self.testbtn.clicked.connect(self.PickCardandShow)
-
-    def PickCardandShow(self):
-        
-        self.label = EasyCardLabels()
-        randomcard = self.deck.pickacard()
-        self.label.setnewimage(cardname=randomcard)
-        self.label.setParent(self.centralwidget)
-        self.label.show()
 
 
 
@@ -204,11 +168,7 @@ class EasyCardLabels(QtWidgets.QLabel):
 
 
 def main():
-    app  = QtWidgets.QApplication(sys.argv)
-    ui   = TestWindow()
-    shoe = Shoe(4)
-    ui.show()
-    app.exec()
+    pass
 
 if __name__ == "__main__":
     main()

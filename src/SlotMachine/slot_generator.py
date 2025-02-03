@@ -2,7 +2,7 @@ import numpy as np
 from math import *
 import random
 from PySide6.QtCore import Signal, Slot
-from src.baccarat.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
+from src.ErrorFiles.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
 
 class Reels:
 

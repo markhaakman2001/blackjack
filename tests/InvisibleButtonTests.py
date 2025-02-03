@@ -5,7 +5,7 @@ from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QE
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation, QRectF
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter, QBrush, QColor, Qt, QRegion, QIcon
-from src.extrafiles.backgroundwidget import BaccaratBackground
+from src.CustomUIfiles.backgroundwidget import BaccaratBackground
 import sys
 
 

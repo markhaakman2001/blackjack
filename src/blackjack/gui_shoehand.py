@@ -1,10 +1,7 @@
-import numpy as np
-import random
-from math import *
-from src.extrafiles.labels import Shoe, DeckOfCards, EasyCardLabels
+from src.CustomUIfiles import Shoe
 from enum import Enum
 from PySide6.QtCore import Signal, SignalInstance, Slot, QObject
-from src.baccarat.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, BankingErrorChecker, BalanceError
+from src.ErrorFiles.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, BankingErrorChecker, BalanceError
 
 class WinFunctions:
 

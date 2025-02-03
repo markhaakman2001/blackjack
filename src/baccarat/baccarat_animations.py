@@ -1,4 +1,4 @@
-from src.extrafiles.labels import EasyCardLabels
+from src.CustomUIfiles import EasyCardLabels
 from src.baccarat.baccarat_cards import Card
 from PySide6 import QtWidgets
 from PySide6.QtCore import QPoint

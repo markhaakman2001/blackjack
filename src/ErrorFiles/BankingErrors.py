@@ -175,7 +175,7 @@ class BankingErrorChecker(object):
 
             from src.blackjack.gui_shoehand   import Bank
             from src.blackjack.gui            import BJinterface
-            from src.extrafiles.CustomButtons import WhichButton
+            from src.CustomUIfiles            import WhichButton
 
             self : Bank          = args[0]
             TotalBetOnHand       = args[1]

@@ -3,13 +3,12 @@ from PySide6.QtCore import Slot, QPoint, QSize
 import PySide6.QtCore as Core
 from PySide6.QtCore import QSequentialAnimationGroup, QAbstractAnimation
 from src.baccarat.baccarat_animations import BaccaratCard
-from src.extrafiles.backgroundwidget import BaccaratBackground
+from src.CustomUIfiles import BaccaratBackground, BaccaratFiche, BaccaratFicheOptionMenu
 from src.baccarat.baccarat_table_handler import BaccaratTable
 from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
-from src.extrafiles.BaccaratButtons import BaccaratFiche, BaccaratFicheOptionMenu
 from src.baccarat.BaccaratBank import Bank
-from src.baccarat.BankingErrors import BalanceError, ZeroBetsPlacedError, BettingError
+from src.ErrorFiles.BankingErrors import BalanceError, BettingError
 import sys
 
 

@@ -1,10 +1,8 @@
-from src.blackjack.gui_shoehand import Hand, Bank, WinFunctions, WinType
+from src.blackjack.gui_shoehand import Hand, WinType
 from src.blackjack.gui_playerdealer import Player, Dealer
-from src.extrafiles.labels import EasyCardLabels, Shoe, DeckOfCards
+from src.CustomUIfiles import Shoe
 from PySide6 import QtWidgets
-from PySide6.QtCore import Slot
 import sys
-import time
 
 
 class Table:
