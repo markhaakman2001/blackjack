@@ -14,10 +14,11 @@ class CasinoUI(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.MainBank    = MainBank()
-        self.BlackJack   = BJinterface()
-        self.Baccarat    = BaccaratGui()
-        self.SlotMachine = SlotMachineGUI()
+        self.MainBank    = MainBank(1000)
+
+        self.BlackJack   = BJinterface(self.MainBank)
+        self.Baccarat    = BaccaratGui(self.MainBank)
+        self.SlotMachine = SlotMachineGUI(self.MainBank)
 
         self.central_widget = QtWidgets.QWidget()
         self.MainBank.DepositMoney(100)
@@ -44,7 +45,7 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BlackJackButton.clicked.connect(self.OpenBlackJack)
         self.BaccaratButton.clicked.connect(self.OpenBaccarat)
         self.SlotButton.clicked.connect(self.OpenSlotMachine)
-    
+
     
     def OpenBlackJack(self):
         self.BlackJack.show()

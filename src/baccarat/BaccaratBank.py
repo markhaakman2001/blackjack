@@ -93,7 +93,7 @@ class BaccaratBank(QObject):
     
     @BetSize.deleter
     def BetSize(self) -> None:
-        self._BetSize = 100
+        self._BetSize = 1
 
     @property
     def _MaxBet(self) -> float:
