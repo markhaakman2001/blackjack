@@ -2,6 +2,7 @@ from src.CustomUIfiles import Shoe
 from enum import Enum
 from PySide6.QtCore import Signal, SignalInstance, Slot, QObject
 from src.ErrorFiles.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, BankingErrorChecker, BalanceError
+from src.UnifiedBanking.UnifiedBank import MainBank
 
 class WinFunctions:
 
@@ -166,12 +167,13 @@ class BlackJackBank(QObject):
     BetsChanged  = Signal(int, name="BetChanged")
     FundsChanged = Signal(int, name="FundsChanged")
 
-    def __init__(self, deposit:float):
+    def __init__(self, main_bank : MainBank, initial_deposit_euros = 0):
         super().__init__()
-        self.credits    = 0
+        self._MainBank_ = main_bank
+        self.credits    = self._MainBank_._BalanceCredits_
         self.total_bets = 0
         self.BetSize    = 1
-        self.funds     = deposit
+        self.funds      = initial_deposit_euros
     
 
     def deposit_euros(self, amount):
@@ -279,7 +281,9 @@ class BlackJackBank(QObject):
 
         Returns:
             float: current funds in euros
-        """        
+        """  
+        self.credits = self._MainBank_._BalanceCredits_
+        self._funds_euros = (self.credits / 100)   
         return self._funds_euros
 
     @funds.setter
@@ -290,8 +294,7 @@ class BlackJackBank(QObject):
             amount_euros (float): The amount that is to be added in euros.
         """        
         AmountCredits     = amount_euros * 100
-        self.credits     += AmountCredits
-        self._funds_euros = (self.credits / 100)
+        self._MainBank_._BalanceCredits_ = AmountCredits
         self.FundsChanged.emit(AmountCredits)
     
     @property

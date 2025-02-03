@@ -9,12 +9,13 @@ from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
 from src.baccarat.BaccaratBank import BaccaratBank
 from src.ErrorFiles.BankingErrors import BalanceError, BettingError
+from src.UnifiedBanking.UnifiedBank import MainBank
 import sys
 
 
 class BaccaratGui(QtWidgets.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, main_bank : MainBank = MainBank(500)):
 
         super().__init__()
         self.central_widget = BaccaratBackground()
@@ -38,7 +39,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.CurrentBetSizeImage = BaccaratFiche()
         self.all_cards           = []
-        self.bank                = BaccaratBank(500)
+        self.bank                = BaccaratBank(main_bank)
         self.bank.BetSize        = 1
         self.table               = BaccaratTable()
 

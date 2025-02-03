@@ -1,17 +1,16 @@
-from src.blackjack.gui_shoehand import BlackJackBank
-from src.baccarat.BaccaratBank import BaccaratBank
-from src.SlotMachine.slot_generator import BankAccount
-import src.UnifiedBanking.BalanceTrackingTools as bt
+
 
 class MainBank:
 
-    def __init__(self):
-        self._FundsCredits : int = 0
+    def __init__(self, initial_deposit_euros = 0):
+        self._FundsCredits : int = initial_deposit_euros * 100
+        
     
     def DepositMoney(self, AmountEuros : float):
         AmountCredits         = int(AmountEuros * 100)
         self._BalanceCredits_ = AmountCredits
     
+
     @property
     def _BalanceEuros_(self) -> float:
         """Get the balance in euros. (1 euro = 100 credits)

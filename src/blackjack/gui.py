@@ -6,6 +6,7 @@ from src.blackjack.gui_shoehand import Hand, BlackJackBank, WinType
 from src.CustomUIfiles import EasyCardLabels, BackGroundWidget, BaccaratFiche, BaccaratFicheOptionMenu, BlackJackBetButton, WhichButton, BetButtonType
 from src.ErrorFiles.PlayingErrors import PlayingError,  BlackJackErrorChecker
 from src.ErrorFiles.BankingErrors import BankingErrorChecker,  BalanceError,  BettingError
+from src.UnifiedBanking.UnifiedBank import MainBank
 import sys
 
 
@@ -16,7 +17,7 @@ import sys
 #
 class BJinterface(QtWidgets.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, mainbank : MainBank = MainBank(500)):
 
         super().__init__()
         
@@ -128,7 +129,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.BetsLabelList = None
 
         self.bets_list     = []
-        self.bank          = BlackJackBank(500)
+        self.bank          = BlackJackBank(main_bank=mainbank)
         self.bank.FundsChanged.connect(self.update_funds)
         self.UpdatePossibleBets()
         self.update_funds()

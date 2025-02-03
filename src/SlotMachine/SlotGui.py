@@ -6,6 +6,7 @@ from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QPixmap
 from src.SlotMachine.ExtraSlotFiles import SlotWinType
 from src.ErrorFiles.BankingErrors import BalanceError
+from src.UnifiedBanking.UnifiedBank import MainBank
 import numpy as np
 import sys
 
@@ -18,11 +19,11 @@ class SlotMachineGUI(QtWidgets.QMainWindow):
     
     WinnerSignal = Signal(SlotWinType, name="WinnerSignal")
 
-    def __init__(self):
+    def __init__(self, mainbank : MainBank = MainBank(500)):
 
         super().__init__()
 
-        self.bank = BankAccount(100)
+        self.bank = BankAccount(main_bank=mainbank)
         self.funds = self.bank._get_funds()
         print(self.funds)
 
@@ -428,3 +429,12 @@ class CustomLabels(QtWidgets.QLabel):
         self.pixmap = self.pixmap1
         self.setPixmap(self.pixmap1)
         self.setScaledContents(True)
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    ui  = SlotMachineGUI()
+    ui.show()
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()

@@ -1,20 +1,22 @@
 from PySide6.QtCore import QObject, Signal
 from src.baccarat.baccarat_rules_handler import OutComeTypes
 from src.ErrorFiles.BankingErrors import BankingErrorChecker
+from src.UnifiedBanking.UnifiedBank import MainBank
 
 
 class BaccaratBank(QObject):
 
-    BalanceChanged = Signal(name="BalanceChanged")
+    BalanceChanged = Signal(int, name="BalanceChanged")
 
-    def __init__(self, initial_deposit_euros = 0):
+    def __init__(self, main_bank : MainBank, initial_deposit_euros = 0):
         """_summary_
 
         Args:
             initial_deposit_euros (int, optional): _description_. Defaults to 0.
         """       
-        super().__init__() 
-        self._funds     = initial_deposit_euros * 100
+        super().__init__()
+        self._MainBank_ = main_bank
+        self._funds     = self._MainBank_._BalanceCredits_
         self._PlayerBet = 0
         self._BankerBet = 0
         self._TieBet    = 0
@@ -26,6 +28,7 @@ class BaccaratBank(QObject):
         Returns:
             _type_: _description_
         """        
+        self._funds = self._MainBank_._BalanceCredits_
         return self._funds
     
     @funds.setter
@@ -37,8 +40,9 @@ class BaccaratBank(QObject):
         """        
         old_funds      = self._funds
         amount_credits = amount * 100
-        self._funds = amount_credits + old_funds
-        self.BalanceChanged.emit()
+
+        self._MainBank_._BalanceCredits_ = amount_credits
+        self.BalanceChanged.emit(amount_credits)
     
     # @funds.deleter
     # def funds(self, amount):
@@ -71,6 +75,11 @@ class BaccaratBank(QObject):
     
     @property
     def BetSize(self) -> int:
+        """Get the current BetSize in credits
+
+        Returns:
+            int: betsize in credits
+        """        
         return self._BetSize
     
     @BetSize.setter
@@ -115,8 +124,8 @@ class BaccaratBank(QObject):
         elif who == OutComeTypes.TIE:
             self._TieBet += amount
 
-        self._funds -= self.BetSize
-        self.BalanceChanged.emit()
+        self.funds = amount *(-1)
+        self.BalanceChanged.emit(self.BetSize)
         print(f"You bet {amount} on {who.name}")
         print(f"Your current balance is {self.Balance}")
     

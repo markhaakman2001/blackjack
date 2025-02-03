@@ -2,6 +2,7 @@ import numpy as np
 import random
 from PySide6.QtCore import Signal, QObject
 from src.ErrorFiles.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
+from src.UnifiedBanking.UnifiedBank import MainBank
 
 class Reels:
 
@@ -220,31 +221,33 @@ class PlayingField:
 
 
 class BankAccount(QObject):
-    SlotBalanceChanged = Signal(name="SlotBalanceChanged")
+    SlotBalanceChanged = Signal(int, name="SlotBalanceChanged")
 
 
-    def __init__(self, initial_deposit_euros=0):
+    def __init__(self, main_bank : MainBank, initial_deposit_euros=0):
         super().__init__()
-        self._credits              = (initial_deposit_euros * 100)
+        self._MainBank_            = main_bank
+        self._credits              = self._MainBank_._BalanceCredits_
         self._Balance_             = 0
         self.current_funds : float = 0
         self.funds         : float = 0
         self._BetSize      : float = 10
 
     def deposit(self, amount_euros):
+        amount_credits = amount_euros * 100
         self._FundsCredits_ = (amount_euros * 100)
-        self.SlotBalanceChanged.emit()
+        self.SlotBalanceChanged.emit(amount_credits)
 
 
     @BankingErrorChecker._CheckSlotBalance
     def placebet(self):
         self._FundsCredits_ = (-1) * self._BetSize_
-        self.SlotBalanceChanged.emit()
+        
         print(self._Balance, self._FundsCredits_)
     
     def add_winnings(self, winnings_euros):
         self._FundsCredits_ = (winnings_euros * 100)
-        self.SlotBalanceChanged.emit()
+        
         print(self._Balance, self._FundsCredits_)
     
     @property
@@ -258,14 +261,14 @@ class BankAccount(QObject):
     
     @property
     def _FundsCredits_(self):
+        self._credits = self._MainBank_._BalanceCredits_
         return self._credits
 
     @_FundsCredits_.setter
     def _FundsCredits_(self, amount_credits : int):
-        Old_funds     = self._FundsCredits_
-        new_funds     = Old_funds + amount_credits
-        self._credits = new_funds
-        self.SlotBalanceChanged.emit()
+        self._MainBank_._BalanceCredits_ = amount_credits
+        print("the funds have changed?")
+        self.SlotBalanceChanged.emit(amount_credits)
 
     @property
     def _BetSize_(self):
