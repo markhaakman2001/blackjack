@@ -161,7 +161,7 @@ class Hand:
         self.__init__()
 
 
-class Bank(QObject):
+class BlackJackBank(QObject):
 
     BetsChanged  = Signal(int, name="BetChanged")
     FundsChanged = Signal( name="FundsChanged")
@@ -183,6 +183,7 @@ class Bank(QObject):
         credit_extra = amount * 100
         self.credits += credit_extra
         self.BetsChanged.emit(1)
+        self.FundsChanged.emit()
     
     def place_bet(self, amount, hand:Hand):
         """place a bet on the current hand
@@ -208,7 +209,7 @@ class Bank(QObject):
         self.total_bets    += CurrentBetCredits
         self.funds          = (-1) * CurrentBetSize
         self.BetsChanged.emit(1)
-        self.FundsChanged.emit()
+        
 
     
     @BankingErrorChecker._CheckBetSizeForRemoval
@@ -221,7 +222,7 @@ class Bank(QObject):
         self.funds          = CurrentBetSize
 
         self.BetsChanged.emit(1)
-        self.FundsChanged.emit()
+        
 
     def win_amount(self, RESULT : WinType, hand : Hand) -> int:
         """Calculate the win based on the result and bet
@@ -275,11 +276,20 @@ class Bank(QObject):
 
     @property
     def funds(self) -> float:
-        
+        """Get the current funds in EUROS
+
+        Returns:
+            float: current funds in euros
+        """        
         return self._funds_euros
 
     @funds.setter
     def funds(self, amount_euros):
+        """Add an amount in euros to the bank balance
+
+        Args:
+            amount_euros (float): The amount that is to be added in euros.
+        """        
         AmountCredits     = amount_euros * 100
         self.credits     += AmountCredits
         self._funds_euros = (self.credits / 100)

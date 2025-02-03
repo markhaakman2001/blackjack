@@ -1,5 +1,5 @@
 from src.baccarat.baccarat_rules_handler import OutComeTypes
-from src.baccarat.BaccaratBank import Bank
+from src.baccarat.BaccaratBank import BaccaratBank
 
 
 def DecoratorTest(func):
@@ -58,7 +58,7 @@ class ErrorChecker(object):
         return CheckFunds
 
 
-class NewBank(Bank):
+class NewBank(BaccaratBank):
 
     def __init__(self, initial_deposit=0):
         self._funds     = initial_deposit

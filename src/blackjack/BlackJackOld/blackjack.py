@@ -364,11 +364,7 @@ class Bank:
         return win
 
 
-table = Table()
-start_play = "y"
-while start_play == "y":
-    table.playround()
-    # hstart_play = input("Play again? Yes (y) or no (n) \n" )
+
 
 
 

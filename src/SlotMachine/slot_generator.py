@@ -1,7 +1,6 @@
 import numpy as np
-from math import *
 import random
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Signal, QObject
 from src.ErrorFiles.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
 
 class Reels:
@@ -220,9 +219,12 @@ class PlayingField:
             return False
 
 
-class BankAccount:
+class BankAccount(QObject):
+    SlotBalanceChanged = Signal(name="SlotBalanceChanged")
+
 
     def __init__(self, initial_deposit_euros=0):
+        super().__init__()
         self._credits              = (initial_deposit_euros * 100)
         self._Balance_             = 0
         self.current_funds : float = 0
@@ -231,15 +233,18 @@ class BankAccount:
 
     def deposit(self, amount_euros):
         self._FundsCredits_ = (amount_euros * 100)
+        self.SlotBalanceChanged.emit()
 
 
     @BankingErrorChecker._CheckSlotBalance
     def placebet(self):
         self._FundsCredits_ = (-1) * self._BetSize_
+        self.SlotBalanceChanged.emit()
         print(self._Balance, self._FundsCredits_)
     
     def add_winnings(self, winnings_euros):
         self._FundsCredits_ = (winnings_euros * 100)
+        self.SlotBalanceChanged.emit()
         print(self._Balance, self._FundsCredits_)
     
     @property
@@ -260,6 +265,7 @@ class BankAccount:
         Old_funds     = self._FundsCredits_
         new_funds     = Old_funds + amount_credits
         self._credits = new_funds
+        self.SlotBalanceChanged.emit()
 
     @property
     def _BetSize_(self):
@@ -285,9 +291,11 @@ class BankAccount:
     
     def _set_funds(self, amount):
         self.funds += amount
+        self.SlotBalanceChanged.emit()
     
     def _del_funds(self):
         del self.funds
+        self.SlotBalanceChanged.emit()
 
     fundings = property(
         fget=_get_funds,

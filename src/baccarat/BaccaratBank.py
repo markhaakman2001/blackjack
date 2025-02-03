@@ -3,7 +3,7 @@ from src.baccarat.baccarat_rules_handler import OutComeTypes
 from src.ErrorFiles.BankingErrors import BankingErrorChecker
 
 
-class Bank(QObject):
+class BaccaratBank(QObject):
 
     BalanceChanged = Signal(name="BalanceChanged")
 
@@ -30,17 +30,22 @@ class Bank(QObject):
     
     @funds.setter
     def funds(self, amount):
+        """Add a certain amount to the bank balance in euros
 
+        Args:
+            amount (float): amount to be added in euros.
+        """        
         old_funds      = self._funds
         amount_credits = amount * 100
         self._funds = amount_credits + old_funds
         self.BalanceChanged.emit()
     
-    @funds.deleter
-    def funds(self, amount):
-        old_funds      = self._funds
-        amount_credits = amount * 100
-        self._funds =  old_funds - amount_credits
+    # @funds.deleter
+    # def funds(self, amount):
+    #     old_funds      = self._funds
+    #     amount_credits = amount * 100
+    #     self._funds =  old_funds - amount_credits
+    #     self.BalanceChanged.emit()
     
     @property
     def Balance(self):
@@ -146,7 +151,7 @@ class Bank(QObject):
 
 
 
-class NewBank(Bank):
+class NewBank(BaccaratBank):
     
 
     def __init__(self, initial_deposit=0):

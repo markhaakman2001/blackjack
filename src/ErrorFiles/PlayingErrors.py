@@ -27,11 +27,11 @@ class BlackJackErrorChecker(object):
         def CheckBets(*args):
 
             from src.blackjack.gui          import BJinterface
-            from src.blackjack.gui_shoehand import Bank
+            from src.blackjack.gui_shoehand import BlackJackBank
 
 
             self : BJinterface = args[0]
-            bank : Bank        = self.bank
+            bank : BlackJackBank        = self.bank
 
             if bank.TotalBet > 0:
                 raise  PlayingError(ActiveBetsError())

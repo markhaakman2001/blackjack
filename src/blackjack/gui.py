@@ -2,7 +2,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup
 import PySide6.QtCore as Core
 from src.blackjack.gui_table import Table
-from src.blackjack.gui_shoehand import Hand, Bank, WinType
+from src.blackjack.gui_shoehand import Hand, BlackJackBank, WinType
 from src.CustomUIfiles import EasyCardLabels, BackGroundWidget, BaccaratFiche, BaccaratFicheOptionMenu, BlackJackBetButton, WhichButton, BetButtonType
 from src.ErrorFiles.PlayingErrors import PlayingError,  BlackJackErrorChecker
 from src.ErrorFiles.BankingErrors import BankingErrorChecker,  BalanceError,  BettingError
@@ -128,7 +128,7 @@ class BJinterface(QtWidgets.QMainWindow):
         self.BetsLabelList = None
 
         self.bets_list     = []
-        self.bank          = Bank(500)
+        self.bank          = BlackJackBank(500)
         self.bank.FundsChanged.connect(self.update_funds)
         self.UpdatePossibleBets()
         self.update_funds()
@@ -373,7 +373,7 @@ class BJinterface(QtWidgets.QMainWindow):
                 if isinstance(hand, list):
                     labels : QtWidgets.QLabel = self.hand_label_list[i]
                     for hand, label in zip(hand, labels):
-                        bank  : Bank     = self.bank
+                        bank  : BlackJackBank     = self.bank
                         result : WinType = self.table.winlose(hand)
                         amount_won       = bank.win_amount(result, hand)
                         label.clear()
@@ -387,7 +387,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
                     result : WinType         = self.table.winlose(hand)
                     label : QtWidgets.QLabel = self.hand_label_list[i]
-                    bank  : Bank             = self.bank
+                    bank  : BlackJackBank             = self.bank
                     amount_won               = bank.win_amount(result, hand)
                     label.clear()
                     label.setText(f"{result.name} \n ${amount_won/100}")
@@ -749,6 +749,7 @@ class BJinterface(QtWidgets.QMainWindow):
             for x in range(self.n_hands.value()):
                 
                 self.BetButtonList[x].deleteLater()
+                self.RemoveBetButtonList[x].deleteLater()
 
                 yposition  = 542 + int(self.extra_elevations[x])
                 xposition   = 65 + x * 128

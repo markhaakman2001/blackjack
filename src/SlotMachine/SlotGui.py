@@ -428,13 +428,3 @@ class CustomLabels(QtWidgets.QLabel):
         self.pixmap = self.pixmap1
         self.setPixmap(self.pixmap1)
         self.setScaledContents(True)
-
-
-        
-
-
-
-app = QtWidgets.QApplication(sys.argv)
-ui = SlotMachineGUI()
-ui.show()
-app.exec()

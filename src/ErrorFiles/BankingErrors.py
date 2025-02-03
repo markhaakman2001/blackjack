@@ -84,11 +84,11 @@ class BankingErrorChecker(object):
         
         def CheckFunds(*args, **kwargs):
 
-            from src.baccarat.BaccaratBank import Bank
+            from src.baccarat.BaccaratBank import BaccaratBank
 
             print("Starting FundsCheck")
             print(f"{[arg for arg in args]=}")
-            self : Bank = args[0]
+            self : BaccaratBank = args[0]
             max_bet     = self._MaxBet
 
             if self.funds <= 0:
@@ -113,7 +113,7 @@ class BankingErrorChecker(object):
 
         def _CheckBets(*args):
 
-            from src.baccarat.BaccaratBank import Bank
+            from src.baccarat.BaccaratBank import BaccaratBank
 
             # try statement is used to differentiate between BlackJack and Baccarat
             # When the decorator is used for baccarat two args should be passes
@@ -123,7 +123,7 @@ class BankingErrorChecker(object):
             # Fix the BlackJack interface such that the try statement can be removed.
             try:
                 table       = args[0]       
-                self : Bank = args[1]
+                self : BaccaratBank = args[1]
                 TotalBets   = self.TotalBet
 
             except IndexError:
@@ -131,7 +131,7 @@ class BankingErrorChecker(object):
                 from src.blackjack.gui import BJinterface as BJ
 
                 ui   : BJ     = args[0]
-                self : Bank   = ui.bank
+                self : BaccaratBank   = ui.bank
                 TotalBets     = self.TotalBet
                 BetList       = ui.bets_list
                 NrOfBets      = len(BetList)
@@ -173,11 +173,11 @@ class BankingErrorChecker(object):
 
         def _CheckBetSizeRemoval(*args, **kwargs):
 
-            from src.blackjack.gui_shoehand   import Bank
+            from src.blackjack.gui_shoehand   import BlackJackBank
             from src.blackjack.gui            import BJinterface
             from src.CustomUIfiles            import WhichButton
 
-            self : Bank          = args[0]
+            self : BlackJackBank          = args[0]
             TotalBetOnHand       = args[1]
             CurrentBetSize       = self.BetSize
 

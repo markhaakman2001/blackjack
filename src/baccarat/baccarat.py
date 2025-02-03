@@ -7,7 +7,7 @@ from src.CustomUIfiles import BaccaratBackground, BaccaratFiche, BaccaratFicheOp
 from src.baccarat.baccarat_table_handler import BaccaratTable
 from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
-from src.baccarat.BaccaratBank import Bank
+from src.baccarat.BaccaratBank import BaccaratBank
 from src.ErrorFiles.BankingErrors import BalanceError, BettingError
 import sys
 
@@ -38,7 +38,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.CurrentBetSizeImage = BaccaratFiche()
         self.all_cards           = []
-        self.bank                = Bank(500)
+        self.bank                = BaccaratBank(500)
         self.bank.BetSize        = 1
         self.table               = BaccaratTable()
 
