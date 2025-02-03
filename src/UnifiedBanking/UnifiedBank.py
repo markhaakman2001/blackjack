@@ -1,3 +1,6 @@
+from src.blackjack.gui_shoehand import BlackJackBank
+from src.baccarat.BaccaratBank import BaccaratBank
+from src.SlotMachine.slot_generator import BankAccount
 import src.UnifiedBanking.BalanceTrackingTools as bt
 
 class MainBank:
