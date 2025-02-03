@@ -164,7 +164,7 @@ class Hand:
 class BlackJackBank(QObject):
 
     BetsChanged  = Signal(int, name="BetChanged")
-    FundsChanged = Signal( name="FundsChanged")
+    FundsChanged = Signal(int, name="FundsChanged")
 
     def __init__(self, deposit:float):
         super().__init__()
@@ -183,7 +183,7 @@ class BlackJackBank(QObject):
         credit_extra = amount * 100
         self.credits += credit_extra
         self.BetsChanged.emit(1)
-        self.FundsChanged.emit()
+        self.FundsChanged.emit(credit_extra)
     
     def place_bet(self, amount, hand:Hand):
         """place a bet on the current hand
@@ -238,7 +238,6 @@ class BlackJackBank(QObject):
         win_in_credits = RESULT.value(bet_in_credits)
         self.funds    = win_in_credits / 100
         self.BetsChanged.emit(1)
-        self.FundsChanged.emit()
         return win_in_credits
         
 
@@ -293,7 +292,7 @@ class BlackJackBank(QObject):
         AmountCredits     = amount_euros * 100
         self.credits     += AmountCredits
         self._funds_euros = (self.credits / 100)
-        self.FundsChanged.emit()
+        self.FundsChanged.emit(AmountCredits)
     
     @property
     def BetSize(self):
