@@ -44,32 +44,7 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BlackJackButton.clicked.connect(self.OpenBlackJack)
         self.BaccaratButton.clicked.connect(self.OpenBaccarat)
         self.SlotButton.clicked.connect(self.OpenSlotMachine)
-
-        self.bjbank   = self.BlackJack.bank
-        self.bacbank  = self.Baccarat.bank
-        self.slotbank = self.SlotMachine.bank
-
-        self.bjbank.FundsChanged.connect(self.updatefundsbj)
-        self.bacbank.BalanceChanged.connect(self.updatefundsbac)
-        self.slotbank.SlotBalanceChanged.connect(self.updatefundsslot)
-
-    @Slot(int, name="FundsChanged")
-    def updatefundsbj(self, signal):
-        amount = signal
-        self.MainBank.UpdateBankAccounts(self.bjbank, self.bacbank, self.slotbank, amount, 1)
-        print("balance updated blackjack")
     
-    @Slot(int, name="BalanceChanged")
-    def updatefundsbac(self, signal):
-        amount = signal
-        self.MainBank.UpdateBankAccounts(self.bjbank, self.bacbank, self.slotbank, amount, 0)
-        print("balance updated bacaa")
-
-    @Slot(int, name="SlotBalanceChanged")
-    def updatefundsslot(self, signal):
-        amount = signal
-        self.MainBank.UpdateBankAccounts(self.bjbank, self.bacbank, self.slotbank, amount, 2)
-        print("balance updated slotmachine")
     
     def OpenBlackJack(self):
         self.BlackJack.show()
