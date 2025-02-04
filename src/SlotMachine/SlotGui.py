@@ -379,7 +379,7 @@ class CustomLabels(QtWidgets.QLabel):
         super().__init__()
 
         self.animated   = False
-        self.pathname   = "src/SlotMachine/images/"
+        self.pathname   = "/SlotMachine/images/"
         self.pixmap1    = QPixmap()
         self.animation  = QPropertyAnimation(self, b"pos", self)
         self.animation2 = QPropertyAnimation(self, b"geometry", self)

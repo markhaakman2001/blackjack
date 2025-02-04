@@ -79,7 +79,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
         
     
     def SetOneValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/1casinochip.jpg")
+        self._pixmap.load("customimages/baccaratImage/1casinochip.jpg")
 
         self._icon = QIcon(self._pixmap)
         self.icon = self._icon
@@ -88,7 +88,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
         self._value = 1
     
     def SetFiveValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/5casinochip.jpg")
+        self._pixmap.load("customimages/baccaratImage/5casinochip.jpg")
 
         self._icon = QIcon(self._pixmap)
         self.icon = self._icon
@@ -97,7 +97,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
         self._value = 5
     
     def SetTwentyFiveValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/25casinochip.jpg")
+        self._pixmap.load("customimages/baccaratImage/25casinochip.jpg")
 
         self._icon = QIcon(self._pixmap)
         self.icon = self._icon
@@ -106,7 +106,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
         self._value = 25
     
     def SetOneHundredValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/100casinochip.jpg")
+        self._pixmap.load("customimages/baccaratImage/100casinochip.jpg")
 
         self._icon = QIcon(self._pixmap)
         self.icon = self._icon
