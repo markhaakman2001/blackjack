@@ -7,10 +7,11 @@ from src.baccarat.BaccaratBank import BaccaratBank
 from src.SlotMachine.SlotGui import SlotMachineGUI
 from src.SlotMachine.slot_generator import BankAccount
 from src.UnifiedBanking.UnifiedBank import MainBank
+from src.ErrorFiles.mainUIErrors import MainUIErrorChecker, ActiveGameError
 import sys
 import time
 
-class CasinoUI(QtWidgets.QMainWindow):
+class CasinoTestWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -45,20 +46,42 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BaccaratButton.clicked.connect(self.OpenBaccarat)
         self.SlotButton.clicked.connect(self.OpenSlotMachine)
 
+        self.GameDialogWindow = QtWidgets.QDialog(self)
+        self.GameDialogWindow.resize(1000, 700)
+        self.BlackJack.setParent(self.GameDialogWindow)
+
+    @MainUIErrorChecker._CheckForActiveGames_
+    def testactivegames(self):
+        pass
     
     def OpenBlackJack(self):
-        self.BlackJack.show()
+        try:
+            self.testactivegames()
+        except ActiveGameError as e:
+            print(e.__str__())
+        else:
+            self.GameDialogWindow.exec()
 
     def OpenBaccarat(self):
-        self.Baccarat.show()
+        try:
+            self.testactivegames()
+        except ActiveGameError as e:
+            print(e.__str__())
+        else:
+            self.Baccarat.show()
 
     def OpenSlotMachine(self):
-        self.SlotMachine.show()
+        try:
+            self.testactivegames()
+        except ActiveGameError as e:
+            print(e.__str__())
+        else:
+            self.SlotMachine.show()
 
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    Casino = CasinoUI()
+    Casino = CasinoTestWindow()
     Casino.show()
     sys.exit(app.exec())
 

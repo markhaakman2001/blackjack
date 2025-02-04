@@ -7,6 +7,7 @@ from PySide6.QtGui import QPixmap
 from src.SlotMachine.ExtraSlotFiles import SlotWinType
 from src.ErrorFiles.BankingErrors import BalanceError
 from src.UnifiedBanking.UnifiedBank import MainBank
+from src.extrafiles.gamestate import GameState
 import numpy as np
 import sys
 

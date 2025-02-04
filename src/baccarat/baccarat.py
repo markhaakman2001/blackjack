@@ -9,6 +9,7 @@ from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
 from src.baccarat.BaccaratBank import BaccaratBank
 from src.ErrorFiles.BankingErrors import BalanceError, BettingError
+from src.extrafiles.gamestate import GameState
 from src.UnifiedBanking.UnifiedBank import MainBank
 import sys
 
@@ -18,6 +19,9 @@ class BaccaratGui(QtWidgets.QMainWindow):
     def __init__(self, main_bank : MainBank = MainBank(500)):
 
         super().__init__()
+
+        self._gamestate = GameState.INACTIVE
+
         self.central_widget = BaccaratBackground()
         self.central_widget.setParent(self)
         self.central_widget.resize(QSize(1200, 600))
@@ -219,6 +223,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         try:
             self.table.PlayRound(self.bank)
+            self._GameState_ = GameState.ACTIVE
         except BettingError as e:
             self.BalanceErrorPopup(e.__doc__, e.__str__())
         
@@ -294,6 +299,8 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.dlg.resize(QSize(300, 150))
         lbl.resize(QSize(200, 100))
+
+        self._GameState_ = GameState.INACTIVE
         self.dlg.show()
         
 
@@ -307,6 +314,20 @@ class BaccaratGui(QtWidgets.QMainWindow):
             self.all_cards = []
         except AttributeError:
             pass
+    
+    @property
+    def _GameState_(self) -> GameState:
+        """Get the current state of the game
+
+        Returns:
+            GameState: active or inactive
+        """       
+        return self._gamestate
+
+    @_GameState_.setter
+    def _GameState_(self, newstate : GameState) -> None:
+        self._gamestate = newstate 
+
         
 
 

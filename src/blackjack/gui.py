@@ -7,6 +7,7 @@ from src.CustomUIfiles import EasyCardLabels, BackGroundWidget, BaccaratFiche, B
 from src.ErrorFiles.PlayingErrors import PlayingError,  BlackJackErrorChecker
 from src.ErrorFiles.BankingErrors import BankingErrorChecker,  BalanceError,  BettingError
 from src.UnifiedBanking.UnifiedBank import MainBank
+from src.extrafiles.gamestate import GameState
 import sys
 
 
@@ -20,6 +21,7 @@ class BJinterface(QtWidgets.QMainWindow):
     def __init__(self, mainbank : MainBank = MainBank(500)):
 
         super().__init__()
+        self._gamestate = GameState.INACTIVE
         
         self.central_widget =  BackGroundWidget()
         self.central_widget.setParent(self)     
@@ -736,7 +738,7 @@ class BJinterface(QtWidgets.QMainWindow):
 
         try:
             self.CheckBetsBeforePlay()
-                
+            self._GameState_ = GameState.ACTIVE
 
             self.dealer_handlabel.setParent(self)
             self.dealer_handlabel.show()
@@ -1050,12 +1052,25 @@ class BJinterface(QtWidgets.QMainWindow):
         self.dealer_labels   = []
         self.BetsLabelList   = None
         self.bets_list       = []
+        self._GameState_     = GameState.INACTIVE
 
         self.NextRoundButton.deleteLater()
         self.play_button.setEnabled(True)
         # except AttributeError:
         #     print("There was an attribute error, but we'll ignore it for now")
-            
+    
+    @property
+    def _GameState_(self) -> GameState:
+        """Get the current state of the game
+
+        Returns:
+            GameState: ACTIVE or INACTIVE
+        """
+        return self._gamestate
+    
+    @_GameState_.setter
+    def _GameState_(self, newstate : GameState) -> None:
+        self._gamestate = newstate
             
 
 

@@ -1,5 +1,3 @@
-
-
 class MainBank:
 
     def __init__(self, initial_deposit_euros = 0):
