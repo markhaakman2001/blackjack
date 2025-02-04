@@ -7,7 +7,7 @@ from src.CustomUIfiles import EasyCardLabels, BackGroundWidget, BaccaratFiche, B
 from src.ErrorFiles.PlayingErrors import PlayingError,  BlackJackErrorChecker
 from src.ErrorFiles.BankingErrors import BankingErrorChecker,  BalanceError,  BettingError
 from src.UnifiedBanking.UnifiedBank import MainBank
-from src.extrafiles.gamestate import GameState
+from src.extrafiles.gametrackingtools import GameState
 import sys
 
 

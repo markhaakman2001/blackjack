@@ -7,7 +7,7 @@ from PySide6.QtGui import QPixmap
 from src.SlotMachine.ExtraSlotFiles import SlotWinType
 from src.ErrorFiles.BankingErrors import BalanceError
 from src.UnifiedBanking.UnifiedBank import MainBank
-from src.extrafiles.gamestate import GameState
+from src.extrafiles.gametrackingtools import GameState
 import numpy as np
 import sys
 
@@ -23,6 +23,7 @@ class SlotMachineGUI(QtWidgets.QMainWindow):
     def __init__(self, mainbank : MainBank = MainBank(500)):
 
         super().__init__()
+        self._gamestate = GameState.INACTIVE
 
         self.bank = BankAccount(main_bank=mainbank)
         self.funds = self.bank._get_funds()
@@ -171,6 +172,7 @@ class SlotMachineGUI(QtWidgets.QMainWindow):
         
         try:
             self.bank.placebet()
+            self._GameState_ = GameState.ACTIVE
 
             self.animationgroup = QParallelAnimationGroup()
             self.lastwin        = 0
@@ -208,6 +210,7 @@ class SlotMachineGUI(QtWidgets.QMainWindow):
     @Slot()
     def enablestart(self):
         self.start_btn.setEnabled(True)
+        self._GameState_ = GameState.INACTIVE
         self.update_balance()
 
     
@@ -346,7 +349,19 @@ class SlotMachineGUI(QtWidgets.QMainWindow):
 
     def startanimationgroup(self):
         self.animationgroup.start()
+    
+    @property
+    def _GameState_(self) -> GameState:
+        """Get the current gamestate
 
+        Returns:
+            GameState: ACTIVE or INACTIVE
+        """      
+        return self._gamestate
+
+    @_GameState_.setter
+    def _GameState_(self, newstate : GameState) -> None:
+        self._gamestate = newstate  
 
 
 class CustomLabels(QtWidgets.QLabel):

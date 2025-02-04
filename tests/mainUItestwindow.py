@@ -8,6 +8,7 @@ from src.SlotMachine.SlotGui import SlotMachineGUI
 from src.SlotMachine.slot_generator import BankAccount
 from src.UnifiedBanking.UnifiedBank import MainBank
 from src.ErrorFiles.mainUIErrors import MainUIErrorChecker, ActiveGameError
+from src.extrafiles.gametrackingtools import GameType
 import sys
 import time
 
@@ -46,37 +47,59 @@ class CasinoTestWindow(QtWidgets.QMainWindow):
         self.BaccaratButton.clicked.connect(self.OpenBaccarat)
         self.SlotButton.clicked.connect(self.OpenSlotMachine)
 
-        self.GameDialogWindow = QtWidgets.QDialog(self)
-        self.GameDialogWindow.resize(1000, 700)
-        self.BlackJack.setParent(self.GameDialogWindow)
+        self.BJDialogWindow = QtWidgets.QDialog(self)
+        self.BacDialogWindow  = QtWidgets.QDialog(self)
+        self.SlotDialogWindow = QtWidgets.QDialog(self)
+
+        self.BJDialogWindow.resize(1000, 700)
+        self.BacDialogWindow.resize(1200, 700)
+        self.SlotDialogWindow.resize(900, 700)
+
+        self.BlackJack.setParent(self.BJDialogWindow)
+        self.Baccarat.setParent(self.BacDialogWindow)
+        self.SlotMachine.setParent(self.SlotDialogWindow)
+
+        
 
     @MainUIErrorChecker._CheckForActiveGames_
     def testactivegames(self):
         pass
     
     def OpenBlackJack(self):
+        self.BlackJack.update_funds()
         try:
             self.testactivegames()
         except ActiveGameError as e:
-            print(e.__str__())
+            if e.game == GameType.BLACKJACK:
+                self.BJDialogWindow.exec()
+            else:
+                print(e.__str__())
         else:
-            self.GameDialogWindow.exec()
+            self.BJDialogWindow.exec()
 
     def OpenBaccarat(self):
+        self.Baccarat.UpdateBalanceLabel()
         try:
             self.testactivegames()
         except ActiveGameError as e:
-            print(e.__str__())
+            if e.game == GameType.BACCARAT:
+                self.BacDialogWindow.exec()
+            else: 
+                print(e.__str__())
         else:
-            self.Baccarat.show()
+            self.BacDialogWindow.exec()
+            
 
     def OpenSlotMachine(self):
         try:
             self.testactivegames()
         except ActiveGameError as e:
-            print(e.__str__())
+            if e.game == GameType.SLOTMACHINE:
+                self.SlotDialogWindow.exec()
+            else:
+                print(e.__str__())
         else:
-            self.SlotMachine.show()
+            self.SlotDialogWindow.exec()
 
 
 def main():

@@ -9,7 +9,7 @@ from src.baccarat.baccarat_cards import Card
 from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
 from src.baccarat.BaccaratBank import BaccaratBank
 from src.ErrorFiles.BankingErrors import BalanceError, BettingError
-from src.extrafiles.gamestate import GameState
+from src.extrafiles.gametrackingtools import GameState
 from src.UnifiedBanking.UnifiedBank import MainBank
 import sys
 
