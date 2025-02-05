@@ -243,6 +243,11 @@ class BlackJackBank(QObject):
         return win_in_credits
         
 
+    @BankingErrorChecker._CheckDoubleSplitFunds
+    def BalanceCheck(self, hand : Hand):
+        pass
+
+
     def DoubleDown(self, hand : Hand):
         """Used when double down
 
@@ -250,16 +255,16 @@ class BlackJackBank(QObject):
             hand (Hand): which hand
         """        
         current_bet_credits = hand._bet
-        self.funds         = (-1) * (current_bet_credits / 100)
+        self.funds          = (-1) * (current_bet_credits / 100)
         self.total_bets    += current_bet_credits
         hand._place_bet(current_bet_credits * 2)
         self.BetsChanged.emit(1)
         
-    
+
     def Split(self, hand : Hand):
-        current_bet = hand._bet
+        current_bet      = hand._bet
         self.total_bets += current_bet
-        self.funds      = (-1) * (current_bet / 100)
+        self.funds       = (-1) * (current_bet / 100)
         self.BetsChanged.emit(1)
     
     def clear_bets(self):

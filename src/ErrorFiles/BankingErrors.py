@@ -69,6 +69,25 @@ class InvalidBetError(BettingError):
 
 class BankingErrorChecker(object):
 
+    def _CheckDoubleSplitFunds(func):
+
+        def SplitFunds(*args, **kwargs):
+
+            from src.blackjack.gui_shoehand import BlackJackBank, Hand
+
+            self : BlackJackBank = args[0]
+            hand : Hand          = args[1]
+            balance_credits      = (self.funds * 100)
+            bet_credits          = hand._bet
+            max_bet              = self._MaxBet
+
+            if balance_credits < bet_credits:
+                raise BalanceError(InsufficientFundsError(max_bet))
+            else:
+                func(*args, **kwargs)
+        
+        return SplitFunds
+
     
     def _CheckFundsDecorator(func):
         """Check if there are enough available funds to place the current bet.

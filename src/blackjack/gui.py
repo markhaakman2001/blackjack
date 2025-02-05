@@ -633,33 +633,50 @@ class BJinterface(QtWidgets.QMainWindow):
                 
                 self.nexthand()
     
+
     def doubledown(self, split=False):
 
         if self.table:
+
             split = self.splitornot
+
             if split:
+
+                
                 n                          = self.split_num
                 hand                       = self.table.hands[self.num][n]
-                last_card : EasyCardLabels = self.card_labels[self.num][n][-1]
-                last_card_pos              = last_card.pos()
-                card, text, cardsymbol     = self.table.hitcard(hand)
-                self.createcardanimation_forsplit(cardsymbol, last_card_pos)
-                self.card_labels[self.num][n].append(self.label2)
-                self.bank.DoubleDown(hand)
-                self.split_num += 1
-                self.check_available_buttons(hand)
-                self.nexthand()
+                try:
+                    self.bank.BalanceCheck(hand)
+                    last_card : EasyCardLabels = self.card_labels[self.num][n][-1]
+                    last_card_pos              = last_card.pos()
+                    card, text, cardsymbol     = self.table.hitcard(hand)
+                    self.createcardanimation_forsplit(cardsymbol, last_card_pos)
+                    self.card_labels[self.num][n].append(self.label2)
+                    self.bank.DoubleDown(hand)
+                    self.split_num += 1
+                    self.check_available_buttons(hand)
+                    self.nexthand()
+
+                except BalanceError as e:
+                    self.ErrorPopUp(e.__doc__, e.__str__())
+
 
             else:
                 hand : Hand            = self.table.hands[self.num]
-                n_cards                = int(len(hand.cards))
-                card, text, cardsymbol = self.table.hitcard(hand)
-                self.createcardanimation(cardsymbol, n_cards)
-                self.card_labels[self.num].append(self.label)
-                self.bank.DoubleDown(hand)
-                self.num += 1
-                self.check_available_buttons(hand)
-                self.label.animation.finished.connect(self.nexthand())
+                try:
+                    self.bank.BalanceCheck(hand)
+                    n_cards                = int(len(hand.cards))
+                    card, text, cardsymbol = self.table.hitcard(hand)
+                    self.createcardanimation(cardsymbol, n_cards)
+                    self.card_labels[self.num].append(self.label)
+                    self.bank.DoubleDown(hand)
+                    self.num += 1
+                    self.check_available_buttons(hand)
+                    self.label.animation.finished.connect(self.nexthand())
+                    
+                except BalanceError as e:
+                    self.ErrorPopUp(e.__doc__, e.__str__())
+
     
 
 
@@ -672,47 +689,57 @@ class BJinterface(QtWidgets.QMainWindow):
             # self.splitornot is TRUE when the current hand is ALREADY SPLIT
             if self.splitornot:
                 current_hand = self.table.hands[self.num][self.split_num]
-                texts, hands = self.table.split(current_hand)
-                #current_textbox.append(f"\n".join([text for text in texts]))
-                self.table.hands[self.num].pop(self.split_num)
-                self.table.hands[self.num].insert(self.split_num, hands[1])
-                self.table.hands[self.num].insert(self.split_num, hands[0])
-                if self.table.hands[self.num][self.split_num].blackjack():                
-                    self.blackjack()
-                else:
-                    pass
+
+                try:
+                    self.bank.BalanceCheck(current_hand)
+                    texts, hands = self.table.split(current_hand)
+                    #current_textbox.append(f"\n".join([text for text in texts]))
+                    self.table.hands[self.num].pop(self.split_num)
+                    self.table.hands[self.num].insert(self.split_num, hands[1])
+                    self.table.hands[self.num].insert(self.split_num, hands[0])
+
+                    if self.table.hands[self.num][self.split_num].blackjack():                
+                        self.blackjack()
+                    else:
+                        pass
+                
+                except BalanceError as e:
+                    self.ErrorPopUp(e.__doc__, e.__str__())
 
 
             else:
 
-                self.split_flag = True
-                self.splitornot = True
                 current_hand    = self.table.hands[self.num]
+                try:
+                    self.bank.BalanceCheck(current_hand)
+                    self.split_flag = True
+                    self.splitornot = True
 
-                self.bank.Split(current_hand)
+                    self.bank.Split(current_hand)
 
-                texts, hands    = self.table.split(current_hand)
-                current_labels  = self.card_labels[self.num]
-                new_symbols     = [hands[i].card_symbols[-1] for i in range(2)]
-                current_label   = self.hand_label_list[self.num]
-                current_label.deleteLater()
-                self.splitanimation(current_labels, new_symbols, hands)
-                self.table.hands.pop(self.num)
-                if self.lasthand():
+                    texts, hands    = self.table.split(current_hand)
+                    current_labels  = self.card_labels[self.num]
+                    new_symbols     = [hands[i].card_symbols[-1] for i in range(2)]
+                    current_label   = self.hand_label_list[self.num]
+                    current_label.deleteLater()
+                    self.splitanimation(current_labels, new_symbols, hands)
+                    self.table.hands.pop(self.num)
+                    if self.lasthand():
 
-                    self.table.hands.append(hands)
-                else:
+                        self.table.hands.append(hands)
+                    else:
 
-                    self.table.hands.insert(self.num, hands)
+                        self.table.hands.insert(self.num, hands)
 
-                if self.table.hands[self.num][0].blackjack():                
-                    self.split_full_animgroup.finished.connect(self.blackjack)
-                else:
-                    label : QtWidgets.QLabel = self.hand_label_list[self.num][self.split_num]
-                    label.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
-                    label.update()
-                    
-            
+                    if self.table.hands[self.num][0].blackjack():                
+                        self.split_full_animgroup.finished.connect(self.blackjack)
+                    else:
+                        label : QtWidgets.QLabel = self.hand_label_list[self.num][self.split_num]
+                        label.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+                        label.update()
+                except BalanceError as e:
+                    self.ErrorPopUp(e.__doc__, e.__str__())
+
 
     def blackjack(self, split=False):
 
