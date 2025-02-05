@@ -25,6 +25,7 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BlackJackButton  = QtWidgets.QPushButton(text="BlackJack")
         self.BaccaratButton   = QtWidgets.QPushButton(text="Baccarat")
         self.SlotButton       = QtWidgets.QPushButton(text="Slot Machine")
+        self.DepositButton    = QtWidgets.QPushButton(text="Deposit")
 
         self.BlackJackButton.resize(100, 80)
         self.BaccaratButton.resize(100, 80)
@@ -42,9 +43,10 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BaccaratButton.clicked.connect(self.OpenBaccarat)
         self.SlotButton.clicked.connect(self.OpenSlotMachine)
 
-        self.BJDialogWindow = QtWidgets.QDialog(self)
+        self.BJDialogWindow   = QtWidgets.QDialog(self)
         self.BacDialogWindow  = QtWidgets.QDialog(self)
         self.SlotDialogWindow = QtWidgets.QDialog(self)
+
 
         self.BJDialogWindow.resize(1000, 700)
         self.BacDialogWindow.resize(1200, 700)
@@ -54,7 +56,10 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.Baccarat.setParent(self.BacDialogWindow)
         self.SlotMachine.setParent(self.SlotDialogWindow)
 
-        
+    
+    def MakeDeposit(self):
+        pass
+
 
     @MainUIErrorChecker._CheckForActiveGames_
     def testactivegames(self):

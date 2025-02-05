@@ -5,6 +5,7 @@ from PySide6.QtCore import Slot, QObject, Signal, QPropertyAnimation, QPoint, QE
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation, QRectF
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter, QBrush, QColor, Qt, QRegion, QIcon
+from src.CustomUIfiles.DepositMenu import DepositMenu
 import sys
 
 
@@ -26,15 +27,18 @@ class TestUI(QtWidgets.QMainWindow):
         self.iconbutton = CustomPushButton()
         self.iconbutton.setParent(self)
         self.iconbutton.resize(QSize(110, 110))
-        self.iconbutton.show()
+        # self.iconbutton.show()
         self.dlg.BetSizeSignal.connect(self.printiets)
+
+        self.depmenu = DepositMenu()
+        self.depmenu.AmountConfirmed.connect(self.printiets)
 
 
     def ShowPopUp(self):
         
-        self.dlg.exec()
+        self.depmenu.exec()
     
-    @Slot(int, name="BetSize")
+    @Slot(int, name="AmountConfirmed")
     def printiets(self, signal):
         print(f"Signal emitted BetSize changed to {signal}")
 
