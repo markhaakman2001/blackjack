@@ -5,6 +5,7 @@ from src.SlotMachine.SlotGui import SlotMachineGUI
 from src.UnifiedBanking.UnifiedBank import MainBank
 from src.extrafiles.gametrackingtools import GameType
 from src.ErrorFiles.mainUIErrors import MainUIErrorChecker, ActiveGameError
+from src.CustomUIfiles.DepositMenu import DepositMenu
 import sys
 
 class CasinoUI(QtWidgets.QMainWindow):
@@ -25,28 +26,32 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BlackJackButton  = QtWidgets.QPushButton(text="BlackJack")
         self.BaccaratButton   = QtWidgets.QPushButton(text="Baccarat")
         self.SlotButton       = QtWidgets.QPushButton(text="Slot Machine")
-        self.DepositButton    = QtWidgets.QPushButton(text="Deposit")
+        self.DepositButton    = QtWidgets.QPushButton(text="RUN \n IT \n BACK")
 
         self.BlackJackButton.resize(100, 80)
         self.BaccaratButton.resize(100, 80)
         self.SlotButton.resize(100, 80)
+        self.DepositButton.resize(100, 80)
 
         self.BlackJackButton.move(QtCore.QPoint(0, 50))
         self.BaccaratButton.move(QtCore.QPoint(100, 50))
         self.SlotButton.move(QtCore.QPoint(200, 50))
+        self.DepositButton.move(QtCore.QPoint(300, 50))
 
         self.BlackJackButton.setParent(self)
         self.BaccaratButton.setParent(self)
         self.SlotButton.setParent(self)
+        self.DepositButton.setParent(self)
 
         self.BlackJackButton.clicked.connect(self.OpenBlackJack)
         self.BaccaratButton.clicked.connect(self.OpenBaccarat)
         self.SlotButton.clicked.connect(self.OpenSlotMachine)
+        self.DepositButton.clicked.connect(self.OpenDeposit)
 
         self.BJDialogWindow   = QtWidgets.QDialog(self)
         self.BacDialogWindow  = QtWidgets.QDialog(self)
         self.SlotDialogWindow = QtWidgets.QDialog(self)
-
+        self.DepositDialog    = DepositMenu()
 
         self.BJDialogWindow.resize(1000, 700)
         self.BacDialogWindow.resize(1200, 700)
@@ -55,11 +60,14 @@ class CasinoUI(QtWidgets.QMainWindow):
         self.BlackJack.setParent(self.BJDialogWindow)
         self.Baccarat.setParent(self.BacDialogWindow)
         self.SlotMachine.setParent(self.SlotDialogWindow)
+        self.DepositDialog.AmountConfirmed.connect(self.MakeDeposit)
 
-    
-    def MakeDeposit(self):
-        pass
+    @QtCore.Slot(float, name="AmountConfirmed")
+    def MakeDeposit(self, signal : float):
+        self.MainBank.DepositMoney(signal)
 
+    def OpenDeposit(self):
+        self.DepositDialog.exec()
 
     @MainUIErrorChecker._CheckForActiveGames_
     def testactivegames(self):
