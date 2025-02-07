@@ -19,6 +19,8 @@ class MinesUI(QtWidgets.QMainWindow):
         self.nMines         = QtWidgets.QSpinBox(self.central_widget)
         self.bet_euros      = QtWidgets.QSpinBox(self.central_widget)
         self.funds_lbl      = QtWidgets.QLabel(self.central_widget)
+        self.odds_lbl       = QtWidgets.QLabel(self.central_widget)
+
 
         self.mines_game     = MinesGame()
         self._gamestate     = GameState.INACTIVE
@@ -29,10 +31,15 @@ class MinesUI(QtWidgets.QMainWindow):
 
         self.start_btn.resize(100, 100)
         self.bet_euros.resize(100, 50)
+        self.funds_lbl.resize(200, 100)
         self.nMines.resize(100, 50)
+        self.odds_lbl.resize(200, 50)
 
         self.bet_euros.move(QtCore.QPoint(0, 150))
         self.nMines.move(QtCore.QPoint(0, 100))
+        self.funds_lbl.move(QtCore.QPoint(0, 500))
+        self.odds_lbl.move(QtCore.QPoint(0, 400))
+
         self.nMines.setValue(1)
         self.nMines.setMaximum(10)
         self.nMines.setMinimum(1)
@@ -41,11 +48,23 @@ class MinesUI(QtWidgets.QMainWindow):
         self.bet_euros.setMaximum(100)
         self.bet_euros.setMinimum(1)
 
+        self.funds_lbl.setStyleSheet("border : 2px solid black ; border-radius 2px ; font : bold 20px ; background : grey")
+        self.odds_lbl.setStyleSheet("border : 2px solid black ; border-radius 2px ; font : bold 10px ; background : grey")
+
         self.bet_euros.valueChanged.connect(self.UpdateBetSize)
         self.start_btn.clicked.connect(self.start_game)
+        self.bank.BalanceChanged.connect(self.UpdateFunds)
+
+        self.UpdateFunds()
+        
+
+        self.funds_lbl.update()
+        self.odds_lbl.update()
 
         self.nMines.show()
         self.start_btn.show()
+        self.funds_lbl.show()
+        self.odds_lbl.show()
 
         self.setCentralWidget(self.central_widget)
         self.resize(1000, 700)
@@ -63,6 +82,20 @@ class MinesUI(QtWidgets.QMainWindow):
             self.button_list.append(self.n_button)
             self.n_button.show()
     
+    def UpdateFunds(self):
+        self.funds_lbl.clear()
+        self.funds_lbl.setText(f"Balance: ${self.bank.funds_euros} \n")
+        self.funds_lbl.update()
+
+    def UpdateOddsLabel(self):
+        if self._GameState_ == GameState.ACTIVE:
+            odds = self.mines_game.OddsCalculator()
+        else:
+            odds = 0
+        self.odds_lbl.clear()
+        self.odds_lbl.setText(f"Total odds of getting this far: {odds:.2f}")
+        self.odds_lbl.update()
+
     @Slot()
     def UpdateBetSize(self):
         BetSizeCredits = (self.bet_euros.value() * 100)
@@ -78,6 +111,7 @@ class MinesUI(QtWidgets.QMainWindow):
         except MinesError as e:
             self.ErrorPopUp(e.__doc__, e.__str__())
         else:
+            self.UpdateOddsLabel()
             self._GameState_  = GameState.ACTIVE
             n                 = self.nMines.value()
             self.bank.PlaceBet()
@@ -106,11 +140,14 @@ class MinesUI(QtWidgets.QMainWindow):
                 try:
                     btn : MinesButton = self.button_list[signal]
                     btn.ChangeButtonToMine(mine)
+                    self.mines_game.n_correct += 1
+                    self.UpdateOddsLabel()
                 except MinesError as e:
                     self.ErrorPopUp(e.__doc__, e.__str__())
     
     def GameEnd(self):
         self._GameState_ = GameState.INACTIVE
+        self.UpdateOddsLabel()
         for x, button in enumerate(self.button_list):
             button : MinesButton
             if not button.MineChecked:

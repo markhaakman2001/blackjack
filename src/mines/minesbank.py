@@ -1,8 +1,10 @@
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal, Slot
 from src.UnifiedBanking.UnifiedBank import MainBank
 
 
 class MinesBank(QObject):
+
+    BalanceChanged = Signal(name="BalanceChanged")
 
     def __init__(self, main_bank : MainBank = MainBank(100)):
         super().__init__()
@@ -31,6 +33,7 @@ class MinesBank(QObject):
     @_funds_credits_.setter
     def _funds_credits_(self, amount_credits):
         self.MainBank._BalanceCredits_ = amount_credits
+        self.BalanceChanged.emit()
     
     @property
     def funds_euros(self) -> float:
