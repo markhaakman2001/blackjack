@@ -10,3 +10,4 @@ class GameType(Enum):
     BLACKJACK   = "blackjack"
     BACCARAT    = "baccarat"
     SLOTMACHINE = "slotmachine"
+    MINES       = "mines"
