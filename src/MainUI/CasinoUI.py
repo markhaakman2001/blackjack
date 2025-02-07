@@ -92,10 +92,13 @@ class CasinoUI(QtWidgets.QMainWindow):
     
     
     def OpenMines(self):
+        self.Mines.UpdateFunds()
         try:
             self.testactivegames(gt.MINES)
         except ActiveGameError as e:
             print(e.__str__())
+        else:
+            self.MineDialogWindow.exec()
 
 
     def OpenBlackJack(self):
