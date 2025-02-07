@@ -8,7 +8,7 @@ from src.SlotMachine.SlotGui import SlotMachineGUI
 from src.SlotMachine.slot_generator import BankAccount
 from src.UnifiedBanking.UnifiedBank import MainBank
 from src.ErrorFiles.mainUIErrors import MainUIErrorChecker, ActiveGameError
-from src.extrafiles.gametrackingtools import GameType
+from src.extrafiles.gametrackingtools import gt
 import sys
 import time
 
@@ -70,7 +70,7 @@ class CasinoTestWindow(QtWidgets.QMainWindow):
         try:
             self.testactivegames()
         except ActiveGameError as e:
-            if e.game == GameType.BLACKJACK:
+            if e.game == gt.BLACKJACK:
                 self.BJDialogWindow.exec()
             else:
                 print(e.__str__())
@@ -82,7 +82,7 @@ class CasinoTestWindow(QtWidgets.QMainWindow):
         try:
             self.testactivegames()
         except ActiveGameError as e:
-            if e.game == GameType.BACCARAT:
+            if e.game == gt.BACCARAT:
                 self.BacDialogWindow.exec()
             else: 
                 print(e.__str__())
@@ -94,7 +94,7 @@ class CasinoTestWindow(QtWidgets.QMainWindow):
         try:
             self.testactivegames()
         except ActiveGameError as e:
-            if e.game == GameType.SLOTMACHINE:
+            if e.game == gt.SLOTMACHINE:
                 self.SlotDialogWindow.exec()
             else:
                 print(e.__str__())
