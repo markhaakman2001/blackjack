@@ -1,6 +1,9 @@
 import numpy as np
 import random
 from PySide6.QtCore import Signal, QObject
+import pandas as pd
+import itertools as it
+import matplotlib.pyplot as plt
 
 class Reels:
 
@@ -55,7 +58,9 @@ class PlayingField:
         self.reels = []
         for x in range(6):
             r = Reels()
+            self.symbol_val_dict = r.possible_values
             self.reels.append(r)
+        
         self.full_field = np.zeros((5, 6))
         self.full_field_disp = np.empty((5, 6), dtype='<U5')
         self.signal1 = Signal()
@@ -191,15 +196,15 @@ class PlayingField:
 
     def prizecheck(self, symbol_val:int, length:int, betsize):
         calculator = { 
-            1 : lambda x, y: y * x*0.1,
-            2 : lambda x, y: y * x *  0.2,
-            3 : lambda x, y: y * x *  0.2,
-            4 : lambda x, y: y * x *  0.2,
-            5 :  lambda x, y: y * x * 0.2 ,
+            1 : lambda x, y: y * x * 0.1,
+            2 : lambda x, y: y * x * 0.2,
+            3 : lambda x, y: y * x * 0.2,
+            4 : lambda x, y: y * x * 0.2,
+            5 : lambda x, y: y * x * 0.2,
             6 : lambda x, y: y * x * 0.5,
             7 : lambda x, y: y * x * 0.5,
             8 : lambda x, y: y * x * 0.6,
-            9 : lambda x, y: y * x * 2,
+            9 : lambda x, y: y * x * 2  ,
             }
         winamount = calculator.get(symbol_val)(length, betsize)
         return winamount
@@ -257,7 +262,8 @@ class PlayingField:
             for line in lineslists:
                 x=0
                 y=0
-                while x < 6:
+                first = self.full_field[line[0][0], line[0][1]]
+                while x < 5:
                     current = line[x]
                     nextone = line[x+1]
                     fld     = self.full_field
@@ -266,19 +272,63 @@ class PlayingField:
                         y += 1
                     else:
                         x = 6
-                yield y
+                yield y, int(first)
+
+    def OneSpinStats(self, betsize=100):
+        symbol_len = [0]*5
+        symbols = [symbol_len] * 9
+        symbol_arr = np.column_stack(symbols)
+        self.generate_field()
+        for nr_wins, symbol_val in self.LineCountGenerator():
+            if nr_wins > 0:
+                symbol_arr[nr_wins-1, symbol_val-1] += 1
+        return symbol_arr
 
 
+class SLotGameSimulator:
+
+    def __init__(self):
+        self.slot        = PlayingField()
+        self.symbol_dict = self.slot.symbol_val_dict
+        self.index_dict       = {1:'2 hits', 2:'3 hits', 3:'4 hits', 4:'5 hits', 5:'6 hits'}
+        self.df_columns       = ['10', 'j', 'q', 'k', 'a', 'moneybag', 'goldstack', 'diamond', 'chest']
+        self.df_indexes       = ['2 hits', '3 hits', '4 hits', '5 hits', '6 hits']
+        #self.symbol_df        = pd.DataFrame(0, index=self.df_indexes, columns=self.df_columns, dtype=int)
+
+
+    def SimulateNspins(self, n_spins=1000):
+        total_bet       = 0
+        lens            = [0] * 5
+        symbol_stat_arr = np.column_stack([lens]*9)
+
+        for x in range(n_spins):
+            symbol_stats    = self.slot.OneSpinStats()
+            symbol_stat_arr = symbol_stat_arr + symbol_stats
+            total_bet       += 100
+        
+
+        self.symbol_df = pd.DataFrame(data=symbol_stat_arr, index=self.df_indexes, columns=self.df_columns)
+
+
+
+        print(f"{total_bet=}")
+
+
+
+    def PlotData(self):
+        self.symbol_df.plot()
+        plt.show()
+            
 
 
 def main():
     field = PlayingField()
-    field.generate_field()
+    sim = SLotGameSimulator()
+    sim.SimulateNspins(n_spins=10000)
+    sim.PlotData()
 
-    print(field.full_field)
-
-    for x in field.LineCountGenerator():
-        print(x)
+    
+    
 
 
 if __name__ == "__main__":
