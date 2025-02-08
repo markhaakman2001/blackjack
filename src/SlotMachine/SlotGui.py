@@ -379,7 +379,7 @@ class CustomLabels(QtWidgets.QLabel):
         super().__init__()
 
         self.animated   = False
-        self.pathname   = "src/SlotMachine/images/"
+        self.pathname   = "src/SlotMachine/newimages/"
         self.pixmap1    = QPixmap()
         self.animation  = QPropertyAnimation(self, b"pos", self)
         self.animation2 = QPropertyAnimation(self, b"geometry", self)
@@ -428,15 +428,15 @@ class CustomLabels(QtWidgets.QLabel):
         
         self.pixmap1 = QPixmap()
         choices = {
-            "A" : "aheart.jpg",
-            "K" : "kheart.jpg",
-            "Q" : "qheart.jpg",
-            "J" : "jheart.jpg",
-            "10": "10heart.jpg",
-            "5" : "5heart.jpg",
-            "4" : "4heart.jpg",
-            "3" : "3heart.jpg",
-            "2" : "2heart.jpg",
+            "a"         : "aslot.jpg",
+            "k"         : "kslot.jpg",
+            "q"         : "qslot.jpg",
+            "j"         : "jslot.jpg",
+            "10"        : "10slot.jpg",
+            "moneybag"  : "moneybagslot.jpg",
+            "goldstack" : "goldstackslot.jpg",
+            "diamond"   : "diamondslot.jpg",
+            "chest"     : "chestslot.jpg",
         }
 
         

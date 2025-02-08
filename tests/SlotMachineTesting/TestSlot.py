@@ -1,8 +1,6 @@
 import numpy as np
 import random
 from PySide6.QtCore import Signal, QObject
-from src.ErrorFiles.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
-from src.UnifiedBanking.UnifiedBank import MainBank
 
 class Reels:
 
@@ -61,6 +59,9 @@ class PlayingField:
         self.full_field = np.zeros((5, 6))
         self.full_field_disp = np.empty((5, 6), dtype='<U5')
         self.signal1 = Signal()
+        self.CreateDiagonalLines()
+        self.CreateZigZagLines()
+        self.CreateStraightLines()
     
     def generate_field(self):
         """
@@ -202,8 +203,6 @@ class PlayingField:
             }
         winamount = calculator.get(symbol_val)(length, betsize)
         return winamount
-
-
     
     def winningline(self, line):
         inarow = 0
@@ -218,111 +217,73 @@ class PlayingField:
             return inarow + 1
         else:
             return False
-
-
-class BankAccount(QObject):
-    SlotBalanceChanged = Signal(int, name="SlotBalanceChanged")
-
-
-    def __init__(self, main_bank : MainBank, initial_deposit_euros=0):
-        super().__init__()
-        self._MainBank_            = main_bank
-        self._credits              = self._MainBank_._BalanceCredits_
-        self._Balance_             = 0
-        self.current_funds : float = 0
-        self.funds         : float = 0
-        self._BetSize      : float = 10
-
-    def deposit(self, amount_euros):
-        amount_credits = amount_euros * 100
-        self._FundsCredits_ = (amount_euros * 100)
-        self.SlotBalanceChanged.emit(amount_credits)
-
-
-    @BankingErrorChecker._CheckSlotBalance
-    def placebet(self):
-        self._FundsCredits_ = (-1) * self._BetSize_
-        
-        print(self._Balance, self._FundsCredits_)
     
-    def add_winnings(self, winnings_euros):
-        self._FundsCredits_ = (winnings_euros * 100)
-        
-        print(self._Balance, self._FundsCredits_)
+    def CreateDiagonalLines(self):
+        self.diagonals = [[], []]
+        for x in range(6):
+            if x <= 2:
+                self.diagonals[0].append([x  , x])
+                self.diagonals[1].append([4-x, x])
+            if x >= 3:
+                self.diagonals[0].append([x-1, x])
+                self.diagonals[1].append([5-x, x])
     
-    @property
-    def _Balance(self):
-        """Balance property used for displaying the balance in euros as a float.
+    def CreateZigZagLines(self):
+        self.zigzags = [[], [], [], [], []]
+        for x in range(6):
 
-        Returns:
-            float: Balance in euros
-        """        
-        return (self._FundsCredits_ / 100)
-    
-    @property
-    def _FundsCredits_(self):
-        self._credits = self._MainBank_._BalanceCredits_
-        return self._credits
-
-    @_FundsCredits_.setter
-    def _FundsCredits_(self, amount_credits : int):
-        self._MainBank_._BalanceCredits_ = amount_credits
-        print("the funds have changed?")
-        self.SlotBalanceChanged.emit(amount_credits)
-
-    @property
-    def _BetSize_(self):
-        """BetSize in credits
-
-        Returns:
-            int: Current BetSize in credits
-        """        
-        return self._BetSize
-    
-    @_BetSize_.setter
-    def _BetSize_(self, BetSize):
-        """Set the current betsize
-
-        Args:
-            BetSize (int): The new BetSize in euros
-        """        
-        self._BetSize = (BetSize * 100)
-        print(f"new betsize is {BetSize * 100}")
-
-    def _get_funds(self):
-        return self.funds
-    
-    def _set_funds(self, amount):
-        self.funds += amount
-        self.SlotBalanceChanged.emit()
-    
-    def _del_funds(self):
-        del self.funds
-        self.SlotBalanceChanged.emit()
-
-    fundings = property(
-        fget=_get_funds,
-        fset=_set_funds,
-        fdel=_del_funds,
-    )
-        
-
+            if ((x+1) % 2) == 0:
+                y=1
+            else:
+                y=0
             
+            for i, zigzaglist in enumerate(self.zigzags):
+                if i == 4:
+                    zigzaglist.append([i-y, x])
+                else:
+                    zigzaglist.append([i+y, x])
+    
+    def CreateStraightLines(self):
+        self.straights = [[], [], [], [], []]
+        for x in range(6):
+            for i, str in enumerate(self.straights):
+                str.append([i, x])
+
+
+    def LineCountGenerator(self):
+        lists = [self.diagonals, self.zigzags, self.straights]
+        for lineslists in lists:
+            
+            for line in lineslists:
+                x=0
+                y=0
+                while x < 6:
+                    current = line[x]
+                    nextone = line[x+1]
+                    fld     = self.full_field
+                    if fld[current[0], current[1]] == fld[nextone[0], nextone[1]]:
+                        x += 1
+                        y += 1
+                    else:
+                        x = 6
+                yield y
+
 
 
 
 def main():
-    x = Reels()
-    y = PlayingField()
-    y.generate_field()
-    print(y.full_field)
-    print(y.full_field_disp)
-    x.generate_reel()
-    y.checkwinnings(1)
+    field = PlayingField()
+    field.generate_field()
 
-    
+    print(field.full_field)
+
+    for x in field.LineCountGenerator():
+        print(x)
 
 
 if __name__ == "__main__":
     main()
+    
+
+        
 
