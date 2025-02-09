@@ -24,6 +24,9 @@ class Reels:
 
         self.inverse_possible_values = {v: k for k, v in self.possible_values.items()}
 
+        self.choices = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
         slots = [0]*5
         self.reel_values = np.array(slots)
         self.reel_disp = np.array(slots)
@@ -37,8 +40,10 @@ class Reels:
 
         # choose a random digit for every slot in the reel
         for x in range(5):
-            x = random.randint(1, 9)
-            new_reel.append(x)
+            # x = random.randint(1, 9)
+            z = random.choices(self.choices, weights=self.weights, k=1)
+            y = z[0]
+            new_reel.append(y)
 
         # array values
         self.reel_values = np.array(new_reel)
@@ -293,9 +298,47 @@ class SLotGameSimulator:
         self.index_dict       = {1:'2 hits', 2:'3 hits', 3:'4 hits', 4:'5 hits', 5:'6 hits'}
         self.df_columns       = ['10', 'j', 'q', 'k', 'a', 'moneybag', 'goldstack', 'diamond', 'chest']
         self.df_indexes       = ['2 hits', '3 hits', '4 hits', '5 hits', '6 hits']
+        self.df_hitstolen     = [1, 2, 3, 4, 5]
+        self.index_len_dict = dict(zip(self.df_indexes, self.df_hitstolen))
+        self.new_df = None
+        self.calculator = { 
+            '10'        : lambda x, y : y *  (100 * x * 0.1) ,
+            'j'         : lambda x, y : y *  (100 * x * 0.2) ,
+            'q'         : lambda x, y : y *  (100 * x * 0.2) ,
+            'k'         : lambda x, y : y *  (100 * x * 0.2) ,
+            'a'         : lambda x, y : y *  (100 * x * 0.2) ,
+            'moneybag'  : lambda x, y : y *  (100 * x * 0.5) ,
+            'goldstack' : lambda x, y : y *  (100 * x * 0.5) ,
+            'diamond'   : lambda x, y : y *  (100 * x * 0.6) ,
+            'chest'     : lambda x, y : y *  (100 * x * 2  ) ,
+                        }
         #self.symbol_df        = pd.DataFrame(0, index=self.df_indexes, columns=self.df_columns, dtype=int)
 
+    def CalculateWin(self, symbol, len, n_timeshit):
+        print(f"len=\n {len} \n n_timeshit= \n {n_timeshit} \n symbol= \n {symbol} ")
+        print(self.symbol_df)
+        return self.calculator.get(symbol)(len, n_timeshit)
 
+    
+
+    def GetWinsPerSymbol(self):
+
+        column_names = ['10', 'j', 'q', 'k', 'a', 'moneybag', 'goldstack', 'diamond', 'chest']
+
+        def NameGenerator(pop=False):
+            for name in column_names:
+                
+                if pop:
+                    column_names.pop(0)
+                print(f"CURRENT NAME = {name}")
+                yield name
+            
+        df2 = pd.DataFrame(data=self.df_hitstolen, columns=['hits'])
+        self.new_df = self.symbol_df.apply(lambda x : self.CalculateWin(symbol=next(NameGenerator(pop=False)), len=self.index_len_dict.get(x.name), n_timeshit=x[str(next(NameGenerator(pop=True)))]), axis=1)
+        print(self.symbol_df)
+        print(self.new_df)
+    
+    
     def SimulateNspins(self, n_spins=1000):
         total_bet       = 0
         lens            = [0] * 5
@@ -314,7 +357,6 @@ class SLotGameSimulator:
         print(f"{total_bet=}")
 
 
-
     def PlotData(self):
         self.symbol_df.plot()
         plt.show()
@@ -324,8 +366,8 @@ class SLotGameSimulator:
 def main():
     field = PlayingField()
     sim = SLotGameSimulator()
-    sim.SimulateNspins(n_spins=10000)
-    sim.PlotData()
+    sim.SimulateNspins(n_spins=100)
+    sim.GetWinsPerSymbol()
 
     
     

@@ -204,15 +204,15 @@ class PlayingField:
     
     def prizecheck(self, symbol_val:int, length:int, betsize):
         calculator = { 
-            1 : lambda x, y: y * x*0.1,
-            2 : lambda x, y: y * x *  0.2,
-            3 : lambda x, y: y * x *  0.2,
-            4 : lambda x, y: y * x *  0.2,
-            5 :  lambda x, y: y * x * 0.2 ,
+            1 : lambda x, y: y * x * 0.1,
+            2 : lambda x, y: y * x * 0.2,
+            3 : lambda x, y: y * x * 0.2,
+            4 : lambda x, y: y * x * 0.2,
+            5 : lambda x, y: y * x * 0.2,
             6 : lambda x, y: y * x * 0.5,
             7 : lambda x, y: y * x * 0.5,
             8 : lambda x, y: y * x * 0.6,
-            9 : lambda x, y: y * x * 2,
+            9 : lambda x, y: y * x * 2  ,
             }
         winamount = calculator.get(symbol_val)(length, betsize)
         return winamount
