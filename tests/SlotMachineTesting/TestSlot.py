@@ -25,7 +25,7 @@ class Reels:
         self.inverse_possible_values = {v: k for k, v in self.possible_values.items()}
 
         self.choices = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self.weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+        self.weights = [0, 0, 0.25, 0.25, 0.2, 0, 0.1, 0.1, 0.1]
 
         slots = [0]*5
         self.reel_values = np.array(slots)
@@ -268,7 +268,7 @@ class PlayingField:
                 x=0
                 y=0
                 first = self.full_field[line[0][0], line[0][1]]
-                while x < 5:
+                while x < 4:
                     current = line[x]
                     nextone = line[x+1]
                     fld     = self.full_field
@@ -276,18 +276,20 @@ class PlayingField:
                         x += 1
                         y += 1
                     else:
-                        x = 6
+                        x = 5
                 yield y, int(first)
 
     def OneSpinStats(self, betsize=100):
-        symbol_len = [0]*5
+        symbol_len = [0]*4
         symbols = [symbol_len] * 9
         symbol_arr = np.column_stack(symbols)
+        spin_hit = False
         self.generate_field()
         for nr_wins, symbol_val in self.LineCountGenerator():
-            if nr_wins > 0:
-                symbol_arr[nr_wins-1, symbol_val-1] += 1
-        return symbol_arr
+            if nr_wins > 1:
+                symbol_arr[nr_wins-2, symbol_val-1] += 1
+                spin_hit = True
+        return symbol_arr, spin_hit
 
 
 class SLotGameSimulator:
@@ -295,79 +297,97 @@ class SLotGameSimulator:
     def __init__(self):
         self.slot        = PlayingField()
         self.symbol_dict = self.slot.symbol_val_dict
-        self.index_dict       = {1:'2 hits', 2:'3 hits', 3:'4 hits', 4:'5 hits', 5:'6 hits'}
+        self.index_dict       = {2:'3 hits', 3:'4 hits', 4:'5 hits', 5:'6 hits'}
         self.df_columns       = ['10', 'j', 'q', 'k', 'a', 'moneybag', 'goldstack', 'diamond', 'chest']
-        self.df_indexes       = ['2 hits', '3 hits', '4 hits', '5 hits', '6 hits']
-        self.df_hitstolen     = [1, 2, 3, 4, 5]
-        self.index_len_dict = dict(zip(self.df_indexes, self.df_hitstolen))
-        self.new_df = None
+        self.df_indexes       = ['3 hits', '4 hits', '5 hits', '6 hits']
+        self.df_hitstolen     = [2, 3, 4, 5]
+        self.index_len_dict   = dict(zip(self.df_indexes, self.df_hitstolen))
+        self.wins_df          = None
+        self.spin_data_list   = []
         self.calculator = { 
-            '10'        : lambda x, y : y *  (100 * x * 0.1) ,
-            'j'         : lambda x, y : y *  (100 * x * 0.2) ,
-            'q'         : lambda x, y : y *  (100 * x * 0.2) ,
-            'k'         : lambda x, y : y *  (100 * x * 0.2) ,
-            'a'         : lambda x, y : y *  (100 * x * 0.2) ,
-            'moneybag'  : lambda x, y : y *  (100 * x * 0.5) ,
-            'goldstack' : lambda x, y : y *  (100 * x * 0.5) ,
-            'diamond'   : lambda x, y : y *  (100 * x * 0.6) ,
-            'chest'     : lambda x, y : y *  (100 * x * 2  ) ,
+            '10'        : lambda x :   (100 * x * 0.10) ,
+            'j'         : lambda x :   (100 * x * 0.75) ,
+            'q'         : lambda x :   (100 * x * 0.50) ,
+            'k'         : lambda x :   (100 * x * 0.55) ,
+            'a'         : lambda x :   (100 * x * 1.50) ,
+            'moneybag'  : lambda x :   (100 * x * 1.50) ,
+            'goldstack' : lambda x :   (100 * x * 2.00) ,
+            'diamond'   : lambda x :   (100 * x * 2.50) ,
+            'chest'     : lambda x :   (100 * x * 2.50) ,
                         }
         #self.symbol_df        = pd.DataFrame(0, index=self.df_indexes, columns=self.df_columns, dtype=int)
 
-    def CalculateWin(self, symbol, len, n_timeshit):
-        print(f"len=\n {len} \n n_timeshit= \n {n_timeshit} \n symbol= \n {symbol} ")
-        print(self.symbol_df)
-        return self.calculator.get(symbol)(len, n_timeshit)
+    def CalculateWin(self, symbol, len):
+        return self.calculator.get(symbol)(len)
 
     
 
     def GetWinsPerSymbol(self):
+        new_df                    = self.symbol_df.apply(lambda x : self.CalculateWin(symbol=x.name, len=x), axis=0)
+        self.wins_df              = new_df.apply(lambda x : self.index_len_dict.get(x.name) * x, axis=1)
+        self.wins_df              = self.wins_df.transpose()
+        self.wins_df['totals']    = self.wins_df.sum(axis=1)
+        self.TotalWin             = self.wins_df['totals'].sum()
+        self.wins_df              = self.wins_df.transpose()
 
-        column_names = ['10', 'j', 'q', 'k', 'a', 'moneybag', 'goldstack', 'diamond', 'chest']
-
-        def NameGenerator(pop=False):
-            for name in column_names:
-                
-                if pop:
-                    column_names.pop(0)
-                print(f"CURRENT NAME = {name}")
-                yield name
-            
-        df2 = pd.DataFrame(data=self.df_hitstolen, columns=['hits'])
-        self.new_df = self.symbol_df.apply(lambda x : self.CalculateWin(symbol=next(NameGenerator(pop=False)), len=self.index_len_dict.get(x.name), n_timeshit=x[str(next(NameGenerator(pop=True)))]), axis=1)
+        self.RTP = (self.TotalWin / self.TotalBets) * 100
+        self.spin_data_list.insert(1, round(float(self.RTP), 3))
+        self.spin_data_list.insert(1, int(self.TotalWin))
+        print("data list here:", self.spin_data_list)
+        self.totals_df = pd.DataFrame(data=self.spin_data_list, columns=['value'], index=['Total Bet (credits)', 'Total Win (credits)', 'RTP (%)', 'spins', 'Hits'])
+        print(self.totals_df)
         print(self.symbol_df)
-        print(self.new_df)
-    
-    
-    def SimulateNspins(self, n_spins=1000):
-        total_bet       = 0
-        lens            = [0] * 5
-        symbol_stat_arr = np.column_stack([lens]*9)
+        print(self.wins_df)
+        print(self.TotalWin)
 
+    
+    
+    def SimulateNspins(self, n_spins=100000):
+        total_bet       = 0
+        lens            = [0] * 4
+        symbol_stat_arr = np.column_stack([lens]*9)
+        total_hits      = 0
+        total_spins     = n_spins
         for x in range(n_spins):
-            symbol_stats    = self.slot.OneSpinStats()
-            symbol_stat_arr = symbol_stat_arr + symbol_stats
-            total_bet       += 100
+            symbol_stats, spin_hit   = self.slot.OneSpinStats()
+            symbol_stat_arr          = symbol_stat_arr + symbol_stats
+            total_bet               += 100
+            if spin_hit:
+                total_hits += 1
         
 
         self.symbol_df = pd.DataFrame(data=symbol_stat_arr, index=self.df_indexes, columns=self.df_columns)
-
-
-
+        self.TotalSpins = total_spins
+        self.TotalHits  = total_hits
+        self.TotalBets  = total_bet
+        for x in list([int(total_bet), int(total_spins), int(total_hits)]):
+            self.spin_data_list.append(x)
+        
         print(f"{total_bet=}")
 
 
-    def PlotData(self):
+    def PlotData(self, showPlots=True, ex_cols : list[str|int] | None =None) -> None:
+        self.GetWinsPerSymbol()
+        fig, ax = plt.subplots()
+        ax.axis('off')
+        pd.plotting.table(ax=ax, data=self.totals_df, loc='center', colWidths=[0.5], colLoc='left')
+        plt.draw()
+        if ex_cols:
+            self.symbol_df.drop(columns=ex_cols, inplace=True)
+            self.wins_df.drop(columns=ex_cols, inplace=True)
+        self.wins_df.plot(kind="bar")
+        plt.draw()
         self.symbol_df.plot()
-        plt.show()
+        if showPlots:
+            plt.show()
             
 
 
 def main():
     field = PlayingField()
     sim = SLotGameSimulator()
-    sim.SimulateNspins(n_spins=100)
-    sim.GetWinsPerSymbol()
+    sim.SimulateNspins(n_spins=10000)
+    sim.PlotData(ex_cols=['10', 'j', 'moneybag'])
 
     
     
