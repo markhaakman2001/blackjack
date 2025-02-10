@@ -4,6 +4,7 @@ from PySide6.QtCore import Signal, QObject
 import pandas as pd
 import itertools as it
 import matplotlib.pyplot as plt
+import threading
 
 class Reels:
 
@@ -317,10 +318,15 @@ class SLotGameSimulator:
                         }
         #self.symbol_df        = pd.DataFrame(0, index=self.df_indexes, columns=self.df_columns, dtype=int)
 
+    def StartSpins(self, n_spins=100000):
+        self._spin_thread = threading.Thread(
+            target=self.SimulateNspins,
+            args=(n_spins)
+        )
+
+
     def CalculateWin(self, symbol, len):
         return self.calculator.get(symbol)(len)
-
-    
 
     def GetWinsPerSymbol(self):
         new_df                    = self.symbol_df.apply(lambda x : self.CalculateWin(symbol=x.name, len=x), axis=0)
