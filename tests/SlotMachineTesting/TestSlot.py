@@ -305,6 +305,8 @@ class SLotGameSimulator:
         self.index_len_dict   = dict(zip(self.df_indexes, self.df_hitstolen))
         self.wins_df          = None
         self.spin_data_list   = []
+        self.fig, self.ax     = plt.subplots()
+        self.f2,  self.ax2    = plt.subplots(nrows=2, ncols=1, figsize=(100, 100))
         self.calculator = { 
             '10'        : lambda x :   (100 * x * 0.10) ,
             'j'         : lambda x :   (100 * x * 0.75) ,
@@ -323,6 +325,7 @@ class SLotGameSimulator:
             target=self.SimulateNspins,
             args=(n_spins)
         )
+        self._spin_thread.start()
 
 
     def CalculateWin(self, symbol, len):
@@ -368,22 +371,24 @@ class SLotGameSimulator:
         self.TotalBets  = total_bet
         for x in list([int(total_bet), int(total_spins), int(total_hits)]):
             self.spin_data_list.append(x)
-        
+        self.GetWinsPerSymbol()
         print(f"{total_bet=}")
 
 
     def PlotData(self, showPlots=True, ex_cols : list[str|int] | None =None) -> None:
-        self.GetWinsPerSymbol()
-        fig, ax = plt.subplots()
-        ax.axis('off')
-        pd.plotting.table(ax=ax, data=self.totals_df, loc='center', colWidths=[0.5], colLoc='left')
+        self.fig.clear()
+        self.ax.clear()
+        # self.GetWinsPerSymbol()
+        
+        self.ax.axis('off')
+        pd.plotting.table(ax=self.ax, data=self.totals_df, loc='center', colWidths=[0.5], colLoc='left')
         plt.draw()
         if ex_cols:
             self.symbol_df.drop(columns=ex_cols, inplace=True)
             self.wins_df.drop(columns=ex_cols, inplace=True)
-        self.wins_df.plot(kind="bar")
+        self.wins_df.plot(ax=self.ax2[0], kind="bar")
         plt.draw()
-        self.symbol_df.plot()
+        self.symbol_df.plot(ax=self.ax2[1])
         if showPlots:
             plt.show()
             
