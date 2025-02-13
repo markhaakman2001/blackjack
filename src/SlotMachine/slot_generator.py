@@ -22,6 +22,8 @@ class Reels:
         }
 
         self.inverse_possible_values = {v: k for k, v in self.possible_values.items()}
+        self.choices = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.weights = [0, 0, 0.25, 0.25, 0.2, 0, 0.1, 0.1, 0.1]
 
         slots = [0]*5
         self.reel_values = np.array(slots)
@@ -36,8 +38,10 @@ class Reels:
 
         # choose a random digit for every slot in the reel
         for x in range(5):
-            x = random.randint(1, 9)
-            new_reel.append(x)
+            #  x = random.randint(1, 9)
+            z = random.choices(self.choices, weights=self.weights, k=1)
+            y = z[0]
+            new_reel.append(y)
 
         # array values
         self.reel_values = np.array(new_reel)
@@ -61,6 +65,9 @@ class PlayingField:
         self.full_field = np.zeros((5, 6))
         self.full_field_disp = np.empty((5, 6), dtype='<U5')
         self.signal1 = Signal()
+        self.zigzags = [[], [], [], [], []]
+        self.straights = [[], [], [], [], []]
+        self.diagonals = [[], []]
     
     def generate_field(self):
         """
@@ -217,6 +224,55 @@ class PlayingField:
         winamount = calculator.get(symbol_val)(length, betsize)
         return winamount
 
+    def CreateDiagonalLines(self):
+        
+        for x in range(6):
+            if x <= 2:
+                self.diagonals[0].append([x  , x])
+                self.diagonals[1].append([4-x, x])
+            if x >= 3:
+                self.diagonals[0].append([x-1, x])
+                self.diagonals[1].append([5-x, x])
+    
+
+    def CreateZigZagLines(self):
+        for x in range(6):
+
+            if ((x+1) % 2) == 0:
+                y=1
+            else:
+                y=0
+            
+            for i, zigzaglist in enumerate(self.zigzags):
+                if i == 4:
+                    zigzaglist.append([i-y, x])
+                else:
+                    zigzaglist.append([i+y, x])
+    
+    def CreateStraightLines(self):
+        for x in range(6):
+            for i, str in enumerate(self.straights):
+                str.append([i, x])
+
+
+    def LineCountGenerator(self):
+        lists = [self.diagonals, self.zigzags, self.straights]
+        for lineslists in lists:
+            
+            for line in lineslists:
+                x=0
+                y=0
+                first = self.full_field[line[0][0], line[0][1]]
+                while x < 4:
+                    current = line[x]
+                    nextone = line[x+1]
+                    fld     = self.full_field
+                    if fld[current[0], current[1]] == fld[nextone[0], nextone[1]]:
+                        x += 1
+                        y += 1
+                    else:
+                        x = 5
+                yield y, int(first)
 
 class BankAccount(QObject):
     SlotBalanceChanged = Signal(int, name="SlotBalanceChanged")
