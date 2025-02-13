@@ -48,9 +48,8 @@ class SLotGameSimulator:
         while self._spin_thread.is_alive:
             plt.clf()
             plt.plot(self.symbol_df)
-
             plt.draw_if_interactive()
-            plt.pause(0.1)
+            plt.pause(1)
 
 
     def CalculateWin(self, symbol, len):
@@ -65,6 +64,7 @@ class SLotGameSimulator:
         self.wins_df              = self.wins_df.transpose()
 
         self.RTP = (self.TotalWin / self.TotalBets) * 100
+        #print("data list here:", self.spin_data_list)
         self.totals_df = pd.DataFrame(data=[self.TotalBets, self.TotalWin, self.RTP, self.TotalSpins, self.TotalHits], columns=['value'], index=['Total Bet (credits)', 'Total Win (credits)', 'RTP (%)', 'spins', 'Hits'])
 
     
@@ -82,14 +82,15 @@ class SLotGameSimulator:
         self.RTP        = 0
         self.DataList   = [self.TotalBets, self.TotalWin, self.RTP, self.TotalSpins, self.TotalHits]
         for x in range(n_spins):
-            symbol_stats, spin_hit   = self.slot.OneSpinStats()
-            symbol_stat_arr          = symbol_stat_arr + symbol_stats
+            symbol_stats, spin_hit        = self.slot.OneSpinStats()
+            symbol_stat_arr               = symbol_stat_arr + symbol_stats
             self.TotalBets               += 100
             self.symbol_df = pd.DataFrame(data=symbol_stat_arr, index=self.df_indexes, columns=self.df_columns)
             if spin_hit:
                 self.TotalHits += 1
 
-            self.GetWinsPerSymbol()
+        self.GetWinsPerSymbol()
+            #print(f"{total_bet=}")
 
 
     # def PlotData(self, showPlots=True, ex_cols : list[str|int] | None =None) -> None:
