@@ -41,15 +41,16 @@ class SLotGameSimulator:
             target=self.SimulateNspins,
             kwargs={"n_spins":n_spins},
         )
+        self._spin_thread.setDaemon = True
         self._spin_thread.start()
-
+        
         plt.figure(num="Thread plot")
         plt.ion()
         while self._spin_thread.is_alive:
             plt.clf()
             plt.plot(self.symbol_df)
             plt.draw_if_interactive()
-            plt.pause(1)
+            plt.pause(0.1)
 
 
     def CalculateWin(self, symbol, len):
@@ -89,7 +90,7 @@ class SLotGameSimulator:
             if spin_hit:
                 self.TotalHits += 1
 
-        self.GetWinsPerSymbol()
+            self.GetWinsPerSymbol()
             #print(f"{total_bet=}")
 
 
