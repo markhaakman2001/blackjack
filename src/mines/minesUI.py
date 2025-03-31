@@ -16,8 +16,13 @@ class MinesUI(QtWidgets.QMainWindow):
         super().__init__()
         self.central_widget = QtWidgets.QWidget()
         self.start_btn      = QtWidgets.QPushButton(text="start")
+        self.cash_out       = QtWidgets.QPushButton(text="Cash Out")
         self.nMines         = QtWidgets.QSpinBox(self.central_widget)
         self.bet_euros      = QtWidgets.QSpinBox(self.central_widget)
+
+        self.nMines_lbl     = QtWidgets.QLabel(self.central_widget)
+        self.bet_lbl        = QtWidgets.QLabel(self.central_widget)
+
         self.funds_lbl      = QtWidgets.QLabel(self.central_widget)
         self.odds_lbl       = QtWidgets.QLabel(self.central_widget)
 
@@ -28,17 +33,27 @@ class MinesUI(QtWidgets.QMainWindow):
         self.button_list    = []
 
         self.start_btn.setParent(self.central_widget)
+        self.cash_out.setParent(self.central_widget)
 
         self.start_btn.resize(100, 100)
+        self.cash_out.resize(100, 100)
+
         self.bet_euros.resize(100, 50)
+        self.nMines_lbl.resize(50, 50)
+        self.bet_lbl.resize(50, 50)
         self.funds_lbl.resize(200, 100)
+
         self.nMines.resize(100, 50)
         self.odds_lbl.resize(200, 50)
 
+
         self.bet_euros.move(QtCore.QPoint(0, 150))
         self.nMines.move(QtCore.QPoint(0, 100))
+        self.nMines_lbl.move(QtCore.QPoint(100, 100))
+        self.bet_lbl.move(QtCore.QPoint(100, 150))
         self.funds_lbl.move(QtCore.QPoint(0, 500))
         self.odds_lbl.move(QtCore.QPoint(0, 400))
+        self.cash_out.move(QtCore.QPoint(0, 200))
 
         self.nMines.setValue(1)
         self.nMines.setMaximum(10)

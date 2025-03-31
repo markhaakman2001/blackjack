@@ -320,13 +320,6 @@ class SLotGameSimulator:
                         }
         #self.symbol_df        = pd.DataFrame(0, index=self.df_indexes, columns=self.df_columns, dtype=int)
 
-    def StartSpins(self, n_spins=100000):
-        self._spin_thread = threading.Thread(
-            target=self.SimulateNspins,
-            args=(n_spins)
-        )
-        self._spin_thread.start()
-
 
     def CalculateWin(self, symbol, len):
         return self.calculator.get(symbol)(len)
