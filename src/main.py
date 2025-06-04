@@ -1,4 +1,4 @@
-from src.MainUI.CasinoUI import CasinoUI
+from MainUI.CasinoUI import CasinoUI
 import PySide6.QtWidgets as Qt
 import sys
 
