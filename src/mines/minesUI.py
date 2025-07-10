@@ -1,11 +1,11 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Signal, Slot
-from src.mines.minesgame import MinesGame
-from src.extrafiles.gametrackingtools import GameState, gt
-from src.UnifiedBanking.UnifiedBank import MainBank
-from src.mines.minesbank import MinesBank
-from src.ErrorFiles.minesErrors import MinesError, MinesErrorChecker
-from src.ErrorFiles.BankingErrors import BalanceError, BankingErrorChecker
+from mines.minesgame import MinesGame
+from extrafiles.gametrackingtools import GameState, gt
+from UnifiedBanking.UnifiedBank import MainBank
+from mines.minesbank import MinesBank
+from ErrorFiles.minesErrors import MinesError, MinesErrorChecker
+from ErrorFiles.BankingErrors import BalanceError, BankingErrorChecker
 from math import trunc
 import sys
 

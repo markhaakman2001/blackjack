@@ -1,7 +1,6 @@
 from PySide6 import QtWidgets
 from PySide6.QtGui import QImageReader, QImage, QPixmap, QPicture, QPainter, QPaintEvent, QPalette, QIcon, QPaintDevice
 from PySide6.QtCore import QPoint, QSize
-from math import *
 import numpy as np
 import random
 import sys

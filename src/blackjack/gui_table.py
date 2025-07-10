@@ -1,6 +1,6 @@
-from src.blackjack.gui_shoehand import Hand, WinType
-from src.blackjack.gui_playerdealer import Player, Dealer
-from src.CustomUIfiles import Shoe
+from gui_shoehand import Hand, WinType
+from gui_playerdealer import Player, Dealer
+from CustomUIfiles import Shoe
 from PySide6 import QtWidgets
 import sys
 

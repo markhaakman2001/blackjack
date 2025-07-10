@@ -1,8 +1,8 @@
-from src.CustomUIfiles import EasyCardLabels
-from src.baccarat.baccarat_cards import Card
+from CustomUIfiles import EasyCardLabels
+from baccarat.baccarat_cards import Card
 from PySide6 import QtWidgets
 from PySide6.QtCore import QPoint
-from src.baccarat.baccarat_cards import CardSymbol, Kind
+from baccarat.baccarat_cards import CardSymbol, Kind
 import sys
 
 class BaccaratCard(EasyCardLabels):

@@ -2,12 +2,12 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, Signal, QPropertyAnimation, QPoint, QSize
 import PySide6.QtCore as Core
 from PySide6.QtCore import QRect, QPropertyAnimation, Property, QParallelAnimationGroup, QSequentialAnimationGroup, QAbstractAnimation
-from src.SlotMachine.slot_generator import Reels, PlayingField, BankAccount
+from SlotMachine.slot_generator import Reels, PlayingField, BankAccount
 from PySide6.QtGui import QPixmap
-from src.SlotMachine.ExtraSlotFiles import SlotWinType
-from src.ErrorFiles.BankingErrors import BalanceError
-from src.UnifiedBanking.UnifiedBank import MainBank
-from src.extrafiles.gametrackingtools import GameState
+from SlotMachine.ExtraSlotFiles import SlotWinType
+from ErrorFiles.BankingErrors import BalanceError
+from UnifiedBanking.UnifiedBank import MainBank
+from extrafiles.gametrackingtools import GameState
 import numpy as np
 import sys
 

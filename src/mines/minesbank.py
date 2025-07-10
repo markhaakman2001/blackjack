@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, Signal, Slot
-from src.UnifiedBanking.UnifiedBank import MainBank
+from UnifiedBanking.UnifiedBank import MainBank
 
 
 class MinesBank(QObject):

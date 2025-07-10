@@ -1,12 +1,12 @@
 from PySide6 import QtWidgets, QtCore
-from src.blackjack.gui import BJinterface
-from src.baccarat.baccarat import BaccaratGui
-from src.SlotMachine.SlotGui import SlotMachineGUI
-from src.mines.minesUI import MinesUI
-from src.UnifiedBanking.UnifiedBank import MainBank
-from src.extrafiles.gametrackingtools import gt, GameState
-from src.ErrorFiles.mainUIErrors import MainUIErrorChecker, ActiveGameError
-from src.CustomUIfiles.DepositMenu import DepositMenu
+from blackjack.gui import BJinterface
+from baccarat.baccarat import BaccaratGui
+from SlotMachine.SlotGui import SlotMachineGUI
+from mines.minesUI import MinesUI
+from UnifiedBanking.UnifiedBank import MainBank
+from extrafiles.gametrackingtools import gt, GameState
+from ErrorFiles.mainUIErrors import MainUIErrorChecker, ActiveGameError
+from CustomUIfiles.DepositMenu import DepositMenu
 import sys
 
 class CasinoUI(QtWidgets.QMainWindow):

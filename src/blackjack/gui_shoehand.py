@@ -1,8 +1,8 @@
-from src.CustomUIfiles import Shoe
+from CustomUIfiles import Shoe
 from enum import Enum
 from PySide6.QtCore import Signal, SignalInstance, Slot, QObject
-from src.ErrorFiles.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, BankingErrorChecker, BalanceError
-from src.UnifiedBanking.UnifiedBank import MainBank
+from ErrorFiles.BankingErrors import InsufficientFundsError, ZeroFundsError, ZeroBetsPlacedError, BankingErrorChecker, BalanceError
+from UnifiedBanking.UnifiedBank import MainBank
 
 class WinFunctions:
 

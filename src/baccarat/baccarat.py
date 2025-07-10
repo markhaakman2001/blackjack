@@ -2,15 +2,15 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QPoint, QSize
 import PySide6.QtCore as Core
 from PySide6.QtCore import QSequentialAnimationGroup, QAbstractAnimation
-from src.baccarat.baccarat_animations import BaccaratCard
-from src.CustomUIfiles import BaccaratBackground, BaccaratFiche, BaccaratFicheOptionMenu
-from src.baccarat.baccarat_table_handler import BaccaratTable
-from src.baccarat.baccarat_cards import Card
-from src.baccarat.baccarat_rules_handler import ActionState,OutComeTypes
-from src.baccarat.BaccaratBank import BaccaratBank
-from src.ErrorFiles.BankingErrors import BalanceError, BettingError
-from src.extrafiles.gametrackingtools import GameState
-from src.UnifiedBanking.UnifiedBank import MainBank
+from baccarat.baccarat_animations import BaccaratCard
+from CustomUIfiles import BaccaratBackground, BaccaratFiche, BaccaratFicheOptionMenu
+from baccarat.baccarat_table_handler import BaccaratTable
+from baccarat.baccarat_cards import Card
+from baccarat.baccarat_rules_handler import ActionState,OutComeTypes
+from baccarat.BaccaratBank import BaccaratBank
+from ErrorFiles.BankingErrors import BalanceError, BettingError
+from extrafiles.gametrackingtools import GameState
+from UnifiedBanking.UnifiedBank import MainBank
 import sys
 
 

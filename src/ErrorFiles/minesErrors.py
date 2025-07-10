@@ -1,4 +1,4 @@
-from src.extrafiles.gametrackingtools import GameState as gs
+from extrafiles.gametrackingtools import GameState as gs
 
 
 class MinesError(Exception):

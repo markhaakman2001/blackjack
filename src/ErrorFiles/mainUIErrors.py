@@ -1,4 +1,4 @@
-from src.extrafiles.gametrackingtools import gt
+from extrafiles.gametrackingtools import gt
 
 class ActiveGameError(Exception):
 

@@ -1,8 +1,8 @@
 import numpy as np
 import random
 from PySide6.QtCore import Signal, QObject
-from src.ErrorFiles.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
-from src.UnifiedBanking.UnifiedBank import MainBank
+from ErrorFiles.BankingErrors import BalanceError, InsufficientFundsError, ZeroFundsError, BankingErrorChecker, _LoggingDecorator_
+from UnifiedBanking.UnifiedBank import MainBank
 
 class Reels:
 
