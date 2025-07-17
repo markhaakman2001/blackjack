@@ -18,8 +18,8 @@ class MainUIErrorChecker(object):
 
         def _CheckGames_(*args, **kwargs):
             
-            from src.MainUI.CasinoUI import CasinoUI
-            from src.extrafiles.gametrackingtools import GameState as gs
+            from MainUI.CasinoUI import CasinoUI
+            from extrafiles.gametrackingtools import GameState as gs
 
             self : CasinoUI = args[0]
             blackjack       = self.BlackJack
@@ -39,8 +39,8 @@ class MainUIErrorChecker(object):
     def _CheckActiveGamesnew(func):
 
         def _CheckGame(*args, **kwargs):
-            from src.extrafiles.gametrackingtools import GameState as gs
-            from src.MainUI.CasinoUI import CasinoUI
+            from extrafiles.gametrackingtools import GameState as gs
+            from MainUI.CasinoUI import CasinoUI
             self : CasinoUI     = args[0]
             gametype : gt       = args[1]
             for game, type in self.games_dict.items():

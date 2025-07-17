@@ -38,7 +38,7 @@ class MinesErrorChecker(object):
     def _CheckActiveGames(func):
 
         def _CheckMinesGames(*args, **kwargs):
-            from src.mines.minesUI import MinesUI
+            from mines.minesUI import MinesUI
             
             self : MinesUI = args[0]
             checkfor : gs  = args[1]
@@ -56,7 +56,7 @@ class MinesErrorChecker(object):
     def _CheckRevealedMines(func):
 
         def RevealedOrNot(*args, **kwargs):
-            from src.mines.minesUI import MinesButton
+            from mines.minesUI import MinesButton
 
             btn : MinesButton = args[0]
             checked : bool    = btn.MineChecked

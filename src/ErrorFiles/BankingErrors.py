@@ -73,7 +73,7 @@ class BankingErrorChecker(object):
 
         def SplitFunds(*args, **kwargs):
 
-            from src.blackjack.gui_shoehand import BlackJackBank, Hand
+            from blackjack.gui_shoehand import BlackJackBank, Hand
 
             self : BlackJackBank = args[0]
             hand : Hand          = args[1]
@@ -103,7 +103,7 @@ class BankingErrorChecker(object):
         
         def CheckFunds(*args, **kwargs):
 
-            from src.baccarat.BaccaratBank import BaccaratBank
+            from baccarat.BaccaratBank import BaccaratBank
 
             print("Starting FundsCheck")
             print(f"{[arg for arg in args]=}")
@@ -132,7 +132,7 @@ class BankingErrorChecker(object):
 
         def _CheckBets(*args):
 
-            from src.baccarat.BaccaratBank import BaccaratBank
+            from baccarat.BaccaratBank import BaccaratBank
 
             # try statement is used to differentiate between BlackJack and Baccarat
             # When the decorator is used for baccarat two args should be passes
@@ -147,7 +147,7 @@ class BankingErrorChecker(object):
 
             except IndexError:
                 
-                from src.blackjack.gui import BJinterface as BJ
+                from blackjack.gui import BJinterface as BJ
 
                 ui   : BJ     = args[0]
                 self : BaccaratBank   = ui.bank
@@ -171,7 +171,7 @@ class BankingErrorChecker(object):
 
         def _CheckSlotBet(*args):
             
-            from src.SlotMachine.slot_generator import BankAccount
+            from SlotMachine.slot_generator import BankAccount
 
             self : BankAccount = args[0]
             CurrentBetSize     = self._BetSize_
@@ -192,9 +192,9 @@ class BankingErrorChecker(object):
 
         def _CheckBetSizeRemoval(*args, **kwargs):
 
-            from src.blackjack.gui_shoehand   import BlackJackBank
-            from src.blackjack.gui            import BJinterface
-            from src.CustomUIfiles            import WhichButton
+            from blackjack.gui_shoehand   import BlackJackBank
+            from blackjack.gui            import BJinterface
+            from CustomUIfiles            import WhichButton
 
             self : BlackJackBank          = args[0]
             TotalBetOnHand       = args[1]
