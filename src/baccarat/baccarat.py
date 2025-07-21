@@ -128,7 +128,7 @@ class BaccaratGui(QtWidgets.QMainWindow):
 
         self.BalancePopUpLabel.setStyleSheet("color: darkblue ; font : bold 20px")
         self.BalancePopUpLabel.move(QPoint(400, 50))
-        self.BalancePopUpLabel.width = 1200
+        self.BalancePopUpLabel.setFixedWidth(1200)
         self.BalancePopUpLabel.setFixedWidth(1000)
 
         self.error_timer.setSingleShot(True)

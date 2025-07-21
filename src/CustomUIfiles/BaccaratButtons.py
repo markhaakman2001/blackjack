@@ -2,6 +2,8 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import  QDialog
 from PySide6.QtCore import Signal, QPoint, QSize, Slot
 from PySide6.QtGui import QPixmap, QIcon
+import sys
+import os
 
 
 class BaccaratFicheOptionMenu(QDialog):
@@ -73,46 +75,68 @@ class BaccaratFiche(QtWidgets.QPushButton):
 
     def __init__(self):
         super().__init__()
-        self._pixmap = QPixmap()
+        self._icon_pixmap = QPixmap()
         self._value  = 0
         self.clicked.connect(self.SendCurrentValue)
-        
+    
+
+    def _set_chip_image(self, relative_path, value):
+        base_path = os.path.dirname(__file__)  # Path to this file
+        full_path = os.path.join(base_path, relative_path)
+
+        self._icon_pixmap.load(relative_path)
+        if self._icon_pixmap.isNull():
+            print(f"❌ Failed to load image: {full_path}")
+            return
+
+        # Apply icon
+        self.setIcon(QIcon(self._icon_pixmap))
+        self.setIconSize(QSize(100, 100))
+        self._value = value
+
     
     def SetOneValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/1casinochip.jpg")
+        self._set_chip_image("src/extrafiles/baccaratImage/1casinochip.jpg", 1)
+        # self._icon_pixmap.load("extrafiles/baccaratImage/1casinochip.jpg")
 
-        self._icon = QIcon(self._pixmap)
-        self.icon = self._icon
-        self.setIcon(self.icon)
-        self.setIconSize(QSize(100, 100))
-        self._value = 1
+        # self._icon_pixmap = QPixmap("src/extrafiles/baccaratImage/25casinochip.jpg"  )
+        # # self._icon = QIcon(self._pixmap)
+        # # self.icon = self._icon
+        # self.setIcon(QIcon(self._icon_pixmap))
+        # self.setIconSize(QSize(100, 100))
+        # self._value = 1
     
     def SetFiveValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/5casinochip.jpg")
+        self._icon_pixmap.load("extrafiles/baccaratImage/5casinochip.jpg")
 
-        self._icon = QIcon(self._pixmap)
-        self.icon = self._icon
-        self.setIcon(self.icon)
+        self._icon = QIcon(self._icon_pixmap)
+        self.setIcon(self._icon)
         self.setIconSize(QSize(100, 100))
         self._value = 5
     
     def SetTwentyFiveValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/25casinochip.jpg")
+        self._icon_pixmap.load("src/extrafiles/baccaratImage/25casinochip.jpg")
 
-        self._icon = QIcon(self._pixmap)
-        self.icon = self._icon
-        self.setIcon(self.icon)
+        #self._icon = QIcon(self._icon_pixmap)
+        self.setIcon(QIcon("src/extrafiles/baccaratImage/25casinochip.jpg"))
         self.setIconSize(QSize(100, 100))
         self._value = 25
     
     def SetOneHundredValueFiche(self):
-        self._pixmap.load("src/extrafiles/baccaratImage/100casinochip.jpg")
+        self._icon_pixmap.load("extrafiles/baccaratImage/100casinochip.jpg")
 
-        self._icon = QIcon(self._pixmap)
-        self.icon = self._icon
-        self.setIcon(self.icon)
+        self._icon = QIcon(self._icon_pixmap)
+        self.setIcon(self._icon)
         self.setIconSize(QSize(100, 100))
         self._value = 100
     
     def SendCurrentValue(self):
         self.ButtonValueSignal.emit(self._value)
+
+
+def main():
+    print("Working dir:", os.getcwd())  # Debug
+    print("Image exists?", os.path.exists("src/extrafiles/baccaratImage/25casinochip.jpg"))
+
+if __name__ == "__main__":
+    main()

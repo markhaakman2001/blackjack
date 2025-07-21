@@ -105,8 +105,8 @@ class EasyCardLabels(QtWidgets.QLabel):
         self.pixmap1      =   QPixmap()
         self.animation    =   QPropertyAnimation(self, b"pos", self)
         self.animation2   =   QPropertyAnimation(self, b"geometry", self)
-        self.width        =   60
-        self.height       =   72
+        self.setFixedWidth(60)
+        self.setFixedHeight(72)
 
         self.setMaximumWidth(80)
         self.setMaximumHeight(96)
@@ -150,9 +150,9 @@ class EasyCardLabels(QtWidgets.QLabel):
             filename (str): The dictionary key for the images.
         """        
         
-        self.pixmap1 = QPixmap()
-        self.pixmap1.load(f"{self.pathname}" + f"{cardname}.jpg")
-        self.pixmap  = self.pixmap1
+        self.pixmap1 = QPixmap(f"{self.pathname}" + f"{cardname}.jpg")
+        #self.pixmap1.load(f"{self.pathname}" + f"{cardname}.jpg")
+        #self.pixmap  = self.pixmap1
         self.setPixmap(self.pixmap1)
         self.setScaledContents(True)
     
