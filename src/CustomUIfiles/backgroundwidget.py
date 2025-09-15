@@ -20,7 +20,7 @@ class BackGroundWidget(QtWidgets.QWidget):
         
         self.icon1 = QIcon()
         self.pixmap = QPixmap()
-        self.pixmap.load("src/extrafiles/images/blackjacktable3.jpg")
+        self.pixmap.load("src/extrafiles/imagesPNG/blackjacktable3.png")
         self.label = QtWidgets.QLabel()
         self.label.setParent(self)
         self.label.pixmap = self.pixmap
@@ -52,7 +52,7 @@ class BaccaratBackground(QtWidgets.QWidget):
         
         self.icon1 = QIcon()
         self.pixmap = QPixmap()
-        self.pixmap.load("src/extrafiles/baccaratImage/baccarattable2.jpg")
+        self.pixmap.load("src/extrafiles/baccaratImagePNG/baccarattable2.png")
         self.label = QtWidgets.QLabel()
         self.label.setParent(self)
         self.label.pixmap = self.pixmap

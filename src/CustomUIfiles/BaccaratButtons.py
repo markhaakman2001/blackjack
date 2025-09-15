@@ -96,7 +96,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
 
     
     def SetOneValueFiche(self):
-        self._set_chip_image("src/extrafiles/baccaratImage/1casinochip.jpg", 1)
+        self._set_chip_image("src/extrafiles/baccaratImagePNG/1casinochip.png", 1)
         # self._icon_pixmap.load("extrafiles/baccaratImage/1casinochip.jpg")
 
         # self._icon_pixmap = QPixmap("src/extrafiles/baccaratImage/25casinochip.jpg"  )
@@ -107,7 +107,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
         # self._value = 1
     
     def SetFiveValueFiche(self):
-        self._icon_pixmap.load("extrafiles/baccaratImage/5casinochip.jpg")
+        self._icon_pixmap.load("src/extrafiles/baccaratImagePNG/5casinochip.png")
 
         self._icon = QIcon(self._icon_pixmap)
         self.setIcon(self._icon)
@@ -115,15 +115,15 @@ class BaccaratFiche(QtWidgets.QPushButton):
         self._value = 5
     
     def SetTwentyFiveValueFiche(self):
-        self._icon_pixmap.load("src/extrafiles/baccaratImage/25casinochip.jpg")
+        self._icon_pixmap.load("src/extrafiles/baccaratImagePNG/25casinochip.png")
 
-        #self._icon = QIcon(self._icon_pixmap)
-        self.setIcon(QIcon("src/extrafiles/baccaratImage/25casinochip.jpg"))
+        self._icon = QIcon(self._icon_pixmap)
+        self.setIcon(self._icon)
         self.setIconSize(QSize(100, 100))
         self._value = 25
     
     def SetOneHundredValueFiche(self):
-        self._icon_pixmap.load("extrafiles/baccaratImage/100casinochip.jpg")
+        self._icon_pixmap.load("src/extrafiles/baccaratImagePNG/100casinochip.png")
 
         self._icon = QIcon(self._icon_pixmap)
         self.setIcon(self._icon)
@@ -136,7 +136,7 @@ class BaccaratFiche(QtWidgets.QPushButton):
 
 def main():
     print("Working dir:", os.getcwd())  # Debug
-    print("Image exists?", os.path.exists("src/extrafiles/baccaratImage/25casinochip.jpg"))
+    print("Image exists?", os.path.exists("src/extrafiles/baccaratImagePNG/25casinochip.png"))
 
 if __name__ == "__main__":
     main()

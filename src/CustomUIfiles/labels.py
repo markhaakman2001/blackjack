@@ -101,7 +101,7 @@ class EasyCardLabels(QtWidgets.QLabel):
         self._currentpos  = QPoint(0, 0)
         self.rotation     =   QGraphicsRotation(self)
         self.animated     =   False
-        self.pathname     =   "src/extrafiles/images/"
+        self.pathname     =   "src/extrafiles/imagesPNG/"
         self.pixmap1      =   QPixmap()
         self.animation    =   QPropertyAnimation(self, b"pos", self)
         self.animation2   =   QPropertyAnimation(self, b"geometry", self)
@@ -150,7 +150,7 @@ class EasyCardLabels(QtWidgets.QLabel):
             filename (str): The dictionary key for the images.
         """        
         
-        self.pixmap1 = QPixmap(f"{self.pathname}" + f"{cardname}.jpg")
+        self.pixmap1 = QPixmap(f"{self.pathname}" + f"{cardname}.png")
         #self.pixmap1.load(f"{self.pathname}" + f"{cardname}.jpg")
         #self.pixmap  = self.pixmap1
         self.setPixmap(self.pixmap1)

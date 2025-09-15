@@ -809,7 +809,7 @@ class BJinterface(QtWidgets.QMainWindow):
             firstlabel.setStyleSheet("border: 3px solid white; border-radius: 1px ; font : bold 10px ; background: lightgreen")
             self.check_available_buttons(self.table.hands[0])
             if self.table.hands[0].blackjack():
-                self.firstcardanims.finished.connect(self.blackjack())
+                self.blackjack()
             else:
                 pass
             
