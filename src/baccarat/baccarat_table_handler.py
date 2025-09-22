@@ -63,6 +63,7 @@ class BaccaratTable(QObject):
         self.FinishedRound.connect(self.checkwinner)
         self.PlayerChanged.connect(self.printsomethingelse)
         self.CardDrawnSignal.connect(self.PrintCard)
+        self.SideBetWin.connect(self.PrintSideBetWin)
 
     @Slot(Card)
     def PrintCard(self, signal: Card):
@@ -129,6 +130,7 @@ class BaccaratTable(QObject):
     def checkwinner(self):
         player_points = self.player.CalculatePoints()
         banker_points = self.banker.CalculatePoints()
+        self.RuleChecker.CheckBaccaratSideBets()
 
         if player_points == banker_points:
             self.WinnerSignal.emit(OutComeTypes.TIE)
@@ -279,10 +281,16 @@ class BaccaratRules:
     def CheckBaccaratSideBets(self):
         BankerCards = self.bac.banker_cards
         PlayerCards = self.bac.player_cards
-        if BankerCards[0]._get_CardColor() == BankerCards[1]._get_CardColor():
-            self.bac.SideBetWin.emit(0)
-        if PlayerCards[0]._get_CardColor() == PlayerCards[1]._get_CardColor():
+        PlayerColors = [card._get_CardColor() for card in PlayerCards]
+        BankerColors = [card._get_CardColor() for card in BankerCards]
+        AllColors = PlayerColors + BankerColors
+        print(AllColors)
+        if Color.BLACK not in AllColors:
             self.bac.SideBetWin.emit(1)
+        if Color.RED not in AllColors:
+            self.bac.SideBetWin.emit(0)
+
+
 
 if __name__ == "__main__":
     table = BaccaratTable()

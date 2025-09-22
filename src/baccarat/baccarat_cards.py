@@ -9,13 +9,16 @@ class Color(Enum):
 
 class Kind(Enum):
 
-    HEART   = ("hearts", Color.RED)
-    CLOVER  = ("clover", Color.BLACK)
-    DIAMOND = ("diamond", Color.RED)
-    SPADES  = ("spades", Color.BLACK)
+    HEART   = "hearts"
+    CLOVER  = "clover"
+    DIAMOND = "diamond"
+    SPADES  = "spades"
 
-    def getcolor(self):
-        return self.value[1]
+    def getcolor(self) -> Color:
+        if self.value == "hearts" or self.value == "diamond":
+            return Color.RED
+        else:
+            return Color.BLACK
 
 
 class CardSymbol(Enum):
@@ -70,7 +73,8 @@ class Card:
         return self.symbol.name() + self.type.value
     
     def _get_CardColor(self):
-        return self.type.getcolor()
+        color : Color = self.type.getcolor()
+        return color
     
     def _is_ace(self):
         if self.symbol == CardSymbol.ACE:
