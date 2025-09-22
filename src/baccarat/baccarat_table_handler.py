@@ -1,4 +1,4 @@
-from baccarat.baccarat_cards import Shoe, Card
+from baccarat.baccarat_cards import Shoe, Card, Color
 from baccarat.baccarat_rules_handler import ActionTypes, PlayerType, ActionState, OutComeTypes
 from ErrorFiles.BankingErrors import BankingErrorChecker
 from PySide6.QtCore import Slot, Signal, QObject
@@ -9,7 +9,7 @@ class PlayerBanker:
         self.playertype : PlayerType = type
         self.cards_list : list[Card] = []
         self.total_value : int       = 0
-        self.total_points            = None
+        self.total_points            = None 
         
     def AddCard(self, card: Card) -> None:
         """Add a card to the player or bankers cards and update the list and total values
@@ -42,6 +42,7 @@ class BaccaratTable(QObject):
     ValuesChanged   = Signal(PlayerType, name="ValuesChanged")
     PointsChanged   = Signal(PlayerType, name="PointsChanged")
     FinishedRound   = Signal(int, name="FinishedRound")
+    SideBetWin      = Signal(int, name="SideBetWin")
     WinnerSignal    = Signal(OutComeTypes, name="winner")
     CardDrawnSignal = Signal(Card)
     FirstAnimSignal = Signal(name="Animations")
@@ -66,6 +67,10 @@ class BaccaratTable(QObject):
     @Slot(Card)
     def PrintCard(self, signal: Card):
         print(f"A card was drawn while {self.CurrentState}, the value was {signal._get_value()}")
+
+    @Slot(int)
+    def PrintSideBetWin(self, signal: int):
+        print(f"A sidebet was won with signal {signal}")
 
 
     @Slot(PlayerType)
@@ -271,7 +276,13 @@ class BaccaratRules:
             
             return BankerActionDict[self.bac.banker.CalculatePoints()][PlayerThirdCard]
 
-
+    def CheckBaccaratSideBets(self):
+        BankerCards = self.bac.banker_cards
+        PlayerCards = self.bac.player_cards
+        if BankerCards[0]._get_CardColor() == BankerCards[1]._get_CardColor():
+            self.bac.SideBetWin.emit(0)
+        if PlayerCards[0]._get_CardColor() == PlayerCards[1]._get_CardColor():
+            self.bac.SideBetWin.emit(1)
 
 if __name__ == "__main__":
     table = BaccaratTable()

@@ -1,12 +1,22 @@
 import random
-from enum import Enum
+from enum import Enum, auto
+
+
+class Color(Enum):
+
+    RED   = auto()
+    BLACK = auto()
 
 class Kind(Enum):
 
-    HEART   = "hearts"
-    CLOVER  = "clover"
-    DIAMOND = "diamond"
-    SPADES  = "spades"
+    HEART   = ("hearts", Color.RED)
+    CLOVER  = ("clover", Color.BLACK)
+    DIAMOND = ("diamond", Color.RED)
+    SPADES  = ("spades", Color.BLACK)
+
+    def getcolor(self):
+        return self.value[1]
+
 
 class CardSymbol(Enum):
 
@@ -58,6 +68,9 @@ class Card:
         """Get the name of the card in string format
         """        
         return self.symbol.name() + self.type.value
+    
+    def _get_CardColor(self):
+        return self.type.getcolor()
     
     def _is_ace(self):
         if self.symbol == CardSymbol.ACE:
