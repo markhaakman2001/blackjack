@@ -181,6 +181,10 @@ class Table:
         txt = self.dealer.dealerplay(card, cardsymbol)
         return txt, card, cardsymbol
 
+
+    def CheckForSideBets(self):
+        
+
     def reset(self):
         self.dealer.__init__()
         self.player.__init__()
