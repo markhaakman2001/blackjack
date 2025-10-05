@@ -183,7 +183,7 @@ class Table:
 
 
     def CheckForSideBets(self):
-        
+        pass
 
     def reset(self):
         self.dealer.__init__()
