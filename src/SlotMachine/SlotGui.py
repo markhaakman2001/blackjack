@@ -428,15 +428,15 @@ class CustomLabels(QtWidgets.QLabel):
         
         self.pixmap1 = QPixmap()
         choices = {
-            "a"         : "aslot.jpg",
-            "k"         : "kslot.jpg",
-            "q"         : "qslot.jpg",
-            "j"         : "jslot.jpg",
-            "10"        : "10slot.jpg",
-            "moneybag"  : "moneybagslot.jpg",
-            "goldstack" : "goldstackslot.jpg",
-            "diamond"   : "diamondslot.jpg",
-            "chest"     : "chestslot.jpg",
+            "a"         : "aslot.png",
+            "k"         : "kslot.png",
+            "q"         : "qslot.png",
+            "j"         : "jslot.png",
+            "10"        : "10slot.png",
+            "moneybag"  : "moneybagslot.png",
+            "goldstack" : "goldstackslot.png",
+            "diamond"   : "diamondslot.png",
+            "chest"     : "chestslot.png",
         }
 
         
