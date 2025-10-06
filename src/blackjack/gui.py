@@ -994,6 +994,7 @@ class BJinterface(QtWidgets.QMainWindow):
     
 
     def create_dealer_animation(self, dealer_symbol, n_cards):
+        
         self.dealer_label = EasyCardLabels()
         amountofcards     = n_cards
 
