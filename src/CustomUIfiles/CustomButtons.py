@@ -17,6 +17,10 @@ class BetButtonType(Enum):
     PLACEBET  = 0
     REMOVEBET = 1
 
+class SideBetButtonType(Enum):
+    PAIRS  = 0
+    THREES = 1
+
 class BlackJackBetButton(QPushButton):
 
     xButtonSignal        = Signal(WhichButton, name="xButton")
@@ -56,3 +60,30 @@ class BlackJackBetButton(QPushButton):
     @_ButtonType.setter
     def _ButtonType(self, type : BetButtonType) -> None:
         self._ButtonType_ = type
+
+
+class BlackJackSideBetButton(QPushButton):
+
+    def __init__(self):
+        super().__init__()
+        self._SideBetType   = SideBetButtonType.PAIRS
+        self._BetButtonType = BetButtonType.PLACEBET
+    
+    
+    
+
+    @property
+    def _BetButtonType(self):
+        return self._BetButtonType_
+
+    @_BetButtonType.setter
+    def _BetButtonType(self, type : BetButtonType):
+        self._BetButtonType_ = type
+
+    @property
+    def _SideBetType(self) -> SideBetButtonType:
+        return self._SideBetType_
+    
+    @_SideBetType.setter
+    def _SideBetType(self, type : SideBetButtonType) -> None:
+        self._SideBetType_ = type
