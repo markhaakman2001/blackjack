@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup
 import PySide6.QtCore as Core
-from blackjack.gui_table import Table
+from src.blackjack.gui_table import Table
 from blackjack.gui_shoehand import Hand, BlackJackBank, WinType
 from CustomUIfiles import EasyCardLabels, BackGroundWidget, BaccaratFiche, BaccaratFicheOptionMenu, BlackJackBetButton, WhichButton, BetButtonType
 from ErrorFiles.PlayingErrors import PlayingError,  BlackJackErrorChecker
