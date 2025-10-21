@@ -41,7 +41,10 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         player_cards, dealer_cards = self.table.StartRound_onehand()
         for player_card, dealer_card in zip(player_cards, dealer_cards):
             self.card = BlackJackAnimatedCard()
+            self.card.setParent(self)
+            
             self.card2 = BlackJackAnimatedCard()
+            self.card2.setParent(self)
             self.card.TestAnimation(player_card)
             self.card2.TestAnimation(dealer_card, 500)
             self.card.show()
