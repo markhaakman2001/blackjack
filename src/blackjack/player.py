@@ -34,7 +34,12 @@ class BlackJackPlayer:
         self.hands.insert(number, split_hand2)
         self.hands.insert(number, split_hand1)
         print(f"SPLIT!, new active hand: {self.active_hand.origin}, cards: {self.active_hand.cards[0]._get_value(), self.active_hand.cards[1]._get_value()}")
-        
+    
+
+    def print_cards(self):
+        for i, hand in enumerate(self.hands):
+            print(f"Hand {i}, cards: {[card._get_CardName() for card in hand.cards]}, ")
+
     
     @property
     def active_hand(self):

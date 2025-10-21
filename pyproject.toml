@@ -13,10 +13,11 @@ pyqtgraph = "^0.13.7"
 shiboken6 = "^6.7.2"
 
 [tool.poetry.scripts]
-blackjack = "src.blackjack.table:main"
+blackjack = "blackjack.table:main"
 gui = "src.blackjack.gui:main"
 play = "src.blackjack.gui_table:main"
 slot = "src.SlotMachine.slot_generator:main"
+
 
 
 

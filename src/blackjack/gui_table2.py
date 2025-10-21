@@ -5,7 +5,8 @@ from ErrorFiles.BankingErrors import BankingErrorChecker,  BalanceError,  Bettin
 from UnifiedBanking.UnifiedBank import MainBank
 from extrafiles.gametrackingtools import GameState
 from blackjack.player import BlackJackPlayer, BlackJackDealer
-from blackjack
+from blackjack.BJanimations import EasyCardLabels
+from blackjack.BJanimations import BlackJackAnimations as BJanim
 
 class BlackJackTable:
 
@@ -31,5 +32,8 @@ class BlackJackTable:
                 hand.AddCard(self.shoe.getcard())
             
             self.dealer.hand.AddCard(self.shoe.getcard())
-        card, animgroup = 
+
+        cards , animgroup = BJanim.first_deal_animation(player=self.player, dealer=self.dealer)
+        self.player.print_cards()
+        return cards, animgroup
         

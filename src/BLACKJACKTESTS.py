@@ -5,6 +5,8 @@ import sys
 from blackjack.gui2 import BlackJackGUI
 from PySide6 import QtWidgets
 
+from blackjack.gui_table2 import BlackJackTable
+
 def main():
     hand1 = BlackJackHand()
     hand2 = BlackJackHand()
@@ -31,10 +33,18 @@ def PlayerTests():
     player.split_hand([ten, five])
     player.stand()
 
+def gui_table_test():
+    app = QtWidgets.QApplication(sys.argv)
+    table = BlackJackTable()
+    table.StartNhand()
+    sys.exit(app.exec())
 
 def UItests():
     app = QtWidgets.QApplication(sys.argv)
     ui  = BlackJackGUI()
+    table = ui.table
+    player = table.player
+    dealer = table.dealer
     ui.show()
     sys.exit(app.exec())
 

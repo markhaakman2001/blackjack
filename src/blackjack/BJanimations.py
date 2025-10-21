@@ -1,3 +1,4 @@
+from typing import Any
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup
 import PySide6.QtCore as Core
@@ -26,6 +27,7 @@ class BlackJackAnimatedCard(EasyCardLabels):
     def TestAnimation(self, card : Card, x_end, y_end):
         cardname = card._get_CardName()
         self.setnewimage(cardname)
+        self.resize(QSize(60, 72))
         self.animation.setStartValue(QPoint(0, 0))
         self.animation.setEndValue(QPoint(x_end, y_end))
         self.animation.setDuration(500)
@@ -33,25 +35,29 @@ class BlackJackAnimatedCard(EasyCardLabels):
 
 class BlackJackAnimations:
 
-    def __init__(self):
-        self.x_positions = lambda x, i : 75 + x * 128 + i * 20
-        self.extra_y_elevations = [-40, -20, 0, 0, 0, -20, -40]
+    x_positions = lambda x, i : 75 + x * 128 + i * 20
+    extra_y_elevations = [-40, -20, 0, 0, 0, -20, -40]
+    
 
-    def first_deal_animation(self, player : BlackJackPlayer, dealer : BlackJackDealer):
+    @classmethod
+    def first_deal_animation(cls, player : BlackJackPlayer, dealer : BlackJackDealer):
         y_start = 470
         animated_cards = []
         anim_group = QSequentialAnimationGroup()
-        for x_hand, hand in enumerate(player.hands):
-            yposition = y_start + self.extra_y_elevations[x_hand]
-
-            for i_card, card in enumerate(hand.cards):
-                yposition -= i_card * 35
-                xposition = self.x_positions(x_hand, i_card)
+        for x in range(2):
+            yposition = y_start + cls.extra_y_elevations[x]
+            for x_hand, hand in enumerate(player.hands):
+                xpos = cls.x_positions(x_hand, x)
+                ypos = y_start + cls.extra_y_elevations[x_hand] - x *20
+                card = hand.cards[x]
                 animated_card = BlackJackAnimatedCard()
-                animated_card.TestAnimation(card, xposition, yposition)
-                animated_cards.append(animated_card)
+                animated_card.TestAnimation(card, xpos, ypos)
                 anim_group.addAnimation(animated_card.animation)
+                animated_cards.append(animated_card)  
+                  
         return animated_cards, anim_group
+    
+    
 
 
 

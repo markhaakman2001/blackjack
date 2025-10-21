@@ -32,7 +32,7 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.testbutton = QtWidgets.QPushButton(text="test", parent=self)
         self.testbutton.move(QPoint(0, 0))
         self.testbutton.show()
-        self.testbutton.clicked.connect(self.start_round_onehand)
+        self.testbutton.clicked.connect(self.start_round_test)
     
     @Slot()
     def start_round_onehand(self):
@@ -52,5 +52,14 @@ class BlackJackGUI(QtWidgets.QMainWindow):
             self.animgroup.addAnimation(self.card.animation)
             self.animgroup.addAnimation(self.card2.animation)
         
+        self.animgroup.start()
+    
+    @Slot()
+    def start_round_test(self):
+        self.cards, self.animgroup = self.table.StartNhand()
+        for card in self.cards:
+            card : EasyCardLabels
+            card.setParent(self)
+            card.show()
         self.animgroup.start()
             
