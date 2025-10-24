@@ -80,6 +80,22 @@ class BlackJackAnimations:
         animated_card.Create_Animation(xpos, ypos)
         return animated_card
     
+    @classmethod
+    def dealer_card_animations(cls, dealer : BlackJackDealer) -> tuple[list[BlackJackAnimatedCard], QSequentialAnimationGroup]:
+        animated_cards = []
+        anim_group     = QSequentialAnimationGroup()
+        print(dealer.hand.cards)
+        for i, card in enumerate(dealer.hand.cards):
+            animated_card = BlackJackAnimatedCard(card)
+            xpos = 520 + i * 20
+            ypos = 130 - i * 20
+            animated_card.Create_Animation(xpos, ypos)
+            animated_cards.append(animated_card)
+            anim_group.addAnimation(animated_card.animation)
+        return animated_cards, anim_group
+
+
+    
 
 
 

@@ -1,6 +1,7 @@
 from shiboken6 import Object
 from blackjack.gui_hand import BlackJackHand, BlackJackSplitHand, WinType
 from baccarat.baccarat_cards import Card
+from blackjack.blackjackfunctions import UpdateType
 
 
 class BlackJackPlayer:
@@ -31,12 +32,14 @@ class BlackJackPlayer:
         else:
             hand = self.active_hand
         hand.AddCard(card)
-        self.notify_points_observer(hand._get_handtotal(), hand.hand_number)
+        self.notify_points_observer(UpdateType.POINTS, hand._get_handtotal(), hand.hand_number)
 
     def stand(self):
         self.active_hand.deactivate()
         self.active_hands.pop(0)
-        print(f"New active hand, origin: {self.active_hand.origin}, cards: {self.active_hand.cards[0]._get_value(), self.active_hand.cards[1]._get_value()}")
+        if self.active_hand._is_blackjack():
+            self.notify_points_observer(UpdateType.NEXTHAND, self.active_hand.hand_number, 'BlackJack!')
+        #print(f"New active hand, origin: {self.active_hand.origin}, cards: {self.active_hand.cards[0]._get_value(), self.active_hand.cards[1]._get_value()}")
     
     def split_hand(self, new_cards):
         
@@ -56,14 +59,20 @@ class BlackJackPlayer:
             print(f"Hand {i}, cards: {[card._get_CardName() for card in hand.cards]}, ")
 
     
-    def notify_points_observer(self, value, *args):
+    def notify_points_observer(self, *args):
         for callback in self._points_observers:
-            callback(value, *args)
+            callback(*args)
 
     @property
     def active_hand(self):
-        self._active_hand_ = next(hand for hand in self.hands if hand._is_active)
-        return self._active_hand_
+        self._active_hand_ = next((hand for hand in self.hands if hand._is_active), None)
+        if not self._active_hand_:
+            self.notify_points_observer(UpdateType.DEALERTURN)
+            return
+        else:
+            return self._active_hand_
+
+        
     
 
 class BlackJackDealer:
@@ -83,7 +92,8 @@ class BlackJackDealer:
     def hit_card(self, card : Card):
         self.hand.AddCard(card)
         self.notify_points_observers(self.hand._get_handtotal())
-    
+
+
     def notify_points_observers(self, new_value, *args):
         for callback in self._points_observers:
             callback(new_value, *args)

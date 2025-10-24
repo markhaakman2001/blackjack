@@ -7,6 +7,7 @@ from extrafiles.gametrackingtools import GameState
 from blackjack.player import BlackJackPlayer, BlackJackDealer
 from blackjack.BJanimations import EasyCardLabels
 from blackjack.BJanimations import BlackJackAnimations as BJanim
+from blackjack.blackjackfunctions import UpdateType
 from PySide6.QtCore import Slot, Signal, QObject
 
 class BlackJackTable:
@@ -19,12 +20,15 @@ class BlackJackTable:
 
         self._observers : list[function] = []
 
-        self.player.add_points_observer(self.notify_gui_points)
+        self.player.add_points_observer(self.notify_gui)
+        self.player.add_points_observer(self.check_hand_status)
         #self.dealer.add_points_observer(self.notify_gui_dealer)
     
-    def add_observer_points_changed(self, callback):
-        self._observers.append(callback)
+    # def add_observer_points_changed(self, callback):
+    #     self._observers.append(callback)
 
+    def add_observer(self, callback):
+        self._observers.append(callback)
 
     def StartRound_onehand(self):
         self.player.add_hands(1)
@@ -51,14 +55,39 @@ class BlackJackTable:
     
     def hit(self):
         card = self.shoe.getcard()
-        self.player.hit_card(card)
         animated_card = BJanim.hit_card_animation(card, self.player.active_hand.hand_number, len(self.player.active_hand.cards))
+        self.player.hit_card(card)
         return animated_card
+    
+    def stand(self):
+        self.player.stand()
+        # self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand.hand_number)
+
+    def check_hand_status(self, *args):
+        if args[0] == UpdateType.POINTS:
+            if self.player.active_hand._get_handtotal() > 21:
+                self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand.hand_number, 'BUST')
+            elif self.player.active_hand._get_handtotal() == 21:
+                self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand.hand_number, "21")
+            else:
+                pass
+    
+    def DealerTurn(self):
+
+        while self.dealer.hand._get_handtotal() < 17:
+            card = self.shoe.getcard()
+            self.dealer.hit_card(card)
+        
+        cards, animations = BJanim.dealer_card_animations(self.dealer)
+        return cards, animations
 
 
-    def notify_gui_points(self, *args):
+    
+    def notify_gui(self, *args):
         for callback in self._observers:
             callback(*args)
+
+    
 
     
         

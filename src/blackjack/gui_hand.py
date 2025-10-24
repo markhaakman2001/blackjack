@@ -167,7 +167,7 @@ class BlackJackHand:
     @property
     def _SoftTotal(self):
         if self._SoftHand:
-            self._SoftTotal_ = self._TotalValue
+            self._SoftTotal_ = self._TotalValue_
             for card in self.cards:
                 if card._is_ace():
                     self._SoftTotal_ -= 10
