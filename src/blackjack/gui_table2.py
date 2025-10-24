@@ -1,4 +1,5 @@
-from blackjack.gui_hand import BlackJackHand, WinFunctions, WinType
+from blackjack.gui_hand import BlackJackHand
+from blackjack.blackjackfunctions import WinFunctions, WinType, UpdateType
 from baccarat.baccarat_cards import Shoe, DeckOfCards, Card, CardSymbol, Kind, Color
 from ErrorFiles.PlayingErrors import PlayingError,  BlackJackErrorChecker
 from ErrorFiles.BankingErrors import BankingErrorChecker,  BalanceError,  BettingError
@@ -7,7 +8,6 @@ from extrafiles.gametrackingtools import GameState
 from blackjack.player import BlackJackPlayer, BlackJackDealer
 from blackjack.BJanimations import EasyCardLabels
 from blackjack.BJanimations import BlackJackAnimations as BJanim
-from blackjack.blackjackfunctions import UpdateType
 from PySide6.QtCore import Slot, Signal, QObject
 
 class BlackJackTable:
@@ -22,10 +22,6 @@ class BlackJackTable:
 
         self.player.add_points_observer(self.notify_gui)
         self.player.add_points_observer(self.check_hand_status)
-        #self.dealer.add_points_observer(self.notify_gui_dealer)
-    
-    # def add_observer_points_changed(self, callback):
-    #     self._observers.append(callback)
 
     def add_observer(self, callback):
         self._observers.append(callback)
@@ -80,6 +76,14 @@ class BlackJackTable:
         
         cards, animations = BJanim.dealer_card_animations(self.dealer)
         return cards, animations
+
+    def final_results(self):
+        self.results = []
+        dealer_hand = self.dealer.hand
+        for hand in self.player.hands:
+            result = hand.final_result(dealer_hand)
+            self.results.append(result)
+            self.notify_gui(UpdateType.RESULTS, result, hand.hand_number, hand._get_handtotal())
 
 
     
