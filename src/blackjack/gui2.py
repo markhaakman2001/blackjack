@@ -28,12 +28,19 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.resize(1000, 700)
         self.central_widget.resize(QSize(1000, 700))
 
+        self.table.add_observer_points_changed(self.update_points_label)
 
         # THIS IS A TEST BUTTON
         self.testbutton = QtWidgets.QPushButton(text="test", parent=self)
         self.testbutton.move(QPoint(0, 0))
         self.testbutton.show()
         self.testbutton.clicked.connect(self.start_round_test)
+
+        # Button used to hit an extra card on active hand
+        self.hit_button = QtWidgets.QPushButton(text='hit', parent=self)
+        self.hit_button.move(QPoint(0, 100))
+        self.hit_button.show()
+        self.hit_button.clicked.connect(self.hit)
 
         #Add labels that show the total point value for each hand
         #---------
@@ -50,7 +57,7 @@ class BlackJackGUI(QtWidgets.QMainWindow):
             yposition  = 542 + int(elevations[x])
             xposition   = 65 + x * 128
             self.n_label = QtWidgets.QLabel()
-            self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
+            self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen ; color : black" )
             self.n_label.setParent(self)
             self.n_label.resize(QSize(80, 40))
             self.n_label.move(QPoint(xposition, yposition))
@@ -79,15 +86,20 @@ class BlackJackGUI(QtWidgets.QMainWindow):
     
     @Slot()
     def start_round_test(self):
-        self.cards, self.animgroup = self.table.StartNhand()
+        self.cards, self.animgroup = self.table.StartNhand(4)
         for card in self.cards:
             card : EasyCardLabels
             card.setParent(self)
             card.show()
         self.animgroup.start()
     
-    @Slot(int, name="PointsChanged")
-    def UpdatePointLabel(self, signal):
-        self.point_labels[0].setText(f"{signal}")
-        self.point_labels[0].update()
-        print("YOOO")
+    def update_points_label(self, value, hand_nr : int):
+        lbl = self.point_labels[hand_nr]
+        lbl.setText(f"Points: {value}")
+
+    def hit(self):
+        card = self.table.hit()
+        card.setParent(self)
+        card.show()
+        card.animation.start()
+    

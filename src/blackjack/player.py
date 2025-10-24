@@ -12,6 +12,12 @@ class BlackJackPlayer:
         self.active_hands : list[BlackJackHand] = []
         self.split_hands  : list[BlackJackHand] = []
 
+        self._points_observers : list[function] = []
+        
+    
+    def add_points_observer(self, callback):
+        self._points_observers.append(callback)
+
     def add_hands(self, n_hands):
 
         for x in range(n_hands):
@@ -19,8 +25,13 @@ class BlackJackPlayer:
             self.hands.append(hand_x)
             self.active_hands.append(hand_x)
     
-    def hit_card(self, card : Card):
-        self.active_hand.AddCard(card)
+    def hit_card(self, card : Card, hand_nr : int | None = None):
+        if hand_nr:
+            hand = self.hands[hand_nr]
+        else:
+            hand = self.active_hand
+        hand.AddCard(card)
+        self.notify_points_observer(hand._get_handtotal(), hand.hand_number)
 
     def stand(self):
         self.active_hand.deactivate()
@@ -45,17 +56,36 @@ class BlackJackPlayer:
             print(f"Hand {i}, cards: {[card._get_CardName() for card in hand.cards]}, ")
 
     
+    def notify_points_observer(self, value, *args):
+        for callback in self._points_observers:
+            callback(value, *args)
+
     @property
     def active_hand(self):
         self._active_hand_ = next(hand for hand in self.hands if hand._is_active)
         return self._active_hand_
+    
 
 class BlackJackDealer:
 
     def __init__(self):
         self.hand = BlackJackHand(0)
+        self._points_observers = []
     
+    def add_points_observer(self, callback):
+        self._points_observers.append(callback)
+
     def print_cards(self):
         upcard = self.hand.cards[0]
         second_card = self.hand.cards[1]
         print(f"Dealer Upcard: {upcard._get_CardName()}, down card: {second_card._get_CardName()}")
+    
+    def hit_card(self, card : Card):
+        self.hand.AddCard(card)
+        self.notify_points_observers(self.hand._get_handtotal())
+    
+    def notify_points_observers(self, new_value, *args):
+        for callback in self._points_observers:
+            callback(new_value, *args)
+    
+

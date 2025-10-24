@@ -13,9 +13,10 @@ from blackjack.player import BlackJackPlayer, BlackJackDealer
 
 class BlackJackAnimatedCard(EasyCardLabels):
 
-    def __init__(self):
+    def __init__(self, card : Card | None = None):
         super().__init__()
-    
+        if card:
+            self.setnewimage(card._get_CardName())
 
     def TestAnimationold(self, card : Card, y_position = 350):
         cardname = card._get_CardName()
@@ -31,12 +32,19 @@ class BlackJackAnimatedCard(EasyCardLabels):
         self.animation.setStartValue(QPoint(0, 0))
         self.animation.setEndValue(QPoint(x_end, y_end))
         self.animation.setDuration(500)
+    
+    def Create_Animation(self, x_end, y_end):
+        self.resize(QSize(60, 72))
+        self.animation.setStartValue(QPoint(0, 0))
+        self.animation.setEndValue(QPoint(x_end, y_end))
+        self.animation.setDuration(500)
 
 
 class BlackJackAnimations:
 
     x_positions = lambda x, i : 75 + x * 128 + i * 20
     extra_y_elevations = [-40, -20, 0, 0, 0, -20, -40]
+    y_positions = lambda x, i : 470  + x - i*20
     
 
     @classmethod
@@ -64,6 +72,13 @@ class BlackJackAnimations:
                   
         return animated_cards, anim_group
     
+    @classmethod
+    def hit_card_animation(cls, card : Card, xhand, icard):
+        animated_card = BlackJackAnimatedCard(card)
+        xpos = cls.x_positions(xhand, icard)
+        ypos = cls.y_positions(cls.extra_y_elevations[xhand], icard)
+        animated_card.Create_Animation(xpos, ypos)
+        return animated_card
     
 
 
