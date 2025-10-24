@@ -53,7 +53,14 @@ class BlackJackAnimations:
                 animated_card = BlackJackAnimatedCard()
                 animated_card.TestAnimation(card, xpos, ypos)
                 anim_group.addAnimation(animated_card.animation)
-                animated_cards.append(animated_card)  
+                animated_cards.append(animated_card)
+
+            if x == 0:
+                dealer_upcard = dealer.hand.cards[0]
+                dealer_anim_card = BlackJackAnimatedCard()
+                dealer_anim_card.TestAnimation(dealer_upcard, 500, 150)
+                anim_group.addAnimation(dealer_anim_card.animation)
+                animated_cards.append(dealer_anim_card)
                   
         return animated_cards, anim_group
     

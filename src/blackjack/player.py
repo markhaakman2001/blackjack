@@ -1,13 +1,17 @@
+from shiboken6 import Object
 from blackjack.gui_hand import BlackJackHand, BlackJackSplitHand, WinType
 from baccarat.baccarat_cards import Card
 
+
 class BlackJackPlayer:
 
+
     def __init__(self):
+
         self.hands        : list[BlackJackHand] = []
         self.active_hands : list[BlackJackHand] = []
         self.split_hands  : list[BlackJackHand] = []
-    
+
     def add_hands(self, n_hands):
 
         for x in range(n_hands):
@@ -17,7 +21,7 @@ class BlackJackPlayer:
     
     def hit_card(self, card : Card):
         self.active_hand.AddCard(card)
-    
+
     def stand(self):
         self.active_hand.deactivate()
         self.active_hands.pop(0)
@@ -50,3 +54,8 @@ class BlackJackDealer:
 
     def __init__(self):
         self.hand = BlackJackHand(0)
+    
+    def print_cards(self):
+        upcard = self.hand.cards[0]
+        second_card = self.hand.cards[1]
+        print(f"Dealer Upcard: {upcard._get_CardName()}, down card: {second_card._get_CardName()}")

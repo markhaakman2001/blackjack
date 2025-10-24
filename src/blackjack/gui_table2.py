@@ -7,10 +7,14 @@ from extrafiles.gametrackingtools import GameState
 from blackjack.player import BlackJackPlayer, BlackJackDealer
 from blackjack.BJanimations import EasyCardLabels
 from blackjack.BJanimations import BlackJackAnimations as BJanim
+from PySide6.QtCore import Slot, Signal, QObject
 
-class BlackJackTable:
+class BlackJackTable(QObject):
+
+    PointsChanged = Signal(int, name="PointsChanged")
 
     def __init__(self, bank : MainBank = MainBank(500)):
+        super().__init__()
         self.bank   = bank
         self.player = BlackJackPlayer()
         self.dealer = BlackJackDealer()
@@ -25,7 +29,7 @@ class BlackJackTable:
         return self.player.active_hand.cards, self.dealer.hand.cards
     
     def StartNhand(self, n_hands : int = 2):
-        self.player.add_hands(2)
+        self.player.add_hands(n_hands)
 
         for x in range(2):
             for hand in self.player.hands:
@@ -35,5 +39,8 @@ class BlackJackTable:
 
         cards , animgroup = BJanim.first_deal_animation(player=self.player, dealer=self.dealer)
         self.player.print_cards()
+        self.dealer.print_cards()
+
         return cards, animgroup
+    
         

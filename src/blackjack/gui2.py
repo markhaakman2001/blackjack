@@ -20,6 +20,7 @@ import sys
 class BlackJackGUI(QtWidgets.QMainWindow):
 
     def __init__(self):
+
         super().__init__()
         self.table = BlackJackTable()
         self.central_widget = BackGroundWidget()
@@ -33,7 +34,29 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.testbutton.move(QPoint(0, 0))
         self.testbutton.show()
         self.testbutton.clicked.connect(self.start_round_test)
-    
+
+        #Add labels that show the total point value for each hand
+        #---------
+        self.dealer_handlabel = QtWidgets.QLabel(parent=self) # This is the dealers label
+        self.dealer_handlabel.resize(QSize(80, 40))
+        self.dealer_handlabel.move(QPoint(490, 230)) 
+        self.dealer_handlabel.setStyleSheet("border: 2px solid gold; border-radius: 1px ; font : bold 10px ; background: lightgreen")
+        self.dealer_handlabel.show()
+
+        self.point_labels : list[QtWidgets.QLabel] = [] # player point labels
+        elevations = [-40, -20, 0, 0, 0, -20, -40]
+        
+        for x in range(7):
+            yposition  = 542 + int(elevations[x])
+            xposition   = 65 + x * 128
+            self.n_label = QtWidgets.QLabel()
+            self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen" )
+            self.n_label.setParent(self)
+            self.n_label.resize(QSize(80, 40))
+            self.n_label.move(QPoint(xposition, yposition))
+            self.point_labels.append(self.n_label)
+            self.n_label.show()
+
     @Slot()
     def start_round_onehand(self):
         self.animgroup = QParallelAnimationGroup()
@@ -62,4 +85,9 @@ class BlackJackGUI(QtWidgets.QMainWindow):
             card.setParent(self)
             card.show()
         self.animgroup.start()
-            
+    
+    @Slot(int, name="PointsChanged")
+    def UpdatePointLabel(self, signal):
+        self.point_labels[0].setText(f"{signal}")
+        self.point_labels[0].update()
+        print("YOOO")
