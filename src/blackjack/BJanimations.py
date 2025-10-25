@@ -41,23 +41,23 @@ class BlackJackAnimatedCard(EasyCardLabels):
         self.animation.setDuration(500)
     
 
-    @property
-    def split_shift(self):
-        return self._shiftposition_
+    # @property
+    # def split_shift(self):
+    #     return self._shiftposition_
     
-    @split_shift.setter
-    def split_shift(self, shift_sign):
-        xshift = self.x() + 30 * shift_sign
-        yshift = self.y() + 36 * shift_sign
-        self._shiftposition_ = QPoint(xshift, yshift)
+    # @split_shift.setter
+    # def split_shift(self, shift_sign):
+    #     xshift = self.x() + 30 * shift_sign
+    #     yshift = self.y() + 36 * shift_sign
+    #     self._shiftposition_ = QPoint(xshift, yshift)
 
-    def SplitAnimation(self, shift_sign): #shift sign should be (-1) for the left cards and (+1) for the right cards
-        x_start = self.x()
-        y_start = self.y()
-        self.split_shift = shift_sign
-        self.animation2.setStartValue(self._currentpos)
-        self.animation2.setEndValue(self.split_shift)
-        self.animation2.setDuration(500)
+    # def SplitAnimation(self, shift_sign): #shift sign should be (-1) for the left cards and (+1) for the right cards
+    #     x_start = self.x()
+    #     y_start = self.y()
+    #     self.split_shift = shift_sign
+    #     self.animation2.setStartValue(self._currentpos)
+    #     self.animation2.setEndValue(self.split_shift)
+    #     self.animation2.setDuration(500)
 
 
 
