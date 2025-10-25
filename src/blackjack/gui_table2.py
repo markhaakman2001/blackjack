@@ -36,7 +36,7 @@ class BlackJackTable:
     
     def StartNhand(self, n_hands : int = 2):
         self.player.add_hands(n_hands)
-
+        
         for x in range(2):
             for i in range(len(self.player.hands)):
                 self.player.hit_card(self.shoe.getcard(), hand_nr=i)
@@ -57,7 +57,11 @@ class BlackJackTable:
     
     def stand(self):
         self.player.stand()
-        # self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand.hand_number)
+
+    
+    def split(self):
+        cards, animgroup = BJanim.split_animation()
+        return cards, animgroup
 
     def check_hand_status(self, *args):
         if args[0] == UpdateType.POINTS:

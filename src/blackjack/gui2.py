@@ -49,6 +49,13 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.stand_button.show()
         self.stand_button.clicked.connect(self.stand)
 
+        # button used for split
+        self.split_button = QtWidgets.QPushButton(text="split", parent=self)
+        self.split_button.move(QPoint(0, 200))
+        self.split_button.show()
+        self.split_button.clicked.connect(self.split)
+
+
         #Add labels that show the total point value for each hand
         #---------
         self.dealer_handlabel = QtWidgets.QLabel(parent=self) # This is the dealers label
@@ -76,6 +83,7 @@ class BlackJackGUI(QtWidgets.QMainWindow):
                               UpdateType.DEALERTURN: self.dealerturn,
                               UpdateType.RESULTS: self.final_result
                               }
+    
 
     @Slot()
     def start_round_onehand(self):
@@ -133,6 +141,10 @@ class BlackJackGUI(QtWidgets.QMainWindow):
     
     def stand(self):
         self.table.stand()
+    
+    def split(self):
+        cards, self.split_anim = self.table.split()
+        self.split_anim.start()
     
     def final_result(self, result : WinType, hand_nr : int, value):
         texts = {WinType.BLACKJACK : "BlackJack, win!",

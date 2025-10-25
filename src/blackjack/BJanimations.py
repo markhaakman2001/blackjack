@@ -15,6 +15,7 @@ class BlackJackAnimatedCard(EasyCardLabels):
 
     def __init__(self, card : Card | None = None):
         super().__init__()
+        self.xshift = 30
         if card:
             self.setnewimage(card._get_CardName())
 
@@ -38,6 +39,26 @@ class BlackJackAnimatedCard(EasyCardLabels):
         self.animation.setStartValue(QPoint(0, 0))
         self.animation.setEndValue(QPoint(x_end, y_end))
         self.animation.setDuration(500)
+    
+
+    @property
+    def split_shift(self):
+        return self._shiftposition_
+    
+    @split_shift.setter
+    def split_shift(self, shift_sign):
+        xshift = self.x() + 30 * shift_sign
+        yshift = self.y() + 36 * shift_sign
+        self._shiftposition_ = QPoint(xshift, yshift)
+
+    def SplitAnimation(self, shift_sign): #shift sign should be (-1) for the left cards and (+1) for the right cards
+        x_start = self.x()
+        y_start = self.y()
+        self.split_shift = shift_sign
+        self.animation2.setStartValue(self._currentpos)
+        self.animation2.setEndValue(self.split_shift)
+        self.animation2.setDuration(500)
+
 
 
 class BlackJackAnimations:
@@ -52,6 +73,7 @@ class BlackJackAnimations:
         y_start = 470
         animated_cards = []
         anim_group = QSequentialAnimationGroup()
+
         for x in range(2):
             yposition = y_start + cls.extra_y_elevations[x]
             for x_hand, hand in enumerate(player.hands):
@@ -61,7 +83,6 @@ class BlackJackAnimations:
                 animated_card = BlackJackAnimatedCard()
                 animated_card.TestAnimation(card, xpos, ypos)
                 anim_group.addAnimation(animated_card.animation)
-                animated_cards.append(animated_card)
 
             if x == 0:
                 dealer_upcard = dealer.hand.cards[0]
@@ -94,6 +115,14 @@ class BlackJackAnimations:
             animated_cards.append(animated_card)
             anim_group.addAnimation(animated_card.animation)
         return animated_cards, anim_group
+
+    @classmethod
+    def split_animation(cls, cards : list[BlackJackAnimatedCard]):
+        anim_group = QParallelAnimationGroup()
+        for i, card in enumerate(cards):
+            card.SplitAnimation(((-1)**i))
+            anim_group.addAnimation(card.animation)
+        return cards, anim_group
 
 
     
