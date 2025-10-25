@@ -47,11 +47,12 @@ class BlackJackTable:
             
             self.dealer.hit_card(self.shoe.getcard())
 
-        cards , animgroup = BJanim.first_deal_animation(player=self.player, dealer=self.dealer)
+        print("Creating animations")
+        cards , animgroup, cards_per_hand = BJanim.first_deal_animation(player=self.player, dealer=self.dealer)
         self.player.print_cards()
         self.dealer.print_cards()
 
-        return cards, animgroup
+        return cards, animgroup, cards_per_hand
     
     def hit(self):
         card = self.shoe.getcard()
@@ -63,8 +64,8 @@ class BlackJackTable:
         self.player.stand()
 
     
-    def split(self):
-        cards, animgroup = BJanim.split_animation()
+    def split(self, cards):
+        cards, animgroup = BJanim.split_animation(cards)
         return cards, animgroup
 
     def check_hand_status(self, *args):
@@ -85,7 +86,10 @@ class BlackJackTable:
         cards, animations = BJanim.dealer_card_animations(self.dealer)
         return cards, animations
 
-
+    def final_results(self):
+        for hand in self.player.hands:
+            result = hand.final_result(self.dealer.hand)
+            self.notify_gui(UpdateType.RESULT, result, hand.hand_number, hand._get_handtotal())
     
     def notify_gui(self, *args):
         for callback in self._observers:
