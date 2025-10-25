@@ -37,9 +37,8 @@ class BlackJackPlayer:
     def stand(self):
         self.active_hand.deactivate()
         self.active_hands.pop(0)
-        if self.active_hand:
-            if self.active_hand._is_blackjack():
-                self.notify_points_observer(UpdateType.NEXTHAND, self.active_hand.hand_number, 'BlackJack!')
+        if self.active_hand._is_blackjack():
+            self.notify_points_observer(UpdateType.NEXTHAND, self.active_hand.hand_number, 'BlackJack!')
         #print(f"New active hand, origin: {self.active_hand.origin}, cards: {self.active_hand.cards[0]._get_value(), self.active_hand.cards[1]._get_value()}")
     
     def split_hand(self, new_cards):
