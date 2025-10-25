@@ -11,8 +11,10 @@ from blackjack.gui_hand import BlackJackHand, BlackJackSplitHand
 from blackjack.BJanimations import BlackJackAnimatedCard
 from blackjack.gui_table2 import BlackJackTable
 from baccarat.baccarat_cards import Card, CardSymbol, Color, Kind, Shoe, DeckOfCards
-from blackjack.blackjackfunctions import UpdateType, WinFunctions, WinType
+from blackjack.blackjackfunctions import UpdateType
 import sys
+
+
 
 
 
@@ -81,29 +83,25 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.callback_dict = {UpdateType.POINTS: self.update_points_label,
                               UpdateType.NEXTHAND: self.nexthand,
                               UpdateType.DEALERTURN: self.dealerturn,
-                              UpdateType.RESULTS: self.final_result
                               }
     
     
     
     @Slot()
     def start_round_test(self):
-        self.cards, self.animgroup = self.table.StartNhand(2)
+        self.cards, self.animgroup = self.table.StartNhand(4)
         for card in self.cards:
             card : EasyCardLabels
             card.setParent(self)
             card.show()
         self.animgroup.start()
-        self.dealer_handlabel.setText(f"Upcard: {self.table.dealer.hand.cards[0]._get_value()}")
     
     def dealerturn(self):
-        cards, self.dealer_animations = self.table.DealerTurn()
+        cards, animations = self.table.DealerTurn()
         for card in cards:
             card.setParent(self)
             card.show()
-        self.dealer_animations.finished.connect(self.table.final_results)
-        self.dealer_animations.start()
-        self.dealer_handlabel.setText(f"Dealer total: {self.table.dealer.hand._get_handtotal()}")
+        animations.start()
 
     def update_points_label(self, value, hand_nr : int):
         lbl = self.point_labels[hand_nr]
@@ -123,6 +121,7 @@ class BlackJackGUI(QtWidgets.QMainWindow):
     def stand(self):
         self.table.stand()
     
+<<<<<<< HEAD
     def split(self):
         pass
     
@@ -135,6 +134,8 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         lbl.setText(f"{value}, {texts[result]}")
 
 
+=======
+>>>>>>> parent of 1d1f96a (commit before adding SPLIT option to BJ2.0)
     def get_table_updates(self, type : UpdateType, *args):
         self.callback_dict[type](*args)
     
