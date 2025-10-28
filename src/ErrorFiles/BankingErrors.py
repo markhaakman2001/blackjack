@@ -73,7 +73,7 @@ class BankingErrorChecker(object):
 
         def SplitFunds(*args, **kwargs):
 
-            from blackjack.gui_shoehand import BlackJackBank, Hand
+            from blackjack.blackjackold2.gui_shoehand import BlackJackBank, Hand
 
             self : BlackJackBank = args[0]
             hand : Hand          = args[1]
@@ -147,7 +147,7 @@ class BankingErrorChecker(object):
 
             except IndexError:
                 
-                from blackjack.gui import BJinterface as BJ
+                from blackjack.blackjackold2.gui import BJinterface as BJ
 
                 ui   : BJ     = args[0]
                 self : BaccaratBank   = ui.bank
@@ -192,8 +192,8 @@ class BankingErrorChecker(object):
 
         def _CheckBetSizeRemoval(*args, **kwargs):
 
-            from blackjack.gui_shoehand   import BlackJackBank
-            from blackjack.gui            import BJinterface
+            from blackjack.blackjackold2.gui_shoehand   import BlackJackBank
+            from blackjack.blackjackold2.gui            import BJinterface
             from CustomUIfiles            import WhichButton
 
             self : BlackJackBank          = args[0]

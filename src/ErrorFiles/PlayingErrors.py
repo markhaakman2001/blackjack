@@ -26,8 +26,8 @@ class BlackJackErrorChecker(object):
         """        
         def CheckBets(*args):
 
-            from blackjack.gui          import BJinterface
-            from blackjack.gui_shoehand import BlackJackBank
+            from blackjack.blackjackold2.gui          import BJinterface
+            from blackjack.blackjackold2.gui_shoehand import BlackJackBank
 
 
             self : BJinterface = args[0]

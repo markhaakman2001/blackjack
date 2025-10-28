@@ -1,4 +1,4 @@
-from blackjack.gui import BJinterface
+from blackjack.blackjackold2.gui import BJinterface
 import PySide6.QtWidgets as Qt
 import sys
 

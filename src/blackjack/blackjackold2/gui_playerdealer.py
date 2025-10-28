@@ -1,4 +1,4 @@
-from blackjack.gui_shoehand import Hand
+from blackjack.blackjackold2.gui_shoehand import Hand
 
 class Player:
 

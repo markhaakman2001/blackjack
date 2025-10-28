@@ -65,8 +65,11 @@ class BlackJackTable:
 
     
     def split(self, cards):
-        cards, animgroup = BJanim.split_animation(cards)
-        return cards, animgroup
+        new_cards = self.shoe.getcard(n_cards=2)
+        origin    = self.player.active_hand.hand_number
+        self.player.split_hand(new_cards)
+        cards, animgroup, new_animated_cards = BJanim.split_animation(cards, new_cards, origin)
+        return cards, animgroup, new_animated_cards
 
     def check_hand_status(self, *args):
         if args[0] == UpdateType.POINTS:

@@ -1,5 +1,5 @@
-from blackjack.gui_shoehand import Hand, WinType
-from blackjack.gui_playerdealer import Player, Dealer
+from blackjack.blackjackold2.gui_shoehand import Hand, WinType
+from blackjack.blackjackold2.gui_playerdealer import Player, Dealer
 from CustomUIfiles import Shoe
 from PySide6 import QtWidgets
 import sys

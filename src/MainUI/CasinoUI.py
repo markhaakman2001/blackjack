@@ -1,5 +1,5 @@
 from PySide6 import QtWidgets, QtCore
-from blackjack.gui import BJinterface
+from blackjack.blackjackold2.gui import BJinterface
 from baccarat.baccarat import BaccaratGui
 from SlotMachine.SlotGui import SlotMachineGUI
 from mines.minesUI import MinesUI

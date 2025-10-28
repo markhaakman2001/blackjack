@@ -57,7 +57,6 @@ class BlackJackAnimatedCard(EasyCardLabels):
         self.animation.setStartValue(QPoint(x_start, y_start))
         self.animation.setEndValue(self.split_shift)
         self.animation.setDuration(500)
-        print(self.split_shift, QPoint(x_start, y_start))
 
 
 
@@ -117,12 +116,24 @@ class BlackJackAnimations:
         return animated_cards, anim_group
 
     @classmethod
-    def split_animation(cls, cards : list[BlackJackAnimatedCard]):
+    def split_animation(cls, cards : list[BlackJackAnimatedCard], new_cards : list[Card], hand_nr_origin):
         anim_group = QParallelAnimationGroup()
+        new_animated_cards = []
+
         for i, card in enumerate(cards):
             card.SplitAnimation(((-1) * (-1)**i))
             anim_group.addAnimation(card.animation)
-        return cards, anim_group
+
+            new_card   = BlackJackAnimatedCard(new_cards[i])
+            new_card_x = card.split_shift.x()
+            new_card_y = card.split_shift.y() - 20
+            
+            new_card.split_shift = (-1) * (-1)**i
+            new_card.Create_Animation(new_card_x, new_card_y)
+            anim_group.addAnimation(new_card.animation)
+            new_animated_cards.append(new_card)
+            
+        return cards, anim_group, new_animated_cards
 
     
 

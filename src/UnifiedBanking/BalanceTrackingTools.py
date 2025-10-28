@@ -1,5 +1,5 @@
 from baccarat.BaccaratBank import BaccaratBank
-from blackjack.gui_shoehand import BlackJackBank
+from blackjack.blackjackold2.gui_shoehand import BlackJackBank
 from SlotMachine.slot_generator import BankAccount
 
 def UpdateBalanceAfterChanges(baccaratbank : BaccaratBank, blackjackbank : BlackJackBank, slotbank : BankAccount, amounts : list[float]):

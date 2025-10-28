@@ -130,8 +130,11 @@ class BlackJackGUI(QtWidgets.QMainWindow):
     
     def split(self):
         current_hand = self.table.player.active_hand.hand_number
-        cards = self.cards_per_hand.get(current_hand)
-        cards, self.split_anim = self.table.split(cards)
+        original_cards = self.cards_per_hand.get(current_hand)
+        cards, self.split_anim, new_cards = self.table.split(original_cards)
+        for card in new_cards:
+            card.setParent(self)
+            card.show()
         self.split_anim.start()
     
     def final_result(self, result : WinType, hand_nr : int, value):

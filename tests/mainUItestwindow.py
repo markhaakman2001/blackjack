@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Slot, Signal
-from src.blackjack.gui import BJinterface
-from src.blackjack.gui_shoehand import BlackJackBank as BJBank
+from blackjack.blackjackold2.gui import BJinterface
+from blackjack.blackjackold2.gui_shoehand import BlackJackBank as BJBank
 from src.baccarat.baccarat import BaccaratGui
 from src.baccarat.BaccaratBank import BaccaratBank
 from src.SlotMachine.SlotGui import SlotMachineGUI
