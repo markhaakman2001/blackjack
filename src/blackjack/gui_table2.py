@@ -40,15 +40,16 @@ class BlackJackTable:
     
     def StartNhand(self, n_hands : int = 2):
         self.player.add_hands(n_hands)
-        
+        self.notify_gui(UpdateType.HANDS, self.player.hands)
         for x in range(2):
             for i in range(len(self.player.hands)):
                 self.player.hit_card(self.shoe.getcard(), hand_nr=i)
             
             self.dealer.hit_card(self.shoe.getcard())
 
-        print("Creating animations")
+
         cards , animgroup, cards_per_hand = BJanim.first_deal_animation(player=self.player, dealer=self.dealer)
+
         self.player.print_cards()
         self.dealer.print_cards()
 
@@ -56,7 +57,7 @@ class BlackJackTable:
     
     def hit(self):
         card = self.shoe.getcard()
-        animated_card = BJanim.hit_card_animation(card, self.player.active_hand.hand_number, len(self.player.active_hand.cards))
+        animated_card = BJanim.hit_card_animation(card, self.player.active_hand.hand_number, len(self.player.active_hand.cards), self.player.active_hand)
         self.player.hit_card(card)
         return animated_card
     
@@ -67,16 +68,18 @@ class BlackJackTable:
     def split(self, cards):
         new_cards = self.shoe.getcard(n_cards=2)
         origin    = self.player.active_hand.hand_number
-        self.player.split_hand(new_cards)
+        new_hands = self.player.split_hand(new_cards)
         cards, animgroup, new_animated_cards = BJanim.split_animation(cards, new_cards, origin)
-        return cards, animgroup, new_animated_cards
+        # for hand in self.player.hands:
+        #     print(f"Hand: {hand.hand_number}, origin: {hand.origin}")
+        return cards, animgroup, new_animated_cards, new_hands
 
     def check_hand_status(self, *args):
         if args[0] == UpdateType.POINTS:
             if self.player.active_hand._get_handtotal() > 21:
-                self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand.hand_number, 'BUST')
+                self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand, 'BUST')
             elif self.player.active_hand._get_handtotal() == 21:
-                self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand.hand_number, "21")
+                self.notify_gui(UpdateType.NEXTHAND, self.player.active_hand, "21")
             else:
                 pass
     
@@ -92,7 +95,8 @@ class BlackJackTable:
     def final_results(self):
         for hand in self.player.hands:
             result = hand.final_result(self.dealer.hand)
-            self.notify_gui(UpdateType.RESULT, result, hand.hand_number, hand._get_handtotal())
+            self.notify_gui(UpdateType.RESULT, result, hand, hand._get_handtotal())
+
     
     def notify_gui(self, *args):
         for callback in self._observers:

@@ -85,9 +85,6 @@ class BaccaratFiche(QtWidgets.QPushButton):
         full_path = os.path.join(base_path, relative_path)
 
         self._icon_pixmap.load(relative_path)
-        if self._icon_pixmap.isNull():
-            print(f"❌ Failed to load image: {full_path}")
-            return
 
         # Apply icon
         self.setIcon(QIcon(self._icon_pixmap))

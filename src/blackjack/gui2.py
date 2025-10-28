@@ -1,3 +1,4 @@
+import enum
 from PySide6 import QtWidgets
 from PySide6.QtCore import Slot, QSize, QPoint, QSequentialAnimationGroup, QParallelAnimationGroup
 import PySide6.QtCore as Core
@@ -67,30 +68,70 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.dealer_handlabel.show()
 
         self.point_labels : list[QtWidgets.QLabel] = [] # player point labels
-        elevations = [-40, -20, 0, 0, 0, -20, -40]
+        self.elevations = [-40, -20, 0, 0, 0, -20, -40]
+
+        # add menu to choose betsize
+        #---------
+        self.BetSizeDialog       = BaccaratFicheOptionMenu(self)
+        self.OpenBetSizeMenu     = QtWidgets.QPushButton(text="BetSize")
+        self.CurrentBetSizeImage = BaccaratFiche()
+        self.CurrentBetSizeImage.setEnabled(False)
+        self.CurrentBetSizeImage.SetOneValueFiche()
+
+        self.CurrentBetSizeImage.setParent(self)
+        self.OpenBetSizeMenu.setParent(self)
+
+        self.OpenBetSizeMenu.resize(QSize(500, 35))
+        self.CurrentBetSizeImage.resize(QSize(50, 50))
+
+        self.OpenBetSizeMenu.move(QPoint(250, 670))
+        self.CurrentBetSizeImage.move(QPoint(200, 635))
+
+        self.OpenBetSizeMenu.clicked.connect(self.ShowBetSizeMenu)
+        self.BetSizeDialog.BetSizeSignal.connect(self.ChangeCurrentBetSize)
+
+
+
         
         for x in range(7):
-            yposition  = 542 + int(elevations[x])
+            yposition  = 542 + int(self.elevations[x])
             xposition   = 65 + x * 128
-            self.n_label = QtWidgets.QLabel()
-            self.n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen ; color : black" )
-            self.n_label.setParent(self)
-            self.n_label.resize(QSize(80, 40))
-            self.n_label.move(QPoint(xposition, yposition))
+            self.n_label = self.create_label(xposition, yposition)
             self.point_labels.append(self.n_label)
             self.n_label.show()
         
         self.callback_dict = {UpdateType.POINTS: self.update_points_label,
                               UpdateType.NEXTHAND: self.nexthand,
                               UpdateType.DEALERTURN: self.dealerturn,
-                              UpdateType.RESULT: self.final_result
+                              UpdateType.RESULT: self.final_result,
+                              UpdateType.HANDS: self.create_hands_and_labels
                               }
     
-    
+    def ShowBetSizeMenu(self):
+        self.BetSizeDialog.exec()
+
+    @Slot(int)
+    def ChangeCurrentBetSize(self, value):
+        betsizedict = {1   : self.CurrentBetSizeImage.SetOneValueFiche,
+                       5   : self.CurrentBetSizeImage.SetFiveValueFiche,
+                       25  : self.CurrentBetSizeImage.SetTwentyFiveValueFiche,
+                       100 : self.CurrentBetSizeImage.SetOneHundredValueFiche
+        }
+        betsizedict[value]()
+        self.CurrentBetSizeImage.update()
+
+    def create_label(self, xposition, yposition):
+        n_label = QtWidgets.QLabel()
+        n_label.setStyleSheet("border: 2px dashed gold; border-radius: 1px ; font : bold 10px ; background: lightgreen ; color : black" )
+        n_label.setParent(self)
+        n_label.resize(QSize(80, 40))
+        n_label.move(QPoint(xposition, yposition))
+        return n_label
     
     @Slot()
     def start_round_test(self):
-        cards, self.animgroup, self.cards_per_hand = self.table.StartNhand(2)
+        n_hands = 2
+        cards, self.animgroup, self.cards_per_hand = self.table.StartNhand(n_hands)
         for card in cards:
             card : EasyCardLabels
             card.setParent(self)
@@ -108,14 +149,17 @@ class BlackJackGUI(QtWidgets.QMainWindow):
         self.dealer_animations.start()
         self.dealer_handlabel.setText(f"Dealer total: {self.table.dealer.hand._get_handtotal()}")
 
-    
+    def create_hands_and_labels(self, hands : list[BlackJackHand]):
+        self.point_label_dict = {hand : self.point_labels[i] for i, hand in enumerate(hands)}
+        print(self.point_label_dict)
 
-    def update_points_label(self, value, hand_nr : int):
-        lbl = self.point_labels[hand_nr]
+
+    def update_points_label(self, value, hand : BlackJackHand):
+        lbl = self.point_label_dict[hand]
         lbl.setText(f"Points: {value}")
 
-    def nexthand(self, hand_nr : int, text):
-        lbl = self.point_labels[hand_nr]
+    def nexthand(self, hand : BlackJackHand, text):
+        lbl = self.point_label_dict[hand]
         lbl.setText(text)
         self.stand()
 
@@ -130,19 +174,30 @@ class BlackJackGUI(QtWidgets.QMainWindow):
     
     def split(self):
         current_hand = self.table.player.active_hand.hand_number
+
+        lbl = self.point_label_dict[self.table.player.active_hand]
+        lbl.deleteLater()
+
         original_cards = self.cards_per_hand.get(current_hand)
-        cards, self.split_anim, new_cards = self.table.split(original_cards)
-        for card in new_cards:
+        cards, self.split_anim, new_cards, hands = self.table.split(original_cards)
+
+        for card, hand in zip(new_cards, hands):
+            xpos = 65 + 128 * hand.hand_number + hand.x_label_shift
+            ypos = 542 + int(self.elevations[hand.hand_number])
             card.setParent(self)
             card.show()
+            self.n_label = self.create_label(xpos, ypos)
+            self.n_label.show()
+            self.point_label_dict[hand] = self.n_label
+            self.update_points_label(hand._get_handtotal(), hand)
         self.split_anim.start()
     
-    def final_result(self, result : WinType, hand_nr : int, value):
+    def final_result(self, result : WinType, hand: BlackJackHand, value):
         texts = {WinType.BLACKJACK : "BlackJack, win!",
                  WinType.LOSE      : "Lose",
                  WinType.WIN       : "Win!",
                  WinType.PUSH      : "Push"}
-        lbl = self.point_labels[hand_nr]
+        lbl = self.point_label_dict[hand]
         lbl.setText(f"{value}, {texts[result]}")
 
 

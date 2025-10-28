@@ -175,11 +175,17 @@ class BlackJackHand:
 
 class BlackJackSplitHand(BlackJackHand):
 
-    def __init__(self, hand_number, card1 : Card, newcard : Card):
+    def __init__(self, hand_number, card1 : Card, newcard : Card, left_hand: bool):
         super().__init__(hand_number)
         self.origin = Origin.SPLITHAND
         self.AddCard(card1)
         self.AddCard(newcard)
+        if left_hand:
+            self.x_shift       = -20
+            self.x_label_shift = -40
+        else:
+            self.x_shift       = 40
+            self.x_label_shift = 40
 
 
 

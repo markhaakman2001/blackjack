@@ -32,7 +32,7 @@ class BlackJackPlayer:
         else:
             hand = self.active_hand
         hand.AddCard(card)
-        self.notify_points_observer(UpdateType.POINTS, hand._get_handtotal(), hand.hand_number)
+        self.notify_points_observer(UpdateType.POINTS, hand._get_handtotal(), hand)
 
     def stand(self):
         self.active_hand.deactivate()
@@ -47,17 +47,17 @@ class BlackJackPlayer:
         number = self.active_hand.hand_number
         card1 = self.active_hand.cards[0]
         card2 = self.active_hand.cards[1]
-        split_hand1 = BlackJackSplitHand(hand_number=number, card1=card1, newcard=new_cards[0])
-        split_hand2 = BlackJackSplitHand(hand_number=number, card1=card2, newcard=new_cards[1])
+        split_hand1 = BlackJackSplitHand(hand_number=number, card1=card1, newcard=new_cards[0], left_hand=True)
+        split_hand2 = BlackJackSplitHand(hand_number=number, card1=card2, newcard=new_cards[1], left_hand=False)
         original_hand = self.hands.pop(number)
         self.hands.insert(number, split_hand2)
         self.hands.insert(number, split_hand1)
         print(f"Split: original hand: {[card._get_value() for card in original_hand.cards]}. \n new first hand: {[card._get_value() for card in split_hand1.cards]}, \n second hand: {[card._get_value() for card in split_hand2.cards]}")
-    
+        return [split_hand1, split_hand2]
 
     def print_cards(self):
         for i, hand in enumerate(self.hands):
-            print(f"Hand {i}, cards: {[card._get_CardName() for card in hand.cards]}, ")
+            print(f"Hand {i}, cards: {[card._get_CardName() for card in hand.cards]}, {hand._get_handtotal()} points. ")
 
     
     def notify_points_observer(self, *args):

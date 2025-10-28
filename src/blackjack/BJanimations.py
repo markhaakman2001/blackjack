@@ -9,6 +9,7 @@ from PySide6.QtCore import QPropertyAnimation, Property
 from PySide6.QtGui import QPixmap
 from baccarat.baccarat_cards import Card
 from blackjack.player import BlackJackPlayer, BlackJackDealer
+from blackjack.gui_hand import BlackJackHand, BlackJackSplitHand, Origin
 
 
 class BlackJackAnimatedCard(EasyCardLabels):
@@ -64,7 +65,7 @@ class BlackJackAnimations:
 
     x_positions = lambda x, i : 75 + x * 128 + i * 20
     extra_y_elevations = [-40, -20, 0, 0, 0, -20, -40]
-    y_positions = lambda x, i : 470  + x - i*20
+    y_positions = lambda x, i : 470  + x - i*30
     
 
     @classmethod
@@ -95,10 +96,12 @@ class BlackJackAnimations:
         return animated_cards, anim_group, cards_per_hand
     
     @classmethod
-    def hit_card_animation(cls, card : Card, xhand, icard):
+    def hit_card_animation(cls, card : Card, xhand, icard, hand : BlackJackHand | BlackJackSplitHand):
         animated_card = BlackJackAnimatedCard(card)
         xpos = cls.x_positions(xhand, icard)
         ypos = cls.y_positions(cls.extra_y_elevations[xhand], icard)
+        if hand.origin == Origin.SPLITHAND:
+            xpos += hand.x_shift - icard * 20
         animated_card.Create_Animation(xpos, ypos)
         return animated_card
     
